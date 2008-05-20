@@ -5,7 +5,7 @@
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
  * @version 0.02.5
- * @version $Id: blipapi.php 18 2007-12-26 15:33:56Z mysz $
+ * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
  * @package blipapi
@@ -16,7 +16,7 @@
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
  * @version 0.02.5
- * @version $Id: blipapi.php 18 2007-12-26 15:33:56Z mysz $
+ * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
  * @package blipapi
