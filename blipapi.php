@@ -837,13 +837,13 @@ class BlipApi {
      * @access protected
      * @return mixed return of {@link __query}
      */
-    protected function _cmd__dirmsg_create ($body, $user, $picture = NULL) {
+    protected function _cmd__dirmsg_create ($body, $user, $picture = null) {
         if (!$body || !$user) {
             throw new UnexpectedValueException ('Directed_message body or recipient is missing.', -1);
         }
         $opts = array();
         $data = array('directed_message[body]' => $body, 'directed_message[recipient]' => $user);
-        if (NULL !== $picture) {
+        if ($picture !== null) {
             $data['directed_message[picture]'] = $picture;
             $opts['multipart'] = true;
         }
@@ -941,13 +941,13 @@ class BlipApi {
      * @access protected
      * @return mixed return of {@link __query}
      */
-    protected function _cmd__status_create ($body, $picture = NULL) {
+    protected function _cmd__status_create ($body, $picture = null) {
         if (!$body) {
             throw new UnexpectedValueException ('Status body is missing.', -1);
         }
         $opts = array();
         $data = array('status[body]' => $body);
-        if (NULL !== $picture) {
+        if ($picture !== null) {
             $data['status[picture]'] = $picture;
             $opts['multipart'] = true;
         }
