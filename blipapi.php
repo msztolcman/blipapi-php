@@ -4,7 +4,7 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.5
+ * @version 0.02.6
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
@@ -15,7 +15,7 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.5
+ * @version 0.02.6
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
@@ -52,7 +52,7 @@ class BlipApi {
      * @access protected
      * @var string
      */
-    protected $_uagent      = 'BlipApi/0.1 (http://blipapi.googlecode.com)';
+    protected $_uagent      = 'BlipApi/0.02.6 (http://blipapi.googlecode.com)';
 
     /**
      *
