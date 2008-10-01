@@ -4,7 +4,7 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.6
+ * @version 0.02.7
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
@@ -15,7 +15,7 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.6
+ * @version 0.02.7
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
@@ -52,7 +52,7 @@ class BlipApi {
      * @access protected
      * @var string
      */
-    protected $_uagent      = 'BlipApi/0.02.6 (http://blipapi.googlecode.com)';
+    protected $_uagent      = 'BlipApi/0.02.7 (http://blipapi.googlecode.com)';
 
     /**
      *
@@ -1035,7 +1035,157 @@ class BlipApi {
 
 
     /**
-     * Read recording attached to status/message/updateA
+     * Create private message
+     *
+     * Throws UnexpectedValueException if some of parametr is missing.
+     *
+     * @param string $body Body of sent message
+     * @param int|string $user username or user id
+     * @param string @picture Absolute path to a picture assigned to a message
+     * @access protected
+     * @return mixed return of {@link __query}
+     */
+    protected function _cmd__privmsg_create ($body, $user, $picture = null) {
+        if (!$body || !$user) {
+            throw new UnexpectedValueException ('Private_message body or recipient is missing.', -1);
+        }
+        $opts = array();
+        $data = array('private_message[body]' => $body, 'private_message[recipient]' => $user);
+        if ($picture !== null) {
+            $data['private_message[picture]'] = $picture;
+            $opts['multipart'] = true;
+        }
+        return $this->__query ('/private_messages', 'post', $data, $opts);
+    }
+
+    /**
+     * Read private message
+     *
+     * Meaning of params: {@link http://www.blip.pl/api-0.02.html}
+     *
+     * @param int $id message ID
+     * @param array $include array of resources to include (more info in official API documentation: {@link http://www.blip.pl/api-0.02.html}.
+     * @param bool $since
+     * @param int $limit default to 10
+     * @param int $offset default to 0
+     * @access protected
+     * @return mixed return of {@link __query}
+     */
+    protected function _cmd__privmsg_read ($id=null, $include=array (), $since=false, $limit=10, $offset=0) {
+        # normalnie pobieramy mesgi z tego zasobu
+        $url = '/private_messages';
+
+        if ($since) {
+            $url .= '/since';
+        }
+
+        if (!is_null ($id) && is_int ($id)) {
+            $url .= '/'. $id;
+        }
+
+        $limit = (int)$limit;
+        if ($limit) {
+            $url .= '?limit='.$limit;
+        }
+
+        $offset = (int)$offset;
+        if ($offset) {
+            $url .= ($limit ? '&' : '?') . 'offset=' . $offset;
+        }
+
+        if ($include) {
+            $url .= (($limit || $offset) ? '&' : '?'). 'include=' . implode (',', $include);
+        }
+
+        return $this->__query ($url, 'get');
+    }
+
+
+    /**
+     * Delete private message
+     *
+     * Throws UnexpectedValueException when private message ID is missing
+     *
+     * @param int $id message ID
+     * @access protected
+     * @return mixed return of {@link __query}
+     */
+    protected function _cmd__privmsg_delete ($id) {
+        if (!$id) {
+            throw new UnexpectedValueException ('Private_message ID is missing.', -1);
+        }
+        return $this->__query ('/private_messages/'. $id, 'delete');
+    }
+
+
+
+    /**
+     * Get last notices for user
+     *
+     * @param int $since_id status ID - will return notices with newest ID then it
+     * @param int $limit
+     * @param int $offset
+     * @access protected
+     * @return mixed return of {@link __query}
+     */
+    protected function _cmd__notices_read ($since_id=null, $limit=10, $offset=0) {
+        $url = '/notices';
+
+        if ($since_id) {
+            $url .= sprintf ('/since/%d', $since_id);
+        }
+
+        $limit = (int)$limit;
+        if ($limit) {
+            $url .= '?limit='.$limit;
+        }
+
+        $offset = (int)$offset;
+        if ($offset) {
+            $url .= ($limit ? '&' : '?') . 'offset=' . $offset;
+        }
+
+        return $this->__query ($url, 'get');
+    }
+
+
+    /**
+     * Get updates for tag
+     *
+     * @param string $tag tag name
+     * @param int $since_id status ID - will return statuses with newest ID then it
+     * @param int $limit
+     * @param int $offset
+     * @access protected
+     * @return mixed return of {@link __query}
+     */
+    protected function _cmd__tags_read ($tag, $since_id=null, $limit=10, $offset=0) {
+        if (!$tag) {
+            throw new UnexpectedValueException ('Tag name is missing.', -1);
+        }
+
+        $url = '/tags/'.$tag;
+
+        if ($since_id) {
+            $url .= sprintf ('/since/%d', $since_id);
+        }
+
+        $limit = (int)$limit;
+        if ($limit) {
+            $url .= '?limit='.$limit;
+        }
+
+        $offset = (int)$offset;
+        if ($offset) {
+            $url .= ($limit ? '&' : '?') . 'offset=' . $offset;
+        }
+
+        return $this->__query ($url, 'get');
+    }
+
+
+    /**
+     * Read recording attached to status/message/update
      *
      * Throws UnexpectedValueException when status ID is missing
      *
@@ -1048,6 +1198,23 @@ class BlipApi {
             throw new UnexpectedValueException ('Update ID is missing.', -1);
         }
         return $this->__query (sprintf ('/updates/%s/recording', $id), 'get');
+    }
+
+
+    /**
+     * Read movie attached to status/message/update
+     *
+     * Throws UnexpectedValueException when status ID is missing
+     *
+     * @param int $id status ID
+     * @access protected
+     * @return mixed return of {@link __query}
+     */
+    protected function _cmd__movie_read ($id) {
+        if (!$id) {
+            throw new UnexpectedValueException ('Update ID is missing.', -1);
+        }
+        return $this->__query (sprintf ('/updates/%s/movie', $id), 'get');
     }
 
 
