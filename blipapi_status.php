@@ -41,6 +41,9 @@ if (!class_exists ('BlipApi_Status')) {
             $opts = array();
             $data = array('status[body]' => $body);
             if ($picture !== null) {
+                if ($picture[0] != '@') {
+                    $picture = '@'.$picture;
+                }
                 $data['status[picture]'] = $picture;
                 $opts['multipart'] = true;
             }

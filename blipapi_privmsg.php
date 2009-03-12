@@ -42,6 +42,9 @@ if (!class_exists ('BlipApi_Privmsg')) {
             $opts = array();
             $data = array('private_message[body]' => $body, 'private_message[recipient]' => $user);
             if ($picture !== null) {
+                if ($picture[0] != '@') {
+                    $picture = '@'.$picture;
+                }
                 $data['private_message[picture]'] = $picture;
                 $opts['multipart'] = true;
             }

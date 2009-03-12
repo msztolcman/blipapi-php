@@ -42,6 +42,9 @@ if (!class_exists ('BlipApi_Dirmsg')) {
             $opts = array();
             $data = array('directed_message[body]' => $body, 'directed_message[recipient]' => $user);
             if ($picture !== null) {
+                if ($picture[0] != '@') {
+                    $picture = '@'.$picture;
+                }
                 $data['directed_message[picture]'] = $picture;
                 $opts['multipart'] = true;
             }
