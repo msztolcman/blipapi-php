@@ -4,7 +4,7 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.10
+ * @version 0.02.11
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
@@ -15,7 +15,7 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.10
+ * @version 0.02.11
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
@@ -83,7 +83,7 @@ if (!class_exists ('BlipApi')) {
         * @access protected
         * @var string
         */
-        protected $_uagent      = 'BlipApi/0.02.10 (http://blipapi.googlecode.com)';
+        protected $_uagent      = 'BlipApi/0.02.11 (http://blipapi.googlecode.com)';
 
         /**
         *
@@ -126,6 +126,14 @@ if (!class_exists ('BlipApi')) {
         protected $_debug       = false;
 
         /**
+        * Debug message type
+        *
+        * @access protected
+        * @var bool
+        */
+        protected $_debug_tpl   = array ('', '');
+
+        /**
         * Headers to be sent
         *
         * @access protected
@@ -164,7 +172,7 @@ if (!class_exists ('BlipApi')) {
             $this->_password    = $passwd;
 
             # inicjalizujemy handler curla
-            $this->_ch = @curl_init ($this->_root);
+            $this->_ch = curl_init ($this->_root);
             if (!$this->_ch) {
                 throw new RuntimeException ('CURL initialize error: '. curl_error ($this->_ch), curl_errno ($this->_ch));
             }
@@ -174,6 +182,9 @@ if (!class_exists ('BlipApi')) {
                 'Accept'        => $this->format,
                 'X-Blip-API'    => '0.02',
             );
+
+            # inicjalizujemy szablon dla debugow
+            $this->debug_html = false;
 
             if (!$dont_connect) {
                 $this->connect ();
@@ -187,14 +198,12 @@ if (!class_exists ('BlipApi')) {
         */
         public function __destruct () {
             if (is_resource ($this->_ch)) {
-                @curl_close ($this->_ch);
+                curl_close ($this->_ch);
             }
         }
 
         /**
-        * Magic method to execute commands as their names, without 'execute'.
-        *
-        * Of course, execute is used by __call internally.
+        * Magic method to execute commands as their names - it makes all dirty job...
         *
         * @param string $fn name of command
         * @param array $args arguments
@@ -202,8 +211,98 @@ if (!class_exists ('BlipApi')) {
         * @return return of {@link execute}
         */
         public function __call ($fn, $args) {
-            array_unshift ($args, $fn);
-            return call_user_func_array (array ($this, 'execute'), $args);
+            # szukamy klasy i metody do uzycia
+            list ($class_name, $method_name) = split ('_', $fn, 2);
+            $class_name     = 'BlipApi_'.ucfirst ($class_name);
+            $method_name    = strtolower ($method_name);
+            if (!class_exists ($class_name) || !method_exists ($class_name, $method_name)) {
+                throw new InvalidArgumentException ('Command not found.', -1);
+            }
+            $this->_debug ('CMD: '. $class_name.'::'.$method_name);
+
+            # wywołujemy znalezioną metodę aby pobrac dane dla requestu
+            list ($url, $http_method, $http_data, $opts) = call_user_func_array (array ($class_name, $method_name), $args);
+
+            # ustawiamy opcje dla konkretnego typu requestu
+            $http_method = strtolower ($http_method);
+            switch ($http_method) {
+                case 'post':
+                    if (!isset ($opts['multipart']) || !$opts['multipart']) {
+                        $http_data = BlipApi__arr2qstr ($http_data);
+                    }
+
+                    $curlopts = array (
+                        CURLOPT_POST        => true,
+                        CURLOPT_POSTFIELDS  => $http_data,
+                    );
+                break;
+
+                case 'get':
+                    $curlopts = array ( CURLOPT_HTTPGET => true );
+                break;
+
+                case 'put':
+                    $curlopts = array ( CURLOPT_PUT => true,);
+                    if (!$http_data) {
+                        $curlopts[CURLOPT_HTTPHEADER] = array ('Content-Length' => 0);
+                    }
+                break;
+
+                case 'delete':
+                    $curlopts = array ( CURLOPT_CUSTOMREQUEST => 'DELETE' );
+                break;
+
+                default:
+                    throw new UnexpectedValueException ('Unknown HTTP method.', -1);
+            }
+            $this->_debug ('METHOD: '. strtoupper ($http_method));
+
+            # ustawiamy url
+            $curlopts[CURLOPT_URL] = $this->_root . $url;
+
+            $headers_single = array ();
+            # jesli trzeba to dodajemy jednorazowe nagłówki które mamy wysłać
+            if (isset ($curlopts[CURLOPT_HTTPHEADER])) {
+                $this->headers_set ($curlopts[CURLOPT_HTTPHEADER]);
+                $headers_names = array_keys ($curlopts[CURLOPT_HTTPHEADER]);
+            }
+
+            # nagłówki do wysłania
+            if ($this->_headers) {
+                $headers = array ();
+                foreach ($this->_headers as $k=>$v) {
+                    $headers[]          = sprintf ('%s: %s', $k, $v);
+                }
+                $curlopts[CURLOPT_HTTPHEADER] = $headers;
+            }
+            $this->_debug ('post2', print_r ($this->_headers, 1), print_r ($headers_names, 1));
+            $this->_debug ('DATA: '. print_r ($http_data, 1), 'CURLOPTS: '.print_r ($this->_debug_curlopts ($curlopts), 1));
+
+            if (!curl_setopt_array ($this->_ch, $curlopts)) {
+                throw new RuntimeException (curl_error ($this->_ch), curl_errno ($this->_ch));
+            }
+
+            # wykonujemy zapytanie
+            $reply = curl_exec ($this->_ch);
+
+            # usuwamy z zestawu naglowkow do wyslania te ktore mialy byc jednorazowe
+            if (isset($headers_names)) {
+                $this->headers_remove ($headers_names);
+            }
+            $this->_debug ('post3', print_r ($this->_headers, 1));
+
+            if (!$reply) {
+                throw new RuntimeException ('CURL Error: '. curl_error ($this->_ch), curl_errno ($this->_ch));
+            }
+
+            $this->_debug ($reply);
+            $reply = $this->__parse_reply ($reply);
+
+            if ($reply['status_code'] >= 400) {
+                throw new RuntimeException ($reply['status_body'], $reply['status_code']);
+            }
+
+            return $reply;
         }
 
         /**
@@ -217,7 +316,7 @@ if (!class_exists ('BlipApi')) {
         * @access public
         */
         public function __set ($key, $value) {
-            if (!in_array ($key, array ('debug', 'format', 'uagent', 'referer', 'timeout', 'headers'))) {
+            if (!method_exists ($this, '__set_'.$key)) {
                 throw new InvalidArgumentException (sprintf ('Unknown param: "%s".', $key), -1);
             }
 
@@ -234,7 +333,7 @@ if (!class_exists ('BlipApi')) {
         * @access public
         */
         public function __get ($key) {
-            if (!in_array ($key, array ('debug', 'format', 'uagent', 'referer', 'timeout', 'headers'))) {
+            if (!method_exists ($this, '__set_'.$key)) {
                 throw new InvalidArgumentException (sprintf ('Unknown param: "%s".', $key), -1);
             }
 
@@ -252,6 +351,27 @@ if (!class_exists ('BlipApi')) {
             $this->_debug = $enable ? true : false;
 
             curl_setopt($this->_ch, CURLOPT_VERBOSE, $this->_debug);
+        }
+
+        /**
+        * Setter for {@link $_debug_html} property
+        *
+        * @param bool $enable
+        * @access protected
+        */
+        protected function __set_debug_html ($enable = null) {
+            if ($enable) {
+                $this->_debug_tpl = array (
+                    "<pre style='border: 1px solid black; padding: 4px;'><b>DEBUG MSG:</b>\n",
+                    "</pre>\n",
+                );
+            }
+            else {
+                $this->_debug_tpl = array (
+                    "DEBUG MSG:\n",
+                    "\n",
+                );
+            }
         }
 
         /**
@@ -456,6 +576,8 @@ if (!class_exists ('BlipApi')) {
         * Throws InvalidArgumentException exception when specified command does not exists, or RuntimeException
         * when exists some CURL error or returned status code is greater or equal 400.
         *
+        * Internally using magic method BlipApi::__call.
+        *
         * @param string $command command to execute
         * @param mixed $options,... options passed to proper command method (prefixed with _cmd__)
         * @access public
@@ -465,30 +587,9 @@ if (!class_exists ('BlipApi')) {
             if (!func_num_args ()) {
                 throw new InvalidArgumentException ('Command missing.', -1);
             }
-
-            $args       = func_get_args ();
-            $cmd        = split ('_', array_shift ($args), 2);
-            $class_name = 'BlipApi_'.ucfirst ($cmd[0]);
-            if (!class_exists ($class_name) || !method_exists ($class_name, $cmd[1])) {
-                throw new InvalidArgumentException ('Command not found.', -1);
-            }
-            $this->_debug ('CMD: '. $class_name.'::'.$cmd[1]);
-
-            # wywołujemy wybraną metodę - metody komend zawsze zwracają wynik curl_exec
-            $reply = call_user_func_array (array ($class_name, $cmd[1]), $args);
-            $reply = $this->__query ($reply);
-            if (!$reply) {
-                throw new RuntimeException ('CURL Error: '. curl_error ($this->_ch), curl_errno ($this->_ch));
-            }
-
-            $this->_debug (print_r ($reply, 1));
-            $reply = $this->__parse_reply ($reply);
-
-            if ($reply['status_code'] >= 400) {
-                throw new RuntimeException ($reply['status_body'], $reply['status_code']);
-            }
-
-            return $reply;
+            $args   = func_get_args ();
+            $fn     = array_shift ($args);
+            return call_user_func_array (array ($this, $fn), $args);
         }
 
         /**
@@ -504,12 +605,13 @@ if (!class_exists ('BlipApi')) {
             }
 
             $args = func_get_args ();
-            echo "<pre style='border: 1px solid black; padding: 4px;'><b>DEBUG MSG:</b>\n";
-            $i=0;
-            foreach ($args as $arg) {
+
+            echo $this->_debug_tpl[0];
+            foreach ($args as $i=>$arg) {
                 printf ("%d. %s\n", $i++, print_r ($arg, 1));
             }
-            echo "</pre>";
+            echo $this->_debug_tpl[1];
+
             return 1;
         }
 
@@ -542,133 +644,6 @@ if (!class_exists ('BlipApi')) {
         }
 
         /**
-        * Helper for {@link __query} - set connection params for POST HTTP method.
-        *
-        * Recognised options:
-        *  * multipart - (bool) if true, data is send as multipart/form-data (this is used for sending file)
-        *
-        * @param array $data
-        * @param array $opts additional options
-        * @return array CURL options
-        * @access protected
-        */
-        protected function __query__post ($data, $opts=array ()) {
-            if (!isset ($opts['multipart']) || !$opts['multipart']) {
-                $data = BlipApi__arr2qstr ($data);
-            }
-
-            $curlopts = array (
-                CURLOPT_POST        => true,
-                CURLOPT_POSTFIELDS  => $data,
-            );
-
-            return $curlopts;
-        }
-
-        /**
-        * Helper for {@link __query} - set connection params for GET HTTP method.
-        *
-        * @param array $data
-        * @param array $opts additional options
-        * @return array CURL options
-        * @access protected
-        */
-        protected function __query__get ($opts=array ()) {
-            return array ( CURLOPT_HTTPGET => true );
-        }
-
-        /**
-        * Helper for {@link __query} - set connection params for PUT HTTP method.
-        *
-        * @param array $data
-        * @param array $opts additional options
-        * @return array CURL options
-        * @access protected
-        */
-        protected function __query__put ($data, $opts=array ()) {
-            $curlopts = array ( CURLOPT_PUT => true,);
-            if (!$data) {
-                $curlopts[CURLOPT_HTTPHEADER] = array ('Content-Length' => 0);
-            }
-            return $curlopts;
-        }
-
-        /**
-        * Helper for {@link __query} - set connection params for DELETE HTTP method.
-        *
-        * @param array $data
-        * @param array $opts additional options
-        * @return array CURL options
-        * @access protected
-        */
-        protected function __query__delete ($opts=array ()) {
-            return array ( CURLOPT_CUSTOMREQUEST => 'DELETE' );
-        }
-
-        /**
-        * Prepare connection params and execute it
-        *
-        * Uses methods {@link __query__get}, {@link __query__post}, {@link __query__put} and {@link __query__delete}
-        * to prepare data and connection params. Throws UnexpectedValueException exception for unknown method, or
-        * RuntimeException when CURL error exists.
-        *
-        * @param string $url address to apppend to {@link $_root}
-        * @param string $method HTTP method, one of: get, post, put, delete
-        * @param mixed $data
-        * @param array $opts additional options
-        * @return string result of curl_exec ()
-        * @access protected
-        */
-        protected function __query ($args) {
-            list ($url, $method, $data, $opts) = $args;
-
-            $method = strtolower ($method);
-            if (!method_exists ($this, '__query__'.$method)) {
-                throw new UnexpectedValueException ('Unknown HTTP method.', -1);
-            }
-            $this->_debug ('METHOD: '. strtoupper ($method));
-
-            # pobieramy ustawienia specyficzne dla każdej z wybranych metod
-            $curlopts = call_user_func (array ($this, '__query__'.$method), $data, $opts);
-            $curlopts[CURLOPT_URL] = $this->_root . $url;
-
-            $headers_single = array ();
-            # jesli trzeba to dodajemy jednorazowe nagłówki które mamy wysłać
-            if (isset ($curlopts[CURLOPT_HTTPHEADER])) {
-                $this->headers_set ($curlopts[CURLOPT_HTTPHEADER]);
-                $headers_names = array_keys ($curlopts[CURLOPT_HTTPHEADER]);
-            }
-
-            # nagłówki do wysłania
-            if ($this->_headers) {
-                $headers = array ();
-                foreach ($this->_headers as $k=>$v) {
-                    $headers[]          = sprintf ('%s: %s', $k, $v);
-                }
-                $curlopts[CURLOPT_HTTPHEADER] = $headers;
-            }
-            $this->_debug ('post2', print_r ($this->_headers, 1), print_r ($headers_names, 1));
-
-            $this->_debug ('DATA: '. print_r ($data, 1), 'CURLOPTS: '.print_r ($this->_debug_curlopts ($curlopts), 1));
-
-            if (!curl_setopt_array ($this->_ch, $curlopts)) {
-                throw new RuntimeException (curl_error ($this->_ch), curl_errno ($this->_ch));
-            }
-
-            # wykonujemy zapytanie
-            $ret = curl_exec ($this->_ch);
-
-            # jeśli któraś z metod __query__* zwróciła dodatkowe nagłówki do wysłania, to miało to byc jednorazowe,
-            # czyli teraz usuwamy je z zestawu
-            if (isset($headers_names)) {
-                $this->headers_remove ($headers_names);
-            }
-            $this->_debug ('post3', print_r ($this->_headers, 1));
-
-            return $ret;
-        }
-
-        /**
         * Parse reply
         *
         * Throws BadFunctionCallException exception when specified parser was not found.
@@ -691,12 +666,20 @@ if (!class_exists ('BlipApi')) {
 
             # parsujemy nagłówki
             $headers        = explode ("\n", $headers);
+
             # usuwamy typ protokołu
             $header_http    = array_shift ($headers);
             $headers_parsed = array ();
+            $header_name    = '';
             foreach ($headers as $header) {
-                $header = preg_split ('/\s*:\s*/u', trim ($header), 2);
-                $headers_parsed[strtolower ($header[0])] = $header[1];
+            	if ($header[0] == ' ' || $header[0] == "\t") {
+            		$headers_parsed[$header_name] .= trim ($header);
+            	}
+            	else {
+                    $header                         = preg_split ('/\s*:\s*/', trim ($header), 2);
+                    $header_name                    = strtolower ($header[0]);
+                    $headers_parsed[$header_name]   = $header[1];
+                }
             }
             $headers = &$headers_parsed;
 
