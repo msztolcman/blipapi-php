@@ -37,7 +37,7 @@ if (!class_exists ('BlipApi_Picture')) {
             if (!$id) {
                 throw new UnexpectedValueException ('Update ID is missing.', -1);
             }
-            return array (sprintf ('/updates/%s/pictures', $id), 'get');
+            return array ("/updates/$id/pictures", 'get');
         }
     }
 }

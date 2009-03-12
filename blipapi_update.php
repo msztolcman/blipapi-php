@@ -39,7 +39,7 @@ if (!class_exists ('BlipApi_Update')) {
             }
 
             if ($user) {
-                $body = sprintf ('>%s: %s', $user, $body);
+                $body = ">$user: $body";
             }
 
             return array ('/updates', 'post', array ('update[body]' => $body));
@@ -85,7 +85,7 @@ if (!class_exists ('BlipApi_Update')) {
                 }
                 # jeśli pobieramy konkretnego usera, to wszystko jest prostsze
                 else {
-                    $url = sprintf ('/users/%s/updates', $user);
+                    $url = "/users/$user/updates";
                 }
             }
 

@@ -35,7 +35,7 @@ if (!class_exists ('BlipApi_Avatar')) {
             if (!$user) {
                 throw new UnexpectedValueException ('User name is missing.', -1);
             }
-            return array (sprintf ('/users/%s/avatar', $user), 'get');
+            return array ("/users/$user/avatar", 'get');
         }
 
         /**

@@ -35,7 +35,7 @@ if (!class_exists ('BlipApi_Background')) {
             if (!$user) {
                 throw new UnexpectedValueException ('User name is missing.', -1);
             }
-            return array (sprintf ('/users/%s/background', $user), 'get');
+            return array ("/users/$user/background", 'get');
         }
 
         /**

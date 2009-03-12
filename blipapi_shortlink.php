@@ -35,7 +35,7 @@ if (!class_exists ('BlipApi_Shortlink')) {
         */
         public static function read ($since_id=null, $limit=10, $offset=0) {
             if ($since_id) {
-                $url = sprintf ('/shortlinks/%d/all_since', $since_id);
+                $url = "/shortlinks/$since_id/all_since";
             }
             else {
                 $url = '/shortlinks/all';

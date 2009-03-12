@@ -81,7 +81,7 @@ if (!class_exists ('BlipApi_Dirmsg')) {
                 }
                 # jeśli pobieramy konkretnego usera, to wszystko jest prostsze
                 else {
-                    $url = sprintf ('/users/%s/directed_messages', $user);
+                    $url = "/users/$user/directed_messages";
                 }
             }
 

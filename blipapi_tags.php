@@ -42,7 +42,7 @@ if (!class_exists ('BlipApi_Tags')) {
             $url = '/tags/'.$tag;
 
             if ($since_id) {
-                $url .= sprintf ('/since/%d', $since_id);
+                $url .= '/since/' . (int)$since_id;
             }
 
             $limit = (int)$limit;

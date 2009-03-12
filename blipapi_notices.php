@@ -37,7 +37,7 @@ if (!class_exists ('BlipApi_Notices')) {
             $url = '/notices';
 
             if ($since_id) {
-                $url .= sprintf ('/since/%d', $since_id);
+                $url .= '/since/' . $since_id;
             }
 
             $limit = (int)$limit;

@@ -80,7 +80,7 @@ if (!class_exists ('BlipApi_Status')) {
                 }
                 # jeśli pobieramy konkretnego usera, to wszystko jest prostsze
                 else {
-                    $url = sprintf ('/users/%s/statuses', $user);
+                    $url = "/users/$user/statuses";
                 }
             }
 

@@ -36,14 +36,14 @@ if (!class_exists ('BlipApi_Dashboard')) {
         */
         public static function read ($since_id=null, $user=null, $include=array (), $limit=10) {
             if ($user) {
-                $url = sprintf ('/users/%s/dashboard', $user);
+                $url = "/users/$user/dashboard";
             }
             else {
                 $url = '/dashboard';
             }
 
             if (!is_null ($since_id) && $since_id) {
-                $url .= sprintf ('/since/%s', $since_id);
+                $url .= '/since/' . $since_id;
             }
 
             $limit = (int)$limit;
