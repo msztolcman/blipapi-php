@@ -4,7 +4,7 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.11
+ * @version 0.02.12
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
@@ -15,7 +15,7 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.11
+ * @version 0.02.12
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
@@ -59,13 +59,13 @@ if (!class_exists ('BlipApi_Dirmsg')) {
         * @param int $id message ID
         * @param string $user username
         * @param array $include array of resources to include (more info in official API documentation: {@link http://www.blip.pl/api-0.02.html}.
-        * @param bool $since
+        * @param bool $since_id
         * @param int $limit default to 10
         * @param int $offset default to 0
         * @access public
         * @return array parameters for BlipApi::__query
         */
-        public static function read ($id=null, $user=null, $include=array (), $since=false, $limit=10, $offset=0) {
+        public static function read ($id=null, $user=null, $include=array (), $since_id=false, $limit=10, $offset=0) {
             # normalnie pobieramy mesgi z tego zasobu
             $url = '/directed_messages';
 
@@ -77,9 +77,9 @@ if (!class_exists ('BlipApi_Dirmsg')) {
                         $id     = null;
                     }
                     $url        .= '/all';
-                    if ($since) {
+                    if ($since_id) {
                         $url    .= '_since';
-                        $since  = null;
+                        $since_id  = null;
                     }
                 }
                 # jeśli pobieramy konkretnego usera, to wszystko jest prostsze
@@ -93,22 +93,26 @@ if (!class_exists ('BlipApi_Dirmsg')) {
                 $url .= '/'. $id;
             }
 
-            if ($since) {
+            if ($since_id) {
                 $url .= '/since';
             }
 
+            $params = array ();
+
             $limit = (int)$limit;
             if ($limit) {
-                $url .= '?limit='.$limit;
+                $params['limit'] = $limit;
             }
-
             $offset = (int)$offset;
             if ($offset) {
-                $url .= ($limit ? '&' : '?') . 'offset=' . $offset;
+                $params['offset'] = $offset;
+            }
+            if ($include) {
+                $params['include'] = implode (',', $include);
             }
 
-            if ($include) {
-                $url .= (($limit || $offset) ? '&' : '?'). 'include=' . implode (',', $include);
+            if (count ($params)) {
+                $url .= '?'.BlipApi__arr2qstr ($params);
             }
 
             return array ($url, 'get');
