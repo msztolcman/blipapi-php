@@ -4,7 +4,7 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.11
+ * @version 0.02.13
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
@@ -15,7 +15,7 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.11
+ * @version 0.02.13
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
@@ -83,7 +83,7 @@ if (!class_exists ('BlipApi')) {
         * @access protected
         * @var string
         */
-        protected $_uagent      = 'BlipApi/0.02.11 (http://blipapi.googlecode.com)';
+        protected $_uagent      = 'BlipApi/0.02.13 (http://blipapi.googlecode.com)';
 
         /**
         *
@@ -410,6 +410,27 @@ if (!class_exists ('BlipApi')) {
         protected function __set_referer ($referer) {
             $this->_referer = (string) $referer;
             curl_setopt ($this->_ch, CURLOPT_REFERER, $referer);
+        }
+
+        /**
+         * Setter for {@link $_parsers} property
+         *
+         * Throws UnexpectedValueException of incorect type of $data is given
+         *
+         * @params array $data key have to be content-type (i.e. application/json) and value - function name to execute (i.e. json_decode)
+         * @access protected
+         */
+        protected function __set_parser ($data) {
+            if (!is_array ($data)) {
+                throw new UnexpectedValueException (sprintf ('%s::$parser have to be an array, but %s given.',
+                    __CLASS__,
+                    gettype ($data)), -1
+                );
+            }
+
+            foreach ($data as $type => $parser) {
+                $this->_parsers[$type] = $parser;
+            }
         }
 
         /**
