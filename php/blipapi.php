@@ -83,7 +83,7 @@ if (!class_exists ('BlipApi')) {
         * @access protected
         * @var string
         */
-        protected $_uagent      = 'BlipApi/0.02.13 (http://blipapi.googlecode.com)';
+        protected $_uagent      = 'BlipApi.php/0.02.13 (http://blipapi.googlecode.com)';
 
         /**
         *
