@@ -2,16 +2,11 @@
 
 from __future__ import print_function
 
-import base64
 import copy
 import httplib
 import os, os.path
-import re
-import sys
 
-from pprint import pprint
-
-from blipapi__utils import arr2qstr, prepare_post_field
+from blipapi__utils import arr2qstr
 
 class BlipApi (object):
     _root      = 'api.blip.pl'
@@ -88,10 +83,11 @@ class BlipApi (object):
             self._password = passwd
 
         if self._login and self._password is not None:
+            import base64
             self._headers['Authorization'] = 'Basic '+base64.b64encode (self._login + ':' + self._password)
 
     def __call__ (self, fn, *args, **kwargs):
-        getattr (self, fn) (*args, **kwargs)
+        return getattr (self, fn) (*args, **kwargs)
 
     def __execute (self, method, args, kwargs):
         url, method, data, opts = method (*args, **kwargs)
@@ -141,6 +137,8 @@ class BlipApi (object):
         try:
             module = __import__ ('blipapi_' + module)
             method = getattr (module, method)
+            if not callable (method):
+            	raise AttributeError ()
         except:
             raise AttributeError ('Command not found')
 
