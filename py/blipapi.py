@@ -1,4 +1,11 @@
 # -*- coding: utf-8 -*-
+# $Id$
+#
+# Blip! (http://blip.pl) communication library.
+# Author: Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
+# Version: 0.02.03
+# Copyright: (r) 2009 Marcin Sztolcman
+# License: http://opensource.org/licenses/gpl-license.php GNU Public License v.2
 
 from __future__ import print_function
 
@@ -47,7 +54,7 @@ class BlipApi (object):
     def __init__ (self, login=None, passwd=None, dont_connect=False, timeout=10):
         self._login     = login
         self._password  = passwd
-        self._uagent    = 'BlipApi.py/0.02.13 (http://blipapi.googlecode.com)'
+        self._uagent    = 'BlipApi.py/0.02.03 (http://blipapi.googlecode.com)'
         self._referer   = 'http://urzenia.net'
         self._format    = 'application/json'
         self._timeout   = timeout
