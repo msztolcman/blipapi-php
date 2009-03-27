@@ -16,7 +16,7 @@ def create (body, user=None, picture=None):
         raise ValueError ('Update body is missing.')
 
     if user:
-        body = '>{0} {1}'.format (user, body)
+        body = '>%s %s' % (user, body)
 
     if picture and not os.path.isfile (picture):
         picture = None

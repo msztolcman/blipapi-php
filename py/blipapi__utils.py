@@ -7,6 +7,8 @@
 # Copyright: (r) 2009 Marcin Sztolcman
 # License: http://opensource.org/licenses/gpl-license.php GNU Public License v.2
 
+from __future__ import with_statement
+
 import mimetypes
 import os.path
 import random
@@ -15,7 +17,7 @@ import urllib
 def arr2qstr (arr):
     """ Create urlencoded query string """
     return '&'.join (
-        '{0}={1}'.format (
+        '%s=%s' % (
             urllib.quote_plus (k),
             urllib.quote_plus (v, ',')
         ) for k, v in arr.items ()
