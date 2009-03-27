@@ -4,7 +4,7 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.13
+ * @version 0.02.14
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
@@ -15,7 +15,7 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.13
+ * @version 0.02.14
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
@@ -83,7 +83,7 @@ if (!class_exists ('BlipApi')) {
         * @access protected
         * @var string
         */
-        protected $_uagent      = 'BlipApi.php/0.02.13 (http://blipapi.googlecode.com)';
+        protected $_uagent      = 'BlipApi.php/0.02.14 (http://blipapi.googlecode.com)';
 
         /**
         *
@@ -142,18 +142,16 @@ if (!class_exists ('BlipApi')) {
         protected $_headers     = array ();
 
         /**
-        * Available parsers for reply.
+        * Parser for JSON format
         *
-        * As key need have to be mime type of reply, and for value - function name to call, or 2
-        * values array: 0 - object, 1 - method to call.
+        * This needs to contain name of the function for parsing JSON.
+        * Alternatively it may be an array with object and its method name:
+        * array ($json, 'decode')
         *
         * @access protected
         * @var array
         */
-        protected $_parsers     = array (
-            'application/xml'       => 'simplexml_load_string',
-            'application/json'      => 'json_decode',
-        );
+        protected $_parser     = 'json_decode';
 
         /**
         * BlipApi constructor
@@ -415,22 +413,11 @@ if (!class_exists ('BlipApi')) {
         /**
          * Setter for {@link $_parsers} property
          *
-         * Throws UnexpectedValueException of incorect type of $data is given
-         *
          * @params array $data key have to be content-type (i.e. application/json) and value - function name to execute (i.e. json_decode)
          * @access protected
          */
         protected function __set_parser ($data) {
-            if (!is_array ($data)) {
-                throw new UnexpectedValueException (sprintf ('%s::$parser have to be an array, but %s given.',
-                    __CLASS__,
-                    gettype ($data)), -1
-                );
-            }
-
-            foreach ($data as $type => $parser) {
-                $this->_parsers[$type] = $parser;
-            }
+            $this->_parser = $data;
         }
 
         /**
@@ -670,7 +657,7 @@ if (!class_exists ('BlipApi')) {
         * Throws BadFunctionCallException exception when specified parser was not found.
         * Return array with keys
         *  * headers - (array) array of headers (keys are lowercased)
-        *  * body - (mixed) body of response. If reply's mime type is found in {@link $_parsers}, then contains reply of specified parser, in other case contains raw string reply.
+        *  * body - (mixed) body of response. If reply's mime type is found in {@link $_parser}, then contains reply of specified parser, in other case contains raw string reply.
         *  * body_parse - (bool) if true, content was successfully parsed by specified parser
         *  * status_code - (int) status code from server
         *  * status_body - (string) content of status
@@ -718,22 +705,17 @@ if (!class_exists ('BlipApi')) {
 
             # parsujemy treść odpowiedzi, jeśli mamy odpowiedni parser
             $body_parsed    = false;
-            if (isset ($this->_parsers[$this->_format])) {
-                $formatter = $this->_parsers[$this->_format]; # shortcut
-                if ($formatter &&
-                    (
-                        (is_array ($formatter) && isset ($formatter[1]) && is_object ($formatter[0]) &&
-                            method_exists ($formatter[0], $formatter[1]))
-                        ||
-                        function_exists ($formatter)
-                    )
-                ) {
-                    $body           = call_user_func ($formatter, $body);
-                    $body_parsed    = true;
-                }
-                else {
-                    throw new BadFunctionCallException ('Specified parser not found: '. $formatter .'.');
-                }
+            if (
+                (is_array ($this->parser) && isset ($this->parser[1]) && is_object ($this->parser[0]) &&
+                    method_exists ($this->parser[0], $this->parser[1]))
+                ||
+                function_exists ($this->parser)
+            ) {
+                $body           = call_user_func ($this->parser, $body);
+                $body_parsed    = true;
+            }
+            else {
+                throw new BadFunctionCallException ('Specified parser not found.');
             }
 
             return array (
