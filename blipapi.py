@@ -7,6 +7,8 @@
 # Copyright: (r) 2009 Marcin Sztolcman
 # License: http://opensource.org/licenses/gpl-license.php GNU Public License v.2
 
+BLIPAPI_ALLOW_DANGEROUS_JSON = False
+
 import copy
 import httplib
 import os, os.path
@@ -75,6 +77,8 @@ class BlipApi (object):
                 import cjson
                 json_parser = cjson.decode
             except ImportError:
+                if not BLIPAPI_ALLOW_DANGEROUS_JSON:
+                	raise
                 json_parser = eval
 
         self._parsers = {
@@ -145,7 +149,7 @@ class BlipApi (object):
 
     def __getattr__ (self, fn):
         if '_' not in fn:
-            raise AttributeError ('Command not found')
+            raise AttributeError ('Command not found.')
 
         module, method = fn.split ('_', 1)
 
@@ -153,7 +157,7 @@ class BlipApi (object):
             module = __import__ ('blipapi_' + module)
             method = getattr (module, method)
             if not callable (method):
-            	raise AttributeError ()
+                raise AttributeError ('Command not found.')
         except:
             raise AttributeError ('Command not found')
 
