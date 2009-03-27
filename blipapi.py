@@ -40,7 +40,7 @@ class BlipApi (object):
     def __parser_get (self):
         return self._parser
     def __parser_set (self, parser):
-        self._parser[parser[0]] = parser[1]
+        self._parser = parser
     def __parser_del (self):
         raise TypeError ('Cannot clear parsers!')
     parser = property (__parser_get, __parser_set, __parser_del)
@@ -50,7 +50,7 @@ class BlipApi (object):
         return self._debug
     def __debug_set (self, level):
         if not type (level) is int or level < 0:
-        	level = 10
+        	level = 0
         self._debug = level
         self._ch.set_debuglevel (level)
     def __debug_del (self):
@@ -77,13 +77,10 @@ class BlipApi (object):
                 import cjson
                 json_parser = cjson.decode
             except ImportError:
-                if not BLIPAPI_ALLOW_DANGEROUS_JSON:
-                	raise
-                json_parser = eval
+                if BLIPAPI_ALLOW_DANGEROUS_JSON:
+                    json_parser = eval
 
-        self._parsers = {
-            'application/json': json_parser,
-        }
+        self._parser = json_parser
 
         self._ch = httplib.HTTPConnection (self._root, port=httplib.HTTP_PORT)
 
@@ -133,7 +130,7 @@ class BlipApi (object):
         body        = response.read ()
         if response.status in (200, 201, 204):
         	try:
-        	    body = self._parsers['application/json'] (body)
+        	    body = self._parser (body)
         	except:
         	    raise
         	else:
