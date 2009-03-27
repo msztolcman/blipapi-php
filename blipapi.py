@@ -7,8 +7,6 @@
 # Copyright: (r) 2009 Marcin Sztolcman
 # License: http://opensource.org/licenses/gpl-license.php GNU Public License v.2
 
-from __future__ import print_function
-
 import copy
 import httplib
 import os, os.path
@@ -19,45 +17,50 @@ class BlipApi (object):
     _root      = 'api.blip.pl'
 
     ## uagent
-    @property
-    def uagent (self):
+    def __uagent_get (self):
         return self._uagent
-    @uagent.setter
-    def uagent (self, uagent):
+    def __uagent_set (self, uagent):
         self._uagent = str (uagent)
+    def __uagent_del (self):
+        self._uagent = ''
+    uagent = property (__uagent_get, __uagent_set, __uagent_del)
 
     ## referer
-    @property
-    def referer (self):
+    def __referer_get (self):
         return self._referer
-    @referer.setter
-    def referer (self, referer):
+    def __referer_set (self, referer):
         self._referer = str (referer)
+    def __referer_del (self):
+        self._referer = ''
+    referer = property (__referer_get, __referer_set, __referer_del)
 
     ## parser
-    @property
-    def parser (self):
+    def __parser_get (self):
         return self._parser
-    @parser.setter
-    def parser (self, parser):
+    def __parser_set (self, parser):
         self._parser[parser[0]] = parser[1]
+    def __parser_del (self):
+        raise TypeError ('Cannot clear parsers!')
+    parser = property (__parser_get, __parser_set, __parser_del)
 
     ## debug
-    @property
-    def debug (self):
+    def __debug_get (self):
         return self._debug
-    @debug.setter
-    def debug (self, level):
+    def __debug_set (self, level):
+        if not type (level) is int or level < 0:
+        	level = 10
         self._debug = level
         self._ch.set_debuglevel (level)
+    def __debug_del (self):
+        self.debug = 0
+    debug = property (__debug_get, __debug_set, __debug_del)
 
-    def __init__ (self, login=None, passwd=None, dont_connect=False, timeout=10):
+    def __init__ (self, login=None, passwd=None, dont_connect=False):
         self._login     = login
         self._password  = passwd
         self._uagent    = 'BlipApi.py/0.02.03 (http://blipapi.googlecode.com)'
         self._referer   = 'http://urzenia.net'
         self._format    = 'application/json'
-        self._timeout   = timeout
         self._debug     = False
         self._headers   = {
             'Accept':       self._format,
@@ -78,7 +81,7 @@ class BlipApi (object):
             'application/json': json_parser,
         }
 
-        self._ch = httplib.HTTPConnection (self._root, port=httplib.HTTP_PORT, timeout=self._timeout)
+        self._ch = httplib.HTTPConnection (self._root, port=httplib.HTTP_PORT)
 
         if not dont_connect:
             self.connect ()
