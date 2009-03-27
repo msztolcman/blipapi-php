@@ -69,6 +69,7 @@ class BlipApi (object):
             'X-Blip-API':   '0.02',
         }
 
+        json_parser = None
         try:
             import json
             json_parser = json.loads
