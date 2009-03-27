@@ -1,0 +1,39 @@
+Autor:
+Marcin Sztolcman (http://urzenia.net)
+
+Adres:
+http://blipapi.googlecode.com
+
+Opis:
+BlipApi.py jest to biblioteka służąca do komunikacji z serwisem Blip!
+(http://blip.pl). Zawiera kompletne, ciągle uzupełniane API, pozwalające na
+wszystkie operacje jakie udostępnia API Blip!a. Dokumentacja API znajduje
+się pod adresem: http://www.blip.pl/api-0.02.html
+
+Błędy i ew. pomysły proszę zgłaszać na specjalnie do tego celu przeznaczonym
+issue trackerze: http://code.google.com/p/blipapi/issues/list
+
+Wymagania:
+- Python w wersji 2.5 lub wyżej
+- moduł do parsowania formatu JSON (jeśli Python będzie w wersji 2.6 lub
+    wyżej, BlipApi.py automatycznie skorzysta z wbudowanego json)
+
+Uzycie:
+blipapi = BlipApi ('login', 'haslo')
+updates = blipapi.update_read (user = 'mysz')
+print updates
+
+// Alternatywnie, gdy nazwe metody przechowujemy w jakiejs zmiennej, moze
+// byc prosciej uzyc:
+
+blipapi = BlipApi ('login', 'haslo')
+updates = blipapi ('update_read', user = 'mysz')
+print updates
+
+// Jeśli posiadamy wersję Pythona bez modułu JSON/CJSON, możemy użyć
+// dowolnej znalezionej np. na http://pyppi.python.org biblioteki która będzie
+// potrafiła sparsować nam format JSON, i podpiąć ją jako parser:
+
+blipapi = BlipApi ('login', 'haslo')
+blipapi.parser = moja_funkcja_parsujaca_json
+
