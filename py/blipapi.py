@@ -119,18 +119,23 @@ class BlipApi (object):
 
         l_headers['Content-Length'] = len (data)
 
-#         self._ch.request (method.upper (), url, body=data, headers=l_headers)
-        self._ch.putrequest (method.upper (), url, skip_accept_encoding=True)
-        for k, v in l_headers.items ():
-        	self._ch.putheader (k, v)
-        self._ch.endheaders ()
-        self._ch.send (data)
+        self._ch.request (method.upper (), url, body=data, headers=l_headers)
         response = self._ch.getresponse ()
+
+        body_parsed = False
+        body        = response.read ()
+        if response.status in (200, 201, 204):
+        	try:
+        	    body = self._parsers['application/json'] (body)
+        	except:
+        	    raise
+        	else:
+        	    body_parsed = True
 
         return dict (
             headers     = dict ((k.lower (), v) for k, v in response.getheaders ()),
-            body        = self._parsers['application/json'] (response.read ()),
-            body_parsed = 1,
+            body        = body,
+            body_parsed = body_parsed,
             status_code = response.status,
             status_body = response.reason,
         )
