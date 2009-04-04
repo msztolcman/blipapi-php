@@ -3,7 +3,7 @@
 #
 # Blip! (http://blip.pl) communication library.
 # Author: Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
-# Version: 0.02.03
+# Version: 0.02.04
 # Copyright: (r) 2009 Marcin Sztolcman
 # License: http://opensource.org/licenses/gpl-license.php GNU Public License v.2
 
@@ -60,7 +60,7 @@ class BlipApi (object):
     def __init__ (self, login=None, passwd=None, dont_connect=False):
         self._login     = login
         self._password  = passwd
-        self._uagent    = 'BlipApi.py/0.02.03 (http://blipapi.googlecode.com)'
+        self._uagent    = 'BlipApi.py/0.02.04 (http://blipapi.googlecode.com)'
         self._referer   = 'http://urzenia.net'
         self._format    = 'application/json'
         self._debug     = False
