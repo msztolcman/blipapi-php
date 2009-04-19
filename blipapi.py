@@ -13,7 +13,7 @@ import copy
 import httplib
 import os, os.path
 
-from blipapi__utils import arr2qstr
+from _utils import arr2qstr
 
 class BlipApi (object):
     _root      = 'api.blip.pl'
@@ -22,7 +22,7 @@ class BlipApi (object):
     def __uagent_get (self):
         return self._uagent
     def __uagent_set (self, uagent):
-        self._uagent = str (uagent)
+        self._uagent = str (uagent or '')
     def __uagent_del (self):
         self._uagent = ''
     uagent = property (__uagent_get, __uagent_set, __uagent_del)
@@ -31,7 +31,7 @@ class BlipApi (object):
     def __referer_get (self):
         return self._referer
     def __referer_set (self, referer):
-        self._referer = str (referer)
+        self._referer = str (referer or '')
     def __referer_del (self):
         self._referer = ''
     referer = property (__referer_get, __referer_set, __referer_del)
@@ -50,7 +50,7 @@ class BlipApi (object):
         return self._debug
     def __debug_set (self, level):
         if not type (level) is int or level < 0:
-        	level = 0
+            level = 0
         self._debug = level
         self._ch.set_debuglevel (level)
     def __debug_del (self):
@@ -64,24 +64,22 @@ class BlipApi (object):
         self._referer   = 'http://urzenia.net'
         self._format    = 'application/json'
         self._debug     = False
+        self._parser    = None
         self._headers   = {
             'Accept':       self._format,
             'X-Blip-API':   '0.02',
         }
 
-        json_parser = None
         try:
             import json
-            json_parser = json.loads
+            self._parser = json.loads
         except ImportError:
             try:
                 import cjson
-                json_parser = cjson.decode
+                self._parser = cjson.decode
             except ImportError:
                 if BLIPAPI_ALLOW_DANGEROUS_JSON:
-                    json_parser = eval
-
-        self._parser = json_parser
+                    self._parser = eval
 
         self._ch = httplib.HTTPConnection (self._root, port=httplib.HTTP_PORT)
 
@@ -108,12 +106,12 @@ class BlipApi (object):
         if self.uagent:
             l_headers['User-Agent'] = self.uagent
         if self.referer:
-        	l_headers['Referer']    = self.referer
+            l_headers['Referer']    = self.referer
 
         if data:
             data = arr2qstr (data)
         else:
-        	data = ''
+            data = ''
 
         if opts:
             if 'headers' in opts:
@@ -130,12 +128,12 @@ class BlipApi (object):
         body_parsed = False
         body        = response.read ()
         if response.status in (200, 201, 204):
-        	try:
-        	    body = self._parser (body)
-        	except:
-        	    raise
-        	else:
-        	    body_parsed = True
+            try:
+                body = self._parser (body)
+            except:
+                raise
+            else:
+                body_parsed = True
 
         return dict (
             headers     = dict ((k.lower (), v) for k, v in response.getheaders ()),
@@ -149,14 +147,14 @@ class BlipApi (object):
         if '_' not in fn:
             raise AttributeError ('Command not found.')
 
-        module, method = fn.split ('_', 1)
+        module_name, method = fn.split ('_', 1)
 
         try:
-            module = __import__ ('blipapi_' + module)
-            method = getattr (module, method)
+            module = __import__ (__package__+'.'+module_name)
+            method = getattr (getattr (module, module_name), method)
             if not callable (method):
                 raise AttributeError ('Command not found.')
-        except:
+        except Exception, e:
             raise AttributeError ('Command not found')
 
         return lambda *args, **kwargs: self.__execute (method, args, kwargs)

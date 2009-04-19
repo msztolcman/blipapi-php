@@ -7,14 +7,16 @@
 # Copyright: (r) 2009 Marcin Sztolcman
 # License: http://opensource.org/licenses/gpl-license.php GNU Public License v.2
 
-from blipapi__utils import arr2qstr
+from _utils import arr2qstr
 
-def read (include=None, limit=10):
-    url = '/bliposphere'
+def read (id, include=None):
+    if not id:
+        raise ValueError ('Update ID is missing.')
+
+    url = '/updates/' + str (id) + '/pictures'
 
     params = dict ()
-    if limit:
-        params['limit'] = str (limit)
+
     if include:
         params['include'] = ','.join (include)
 

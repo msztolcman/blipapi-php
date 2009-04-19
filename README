@@ -31,7 +31,7 @@ updates = blipapi ('update_read', user = 'mysz')
 print updates
 
 // Jeśli posiadamy wersję Pythona bez modułu JSON/CJSON, możemy użyć
-// dowolnej znalezionej np. na http://pyppi.python.org biblioteki która będzie
+// dowolnej znalezionej np. na http://pypi.python.org biblioteki która będzie
 // potrafiła sparsować nam format JSON, i podpiąć ją jako parser:
 
 blipapi = BlipApi ('login', 'haslo')

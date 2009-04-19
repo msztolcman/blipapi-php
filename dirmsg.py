@@ -9,7 +9,7 @@
 
 import os.path
 
-from blipapi__utils import arr2qstr, prepare_post_field
+from _utils import arr2qstr, prepare_post_field
 
 def create (body=None, user=None, picture=None):
     if not body or not user:

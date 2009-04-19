@@ -7,23 +7,16 @@
 # Copyright: (r) 2009 Marcin Sztolcman
 # License: http://opensource.org/licenses/gpl-license.php GNU Public License v.2
 
-from blipapi__utils import arr2qstr
+from _utils import arr2qstr
 
-def read (code = None, since_id=None, limit=None, offset=None):
-    url = '/shortlinks'
-    if code:
-    	url += '/' + str (code)
-    elif since_id:
-        url += '/' + str (since_id) + '/all_since'
-    else:
-        url += '/all'
+def read (include=None, limit=10):
+    url = '/bliposphere'
 
     params = dict ()
-
     if limit:
         params['limit'] = str (limit)
-    if offset:
-        params['offset'] = str (offset)
+    if include:
+        params['include'] = ','.join (include)
 
     if params:
         url += '?' + arr2qstr (params)

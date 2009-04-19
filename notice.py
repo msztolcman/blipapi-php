@@ -7,13 +7,10 @@
 # Copyright: (r) 2009 Marcin Sztolcman
 # License: http://opensource.org/licenses/gpl-license.php GNU Public License v.2
 
-from blipapi__utils import arr2qstr
+from _utils import arr2qstr
 
-def read (since_id=None, user=None, include=None, limit=10, offset=0):
-    url = '/dashboard'
-    if user:
-        url = '/users/' + str (user) + url
-
+def read (include=None, since_id=None, limit=10, offset=0):
+    url = '/notices'
     if since_id:
         url += '/since/' + str (since_id)
 

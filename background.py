@@ -9,7 +9,7 @@
 
 import os.path
 
-from blipapi__utils import prepare_post_field
+from _utils import prepare_post_field
 
 def read (user):
     """ Get specified user's background info """
