@@ -7,7 +7,7 @@
 # Copyright: (r) 2009 Marcin Sztolcman
 # License: http://opensource.org/licenses/gpl-license.php GNU Public License v.2
 
-from blipapi__utils import arr2qstr
+from _utils import arr2qstr
 
 def read (user=None, include=None, direction='both'):
     direction = direction.lower ()

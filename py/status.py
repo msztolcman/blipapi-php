@@ -9,36 +9,34 @@
 
 import os.path
 
-from blipapi__utils import arr2qstr, prepare_post_field
+from _utils import arr2qstr, prepare_post_field
 
-def create (body=None, user=None, picture=None):
-    if not body or not user:
-        raise ValueError ('Private_message body or recipient is missing.')
+def create (body, picture=None):
+    if not body:
+        raise ValueError ('Status body is missing.')
+
+    if picture and not os.path.isfile (picture):
+        picture = None
 
     opts = dict ()
     whole_multipart = ''
 
-    multipart, boundary = prepare_post_field ('private_message[body]', str (body), end=False)
+    multipart, boundary = prepare_post_field ('status[body]', body, end=not picture)
     whole_multipart = multipart
 
-    multipart, boundary = prepare_post_field ('private_message[recipient]', str (user), boundary=boundary, end=False)
-    whole_multipart += "\r\n" + multipart
-
-    if picture and os.path.isfile (picture):
-        multipart, boundary = prepare_post_field ('private_message[picture]', str (picture), boundary=boundary, is_file=True, end=False)
+    if picture:
+        multipart, boundary = prepare_post_field ('status[picture]', picture, boundary = boundary, is_file=True)
         whole_multipart += "\r\n" + multipart
 
-    ## dirty hack
-    opts['multipart'] = whole_multipart.rstrip () + "--\r\n"
+    opts['multipart']   = whole_multipart
+    opts['boundary']    = boundary
 
-    opts['boundary'] = boundary
-
-    return ('/private_messages', 'post', None, opts)
+    return ('/statuses', 'post', None, opts)
 
 def read (id=None, user=None, include=None, since_id=None, limit=10, offset=0):
-    url = '/private_messages'
+    url = '/statuses'
     if user:
-        user = user.lower ()
+        user = str (user)
         if user.lower () == '__all__':
             if id:
                 url += '/' + str (id)
@@ -48,8 +46,9 @@ def read (id=None, user=None, include=None, since_id=None, limit=10, offset=0):
                 url += '_since'
                 since_id = None
         else:
-            url = '/users/'+ user +'/private_messages'
+            url = '/users/'+ user +'/statuses'
 
+    # dla pojedynczego usera, innego niż __all__, dodajemy id wpisu
     if id:
         url += '/' + str (id)
     if since_id:
@@ -71,7 +70,6 @@ def read (id=None, user=None, include=None, since_id=None, limit=10, offset=0):
 
 def delete (id):
     if not id:
-        raise ValueError ('Private_message ID is missing.')
-
-    return ('/private_messages/' + str (id), 'delete', None, None)
+        raise ValueError ('Status ID is missing.')
+    return ('/statuses/' + str (id), 'delete', None, None)
 

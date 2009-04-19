@@ -7,12 +7,16 @@
 # Copyright: (r) 2009 Marcin Sztolcman
 # License: http://opensource.org/licenses/gpl-license.php GNU Public License v.2
 
-from blipapi__utils import arr2qstr
+from _utils import arr2qstr
 
-def read (include=None, since_id=None, limit=10, offset=0):
-    url = '/notices'
-    if since_id:
-        url += '/since/' + str (since_id)
+def read (code = None, since_id=None, limit=None, offset=None):
+    url = '/shortlinks'
+    if code:
+    	url += '/' + str (code)
+    elif since_id:
+        url += '/' + str (since_id) + '/all_since'
+    else:
+        url += '/all'
 
     params = dict ()
 
@@ -20,8 +24,6 @@ def read (include=None, since_id=None, limit=10, offset=0):
         params['limit'] = str (limit)
     if offset:
         params['offset'] = str (offset)
-    if include:
-        params['include'] = ','.join (include)
 
     if params:
         url += '?' + arr2qstr (params)

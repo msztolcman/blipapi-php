@@ -7,16 +7,22 @@
 # Copyright: (r) 2009 Marcin Sztolcman
 # License: http://opensource.org/licenses/gpl-license.php GNU Public License v.2
 
-from blipapi__utils import arr2qstr
+from _utils import arr2qstr
 
-def read (id, include=None):
-    if not id:
-        raise ValueError ('Update ID is missing.')
+def read (since_id=None, user=None, include=None, limit=10, offset=0):
+    url = '/dashboard'
+    if user:
+        url = '/users/' + str (user) + url
 
-    url = '/updates/' + str (id) + '/pictures'
+    if since_id:
+        url += '/since/' + str (since_id)
 
     params = dict ()
 
+    if limit:
+        params['limit'] = str (limit)
+    if offset:
+        params['offset'] = str (offset)
     if include:
         params['include'] = ','.join (include)
 
