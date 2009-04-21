@@ -150,8 +150,8 @@ class BlipApi (object):
         module_name, method = fn.split ('_', 1)
 
         try:
-            module = __import__ (__package__+'.'+module_name)
-            method = getattr (getattr (module, module_name), method)
+            module = __import__ (__package__+'.'+module_name, fromlist = (method, ))
+            method = getattr (module, method)
             if not callable (method):
                 raise AttributeError ('Command not found.')
         except Exception, e:
