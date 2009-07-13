@@ -13,7 +13,7 @@ def read (user, include=None):
     if not user:
         raise ValueError ('User name is missing.')
 
-    url = '/users/' + str (user)
+    url = '/users/' + user
 
     params = dict ()
 
@@ -23,5 +23,8 @@ def read (user, include=None):
     if params:
         url += '?' + arr2qstr (params)
 
-    return (url, 'get', None, None)
+    return dict (
+        url     = url,
+        method  = 'get',
+    )
 

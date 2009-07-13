@@ -11,5 +11,8 @@ def read (id):
     if not id:
         raise ValueError ('Update ID is missing.')
 
-    return ('/users/' + str (id) + '/recording', 'get', None, None)
+    return dict (
+        url     = '/users/' + str (id) + '/recording',
+        method  = 'get',
+    )
 

@@ -9,7 +9,7 @@
 
 import os.path
 
-from _utils import arr2qstr, prepare_post_field
+from _utils import arr2qstr, make_post_data
 
 def create (body, picture=None):
     if not body:
@@ -18,26 +18,26 @@ def create (body, picture=None):
     if picture and not os.path.isfile (picture):
         picture = None
 
-    opts = dict ()
-    whole_multipart = ''
-
-    multipart, boundary = prepare_post_field ('status[body]', body, end=not picture)
-    whole_multipart = multipart
-
+    fields = {
+        'status[body]':      body,
+    }
     if picture:
-        multipart, boundary = prepare_post_field ('status[picture]', picture, boundary = boundary, is_file=True)
-        whole_multipart += "\r\n" + multipart
+        fields['status[picture]'] = (str (picture), str (picture),)
 
-    opts['multipart']   = whole_multipart
-    opts['boundary']    = boundary
+    data, boundary = make_post_data (fields)
 
-    return ('/statuses', 'post', None, opts)
+    return dict (
+        url         = '/statuses',
+        method      = 'post',
+        data        = data,
+        boundary    = boundary,
+    )
 
 def read (id=None, user=None, include=None, since_id=None, limit=10, offset=0):
     url = '/statuses'
     if user:
-        user = str (user)
-        if user.lower () == '__all__':
+        user = user.lower ()
+        if user == '__all__':
             if id:
                 url += '/' + str (id)
                 id = None
@@ -57,19 +57,25 @@ def read (id=None, user=None, include=None, since_id=None, limit=10, offset=0):
     params = dict ()
 
     if limit:
-        params['limit'] = str (limit)
+        params['limit'] = limit
     if offset:
-        params['offset'] = str (offset)
+        params['offset'] = offset
     if include:
         params['include'] = ','.join (include)
 
     if params:
         url += '?' + arr2qstr (params)
 
-    return (url, 'get', None, None)
+    return dict (
+        url     = url,
+        method  = 'get',
+    )
 
 def delete (id):
     if not id:
         raise ValueError ('Status ID is missing.')
-    return ('/statuses/' + str (id), 'delete', None, None)
+    return dict (
+        url     = '/statuses/' + str (id),
+        method  = 'delete',
+    )
 

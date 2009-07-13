@@ -21,14 +21,17 @@ def read (tag, include=None, since_id=None, limit=10, offset=0):
     params = dict ()
 
     if limit:
-        params['limit'] = str (limit)
+        params['limit'] = limit
     if offset:
-        params['offset'] = str (offset)
+        params['offset'] = offset
     if include:
         params['include'] = ','.join (include)
 
     if params:
         url += '?' + arr2qstr (params)
 
-    return (url, 'get', None, None)
+    return dict (
+        url     = url,
+        method  = 'get',
+    )
 
