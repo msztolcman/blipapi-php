@@ -18,32 +18,46 @@ def arr2qstr (arr):
     """ Create urlencoded query string """
     return '&'.join (
         '%s=%s' % (
-            urllib.quote_plus (k),
-            urllib.quote_plus (v, ',')
+            urllib.quote_plus (str (k)),
+            urllib.quote_plus (str (v), ',')
         ) for k, v in arr.items ()
     )
 
 def gen_boundary ():
     """ Generate uniqe boundary """
-    return 'BlipApi.py-'+"".join(random.choice('0123456789abcdefghijklmnopqrstuvwxyz') for x in range(18))
+    return 'BlipApi.py-'+"".join (random.choice ('0123456789abcdefghijklmnopqrstuvwxyz') for i in range (18))
 
-def prepare_post_field (field, value, is_file=False, boundary=None, end=True):
-    output = []
+def make_post_data (fields, boundary=None, sep="\r\n"):
+    if type (fields) is not dict:
+        fields = dict (fields)
     if not boundary:
         boundary = gen_boundary ()
-        output.append ('--'+boundary)
 
-    output.append ('Content-Disposition: form-data; name="' + field + '"')
-    if is_file:
-        output[-1] += '; filename="' + os.path.basename (value) + '"'
-        output.append ('Content-Type: ' + (mimetypes.guess_type (value)[0] or 'application/octet-stream'))
-        output.append ('')
-        with open (value, 'rb') as fh:
-            output.append (fh.read ())
-    else:
-        output.append ('')
-        output.append (value)
-    output.append ('--' + boundary + ('--' if end else ''))
+    output = []
+    for k, v in fields.items ():
+        output.append ( '--' + boundary )
+
+        ## zwykle pole
+        if type (v) in (str, unicode):
+            output.append ('Content-Disposition: form-data; name="' + k + '"')
+            output.append ('')
+            output.append (v.encode ('utf-8', 'ignore'))
+
+        ## plik
+        else:
+            output.append (
+                'Content-Disposition: form-data; name="' + k + \
+                '"; filename="' + os.path.basename (v[0]) + '"'\
+            )
+            output.append ('Content-Type: ' + (mimetypes.guess_type (v[0])[0] or 'application/octet-stream'))
+            output.append ('')
+            if hasattr (v[1], 'read'):
+                output.append (v[1].read ())
+            else:
+                with open (v[1], 'rb') as fh:
+                    output.append (fh.read ())
+
+    output.append ( '--' + boundary + '--' )
     output.append ('')
-    return ( "\r\n".join (output), boundary, )
+    return (sep.join (output), boundary)
 
