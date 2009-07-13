@@ -12,7 +12,8 @@ import os.path
 from _utils import make_post_data
 
 def read (user):
-    """ Get specified user's background info """
+    """ Get specified user's background info. """
+
     if not user:
         raise ValueError ('User name is missing.')
 
@@ -22,7 +23,8 @@ def read (user):
     )
 
 def update (background):
-    """ Update current user background """
+    """ Update current user background. """
+
     if not os.path.isfile (background):
         raise ValueError ('Background path is missing or file not found.')
 
@@ -36,7 +38,7 @@ def update (background):
     )
 
 def delete ():
-    """ Delete current user background """
+    """ Delete current user background. """
 
     return dict (
         url     = '/background',

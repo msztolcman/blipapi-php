@@ -10,6 +10,8 @@
 from _utils import arr2qstr
 
 def read (user, include=None):
+    """ Get info about user. """
+
     if not user:
         raise ValueError ('User name is missing.')
 

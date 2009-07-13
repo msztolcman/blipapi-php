@@ -10,6 +10,8 @@
 from _utils import arr2qstr
 
 def read (since_id=None, user=None, include=None, limit=10, offset=0):
+    """ Get statuses, notices and other messages from users dashborad. """
+
     url = '/dashboard'
     if user:
         url = '/users/' + user + url

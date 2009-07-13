@@ -12,7 +12,7 @@ import os.path
 from _utils import make_post_data
 
 def read (user):
-    """ Get info about specified user's avatar """
+    """ Get info about specified user's avatar. """
 
     if not user:
         raise ValueError ('User name is missing.')
@@ -23,7 +23,8 @@ def read (user):
     )
 
 def update (avatar):
-    """ Update current user avatar """
+    """ Update current user avatar. """
+
     if not os.path.isfile (avatar):
         raise ValueError ('Avatar path missing or file not found.')
 
@@ -37,7 +38,8 @@ def update (avatar):
     )
 
 def delete ():
-    """ Delete current user avatar """
+    """ Delete current user avatar. """
+
     return dict (
         url     = '/avatar',
         method  = 'delete',

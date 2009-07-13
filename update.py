@@ -12,6 +12,8 @@ import os.path
 from _utils import arr2qstr, make_post_data
 
 def create (body, user=None, picture=None):
+    """ Create new update. """
+
     if not body:
         raise ValueError ('Update body is missing.')
 
@@ -26,7 +28,7 @@ def create (body, user=None, picture=None):
         'update[body]':      body,
     }
     if picture:
-        fields['update[picture]'] = (str (picture), str (picture),)
+        fields['update[picture]'] = (picture, picture, )
 
     data, boundary = make_post_data (fields)
 
@@ -38,6 +40,8 @@ def create (body, user=None, picture=None):
     )
 
 def read (id=None, user=None, include=None, since_id=None, limit=10, offset=0):
+    """ Read updates. """
+
     url = '/updates'
     if user:
         user = user.lower ()
@@ -76,6 +80,8 @@ def read (id=None, user=None, include=None, since_id=None, limit=10, offset=0):
     )
 
 def delete (id):
+    """ Delete update. """
+
     if not id:
         raise ValueError ('Update ID is missing.')
 

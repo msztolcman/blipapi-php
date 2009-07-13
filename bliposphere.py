@@ -10,6 +10,8 @@
 from _utils import arr2qstr
 
 def read (include=None, limit=10):
+    """ Get users statuses from bliposphere. """
+
     url = '/bliposphere'
 
     params = dict ()
