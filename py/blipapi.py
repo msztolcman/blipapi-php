@@ -11,12 +11,12 @@ BLIPAPI_ALLOW_DANGEROUS_JSON = False
 
 import copy
 import httplib
-import os, os.path
 
-from _utils import arr2qstr
+class BlipApiError (Exception):
+    pass
 
 class BlipApi (object):
-    _root      = 'api.blip.pl'
+    api_uri      = 'api.blip.pl'
 
     ## uagent
     def __uagent_get (self):
@@ -40,9 +40,11 @@ class BlipApi (object):
     def __parser_get (self):
         return self._parser
     def __parser_set (self, parser):
+        if not callable (parser):
+            raise BlipApiError ('Given parser is not callable!')
         self._parser = parser
     def __parser_del (self):
-        raise TypeError ('Cannot clear parsers!')
+        raise BlipApiError ('Cannot delete parser!')
     parser = property (__parser_get, __parser_set, __parser_del)
 
     ## debug
@@ -61,9 +63,9 @@ class BlipApi (object):
         self._login     = login
         self._password  = passwd
         self._uagent    = 'BlipApi.py/0.02.04 (http://blipapi.googlecode.com)'
-        self._referer   = 'http://urzenia.net'
+        self._referer   = 'http://urzenia.net/blipapi'
         self._format    = 'application/json'
-        self._debug     = False
+        self._debug     = 0
         self._parser    = None
         self._headers   = {
             'Accept':       self._format,
@@ -81,7 +83,7 @@ class BlipApi (object):
                 if BLIPAPI_ALLOW_DANGEROUS_JSON:
                     self._parser = eval
 
-        self._ch = httplib.HTTPConnection (self._root, port=httplib.HTTP_PORT)
+        self._ch = httplib.HTTPConnection (self.api_uri, port=httplib.HTTP_PORT)
 
         if not dont_connect:
             self.connect ()
@@ -100,40 +102,34 @@ class BlipApi (object):
         return getattr (self, fn) (*args, **kwargs)
 
     def __execute (self, method, args, kwargs):
-        url, method, data, opts = method (*args, **kwargs)
+        ## build request data
+        req_data = method (*args, **kwargs)
 
-        l_headers = copy.deepcopy (self._headers)
+        ## play with request headers
+        headers = copy.deepcopy (self._headers)
         if self.uagent:
-            l_headers['User-Agent'] = self.uagent
+            headers['User-Agent'] = self.uagent
         if self.referer:
-            l_headers['Referer']    = self.referer
+            headers['Referer']    = self.referer
 
-        if data:
-            data = arr2qstr (data)
-        else:
-            data = ''
+        headers['Content-Type'] = 'multipart/form-data'
+        if 'boundary' in req_data:
+            headers['Content-Type'] += '; boundary="' + req_data['boundary'] + '"'
+        if 'headers' in req_data:
+            headers.update (req_data['headers'])
 
-        if opts:
-            if 'headers' in opts:
-                l_headers.update (opts['headers'])
-            if 'multipart' in opts:
-                data = opts['multipart']
-                l_headers['Content-Type'] = 'multipart/form-data; boundary="' + opts['boundary'] + '"'
+        req_body = req_data.get ('data', '')
+        headers['Content-Length'] = len (req_body)
 
-        l_headers['Content-Length'] = len (data)
-
-        self._ch.request (method.upper (), url, body=data, headers=l_headers)
-        response = self._ch.getresponse ()
+        self._ch.request (req_data['method'].upper (), req_data['url'], body=req_body, headers=headers)
+        response    = self._ch.getresponse ()
 
         body_parsed = False
         body        = response.read ()
         if response.status in (200, 201, 204):
-            try:
-                body = self._parser (body)
-            except:
-                raise
-            else:
-                body_parsed = True
+            ## parser errors need to be handled in higher level (by blipapi.py user)
+            body        = self._parser (body)
+            body_parsed = True
 
         return dict (
             headers     = dict ((k.lower (), v) for k, v in response.getheaders ()),
@@ -149,8 +145,13 @@ class BlipApi (object):
 
         module_name, method = fn.split ('_', 1)
 
+        imp = ''
+        if __package__:
+            imp += __package__ + '.'
+        imp += module_name
+
         try:
-            module = __import__ (__package__+'.'+module_name, fromlist = (method, ))
+            module = __import__ (imp, fromlist = (method, ))
             method = getattr (module, method)
             if not callable (method):
                 raise AttributeError ('Command not found.')
