@@ -12,7 +12,7 @@ from _utils import arr2qstr
 def read (since_id=None, user=None, include=None, limit=10, offset=0):
     url = '/dashboard'
     if user:
-        url = '/users/' + str (user) + url
+        url = '/users/' + user + url
 
     if since_id:
         url += '/since/' + str (since_id)
@@ -20,14 +20,17 @@ def read (since_id=None, user=None, include=None, limit=10, offset=0):
     params = dict ()
 
     if limit:
-        params['limit'] = str (limit)
+        params['limit'] = limit
     if offset:
-        params['offset'] = str (offset)
+        params['offset'] = offset
     if include:
         params['include'] = ','.join (include)
 
     if params:
         url += '?' + arr2qstr (params)
 
-    return (url, 'get', None, None)
+    return dict (
+        url     = url,
+        method  = 'get',
+    )
 

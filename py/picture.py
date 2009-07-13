@@ -23,5 +23,8 @@ def read (id, include=None):
     if params:
         url += '?' + arr2qstr (params)
 
-    return (url, 'get', None, None)
+    return dict (
+        url     = url,
+        method  = 'get',
+    )
 

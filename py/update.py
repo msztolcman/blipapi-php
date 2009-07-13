@@ -9,37 +9,38 @@
 
 import os.path
 
-from _utils import arr2qstr, prepare_post_field
+from _utils import arr2qstr, make_post_data
 
 def create (body, user=None, picture=None):
     if not body:
         raise ValueError ('Update body is missing.')
 
     if user:
-        body = '>%s %s' % (user, body)
+        body = u'>%s %s' % (user, body)
 
     if picture and not os.path.isfile (picture):
         picture = None
 
-    opts            = dict ()
-    whole_multipart = ''
 
-    multipart, boundary     = prepare_post_field ('update[body]', body, end=not picture)
-    whole_multipart         = multipart
+    fields = {
+        'update[body]':      body,
+    }
+    if picture:
+        fields['update[picture]'] = (str (picture), str (picture),)
 
-    if picture is not None:
-        multipart, boundary = prepare_post_field ('update[picture]', picture, boundary = boundary, is_file=True)
-        whole_multipart     += "\r\n" + multipart
+    data, boundary = make_post_data (fields)
 
-    opts['multipart']   = whole_multipart
-    opts['boundary']    = boundary
-
-    return ('/updates', 'post', None, opts)
+    return dict (
+        url         = '/updates',
+        method      = 'post',
+        data        = data,
+        boundary    = boundary,
+    )
 
 def read (id=None, user=None, include=None, since_id=None, limit=10, offset=0):
     url = '/updates'
     if user:
-        user = str (user)
+        user = user.lower ()
         if user == '__all__':
             if id:
                 url += '/' + str (id)
@@ -60,20 +61,26 @@ def read (id=None, user=None, include=None, since_id=None, limit=10, offset=0):
     params = dict ()
 
     if limit:
-        params['limit'] = str (limit)
+        params['limit'] = limit
     if offset:
-        params['offset'] = str (offset)
+        params['offset'] = offset
     if include:
         params['include'] = ','.join (include)
 
     if params:
         url += '?' + arr2qstr (params)
 
-    return (url, 'get', None, None)
+    return dict (
+        url     = url,
+        method  = 'get',
+    )
 
 def delete (id):
     if not id:
         raise ValueError ('Update ID is missing.')
 
-    return ('/updates/' + str (id), 'delete', None, None)
+    return dict (
+        url     = '/updates/' + str (id),
+        method  = 'delete',
+    )
 

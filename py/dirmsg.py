@@ -9,32 +9,27 @@
 
 import os.path
 
-from _utils import arr2qstr, prepare_post_field
+from _utils import arr2qstr, make_post_data
 
 def create (body=None, user=None, picture=None):
     if not body or not user:
         raise ValueError ('Directed_message body or recipient is missing.')
 
-    opts = dict ()
+    fields = {
+        'directed_message[body]':      body,
+        'directed_message[recipient]': user,
+    }
+    if picture:
+        fields['directed_message[picture]'] = (str (picture), str (picture),)
 
-    whole_multipart = ''
+    data, boundary = make_post_data (fields)
 
-    multipart, boundary = prepare_post_field ('directed_message[body]', str (body), end=False)
-    whole_multipart = multipart
-
-    multipart, boundary = prepare_post_field ('directed_message[recipient]', str (user), boundary=boundary, end=False)
-    whole_multipart += "\r\n" + multipart
-
-    if picture and os.path.isfile (picture):
-        multipart, boundary = prepare_post_field ('directed_message[picture]', str (picture), boundary=boundary, is_file=True, end=False)
-        whole_multipart += "\r\n" + multipart
-
-    ## dirty hack
-    opts['multipart'] = whole_multipart.rstrip () + "--\r\n"
-
-    opts['boundary'] = boundary
-
-    return ('/directed_messages', 'post', None, opts)
+    return dict (
+        url         = '/directed_messages',
+        method      = 'post',
+        data        = data,
+        boundary    = boundary,
+    )
 
 def read (id=None, user=None, include=None, since_id=None, limit=10, offset=0):
     url = '/directed_messages'
@@ -59,20 +54,26 @@ def read (id=None, user=None, include=None, since_id=None, limit=10, offset=0):
     params = dict ()
 
     if limit:
-        params['limit'] = str (limit)
+        params['limit'] = limit
     if offset:
-        params['offset'] = str (offset)
+        params['offset'] = offset
     if include:
         params['include'] = ','.join (include)
 
     if params:
         url += '?' + arr2qstr (params)
 
-    return (url, 'get', None, None)
+    return dict (
+        url         = url,
+        method      = 'get',
+    )
 
 def delete (id):
     if not id:
         raise ValueError ('Directed_message ID is missing.')
 
-    return ('/directed_messages/' + str (id), 'delete', None, None)
+    return dict (
+        url         = '/directed_messages/' + str (id),
+        method      = 'delete',
+    )
 

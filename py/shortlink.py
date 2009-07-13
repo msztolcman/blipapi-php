@@ -12,7 +12,7 @@ from _utils import arr2qstr
 def read (code = None, since_id=None, limit=None, offset=None):
     url = '/shortlinks'
     if code:
-    	url += '/' + str (code)
+        url += '/' + code
     elif since_id:
         url += '/' + str (since_id) + '/all_since'
     else:
@@ -21,12 +21,15 @@ def read (code = None, since_id=None, limit=None, offset=None):
     params = dict ()
 
     if limit:
-        params['limit'] = str (limit)
+        params['limit'] = limit
     if offset:
-        params['offset'] = str (offset)
+        params['offset'] = offset
 
     if params:
         url += '?' + arr2qstr (params)
 
-    return (url, 'get', None, None)
+    return dict (
+        url     = url,
+        method  = 'get',
+    )
 

@@ -11,8 +11,8 @@ from _utils import arr2qstr
 
 def read (user=None, include=None, direction='both'):
     direction = direction.lower ()
-    if direction not in ('both', 'to', 'from'):
-        raise ValueError ('Incorrect param: "direction": "{0}". Allowed values: both, from, to.'.format (direction))
+    if direction not in ('both', 'to', 'from', ''):
+        raise ValueError ('Incorrect param: "direction": "%s". Allowed values: both, from, to.' % direction)
 
     if direction == 'both':
         direction = ''
@@ -29,17 +29,26 @@ def read (user=None, include=None, direction='both'):
     if params:
         url += '?' + arr2qstr (params)
 
-    return (url, 'get', None, None)
+    return dict (
+        url     = url,
+        method  = 'get',
+    )
 
 def update (user, www=None, im=None):
-    url = '/subscriptions/' + str (user)
+    url = '/subscriptions/' + user
 
     data = {
         'subscription[www]': str (1 if www else 0),
         'subscription[im]': str (1 if im else 0),
     }
-    return (url + '?' + arr2qstr (data), 'put', None, None)
+    return dict (
+        url     = url + '?' + arr2qstr (data),
+        method  = 'put',
+    )
 
 def delete (user):
-    return ('/subscriptions/' + str (user), 'delete', None, None)
+    return dict (
+        url     = '/subscriptions/' + user,
+        method  = 'delete',
+    )
 
