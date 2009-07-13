@@ -11,7 +11,9 @@ import os.path
 
 from _utils import arr2qstr, make_post_data
 
-def create (body=None, user=None, picture=None):
+def create (body, user, picture=None):
+    """ Create new directed message. """
+
     if not body or not user:
         raise ValueError ('Directed_message body or recipient is missing.')
 
@@ -20,7 +22,7 @@ def create (body=None, user=None, picture=None):
         'directed_message[recipient]': user,
     }
     if picture:
-        fields['directed_message[picture]'] = (str (picture), str (picture),)
+        fields['directed_message[picture]'] = (picture, picture, )
 
     data, boundary = make_post_data (fields)
 
@@ -32,6 +34,8 @@ def create (body=None, user=None, picture=None):
     )
 
 def read (id=None, user=None, include=None, since_id=None, limit=10, offset=0):
+    """ Read directed messages to specified or logged user, or by ID. """
+
     url = '/directed_messages'
     if user:
         user = user.lower ()
@@ -69,6 +73,8 @@ def read (id=None, user=None, include=None, since_id=None, limit=10, offset=0):
     )
 
 def delete (id):
+    """ Delete directed message. """
+
     if not id:
         raise ValueError ('Directed_message ID is missing.')
 

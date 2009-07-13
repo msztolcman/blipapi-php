@@ -10,10 +10,12 @@
 from _utils import arr2qstr
 
 def read (tag, include=None, since_id=None, limit=10, offset=0):
+    """ Get statuses by tag. """
+
     if not tag:
         raise ValueError ('Tag name is missing.')
 
-    url = '/tags/' + str (tag)
+    url = '/tags/' + tag
 
     if since_id:
         url += '/since/' + str (since_id)
@@ -21,11 +23,11 @@ def read (tag, include=None, since_id=None, limit=10, offset=0):
     params = dict ()
 
     if limit:
-        params['limit'] = limit
+        params['limit']     = limit
     if offset:
-        params['offset'] = offset
+        params['offset']    = offset
     if include:
-        params['include'] = ','.join (include)
+        params['include']   = ','.join (include)
 
     if params:
         url += '?' + arr2qstr (params)

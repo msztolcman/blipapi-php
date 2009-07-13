@@ -10,6 +10,8 @@
 from _utils import arr2qstr
 
 def read (include=None, since_id=None, limit=10, offset=0):
+    """ Get notices directed to logged user. """
+
     url = '/notices'
     if since_id:
         url += '/since/' + str (since_id)

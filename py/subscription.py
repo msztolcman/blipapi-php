@@ -10,6 +10,8 @@
 from _utils import arr2qstr
 
 def read (user=None, include=None, direction='both'):
+    """Get info about user's subscriptions (to or from user). """
+
     direction = direction.lower ()
     if direction not in ('both', 'to', 'from', ''):
         raise ValueError ('Incorrect param: "direction": "%s". Allowed values: both, from, to.' % direction)
@@ -35,6 +37,8 @@ def read (user=None, include=None, direction='both'):
     )
 
 def update (user, www=None, im=None):
+    """ Modify user's subscriptions. """
+
     url = '/subscriptions/' + user
 
     data = {
@@ -47,6 +51,7 @@ def update (user, www=None, im=None):
     )
 
 def delete (user):
+    """ Delete subscription to specified user. """
     return dict (
         url     = '/subscriptions/' + user,
         method  = 'delete',

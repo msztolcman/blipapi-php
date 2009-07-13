@@ -12,6 +12,8 @@ import os.path
 from _utils import arr2qstr, make_post_data
 
 def create (body=None, user=None, picture=None):
+    """ Create new private message. """
+
     if not body or not user:
         raise ValueError ('Private_message body or recipient is missing.')
 
@@ -20,7 +22,7 @@ def create (body=None, user=None, picture=None):
         'private_message[recipient]': user,
     }
     if picture:
-        fields['private_message[picture]'] = (str (picture), str (picture),)
+        fields['private_message[picture]'] = (picture, picture, )
 
     data, boundary = make_post_data (fields)
 
@@ -32,6 +34,8 @@ def create (body=None, user=None, picture=None):
     )
 
 def read (id=None, user=None, include=None, since_id=None, limit=10, offset=0):
+    """ Read user's private messages. """
+
     url = '/private_messages'
     if user:
         user = user.lower ()
@@ -69,6 +73,8 @@ def read (id=None, user=None, include=None, since_id=None, limit=10, offset=0):
     )
 
 def delete (id):
+    """ Delete specified private message. """
+
     if not id:
         raise ValueError ('Private_message ID is missing.')
 

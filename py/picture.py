@@ -10,6 +10,8 @@
 from _utils import arr2qstr
 
 def read (id, include=None):
+    """ Get info about picture from specified picture. """
+
     if not id:
         raise ValueError ('Update ID is missing.')
 

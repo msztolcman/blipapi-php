@@ -12,6 +12,8 @@ import os.path
 from _utils import arr2qstr, make_post_data
 
 def create (body, picture=None):
+    """ Create new status. """
+
     if not body:
         raise ValueError ('Status body is missing.')
 
@@ -22,7 +24,7 @@ def create (body, picture=None):
         'status[body]':      body,
     }
     if picture:
-        fields['status[picture]'] = (str (picture), str (picture),)
+        fields['status[picture]'] = (picture, picture, )
 
     data, boundary = make_post_data (fields)
 
@@ -34,6 +36,8 @@ def create (body, picture=None):
     )
 
 def read (id=None, user=None, include=None, since_id=None, limit=10, offset=0):
+    """ Get info about statuses. """
+
     url = '/statuses'
     if user:
         user = user.lower ()
@@ -72,6 +76,8 @@ def read (id=None, user=None, include=None, since_id=None, limit=10, offset=0):
     )
 
 def delete (id):
+    """ Delete status. """
+
     if not id:
         raise ValueError ('Status ID is missing.')
     return dict (

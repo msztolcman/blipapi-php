@@ -28,6 +28,13 @@ def gen_boundary ():
     return 'BlipApi.py-'+"".join (random.choice ('0123456789abcdefghijklmnopqrstuvwxyz') for i in range (18))
 
 def make_post_data (fields, boundary=None, sep="\r\n"):
+    """ Generate POST query from given data.
+        fields - mapping object, keys are name of POST fields, and values:
+            - unicode - value of field
+            - tuple - first value is file_name, second path to image or file-like object (with specified read () method)
+        boundary - if given, use this boundary, instead of generate new
+        sep - line separator, defaults to \r\n """
+
     if type (fields) is not dict:
         fields = dict (fields)
     if not boundary:

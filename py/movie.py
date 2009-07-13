@@ -8,6 +8,8 @@
 # License: http://opensource.org/licenses/gpl-license.php GNU Public License v.2
 
 def read (id):
+    """ Read movie data from specified update. """
+
     if not id:
         raise ValueError ('Update ID is missing.')
 
