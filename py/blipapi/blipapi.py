@@ -139,24 +139,27 @@ class BlipApi (object):
             status_body = response.reason,
         )
 
+    def _import (self, name):
+        mod = __import__(name)
+        components = name.split('.')
+        for comp in components[1:]:
+            mod = getattr(mod, comp)
+        return mod
+
     def __getattr__ (self, fn):
         if '_' not in fn:
             raise AttributeError ('Command not found.')
 
         module_name, method = fn.split ('_', 1)
 
-        imp = ''
-        if __package__:
-            imp += __package__ + '.'
-        imp += module_name
-
         try:
-            module = __import__ (imp, fromlist = (method, ))
+            module = self._import ('blipapi.' + module_name)
             method = getattr (module, method)
-            if not callable (method):
-                raise AttributeError ('Command not found.')
         except Exception, e:
             raise AttributeError ('Command not found')
+
+        if not callable (method):
+            raise AttributeError ('Command not found.')
 
         return lambda *args, **kwargs: self.__execute (method, args, kwargs)
 
