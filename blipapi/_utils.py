@@ -7,8 +7,6 @@
 # Copyright: (r) 2009 Marcin Sztolcman
 # License: http://opensource.org/licenses/gpl-license.php GNU Public License v.2
 
-from __future__ import with_statement
-
 import mimetypes
 import os.path
 import random
@@ -61,8 +59,11 @@ def make_post_data (fields, boundary=None, sep="\r\n"):
             if hasattr (v[1], 'read'):
                 output.append (v[1].read ())
             else:
-                with open (v[1], 'rb') as fh:
+                try:
+                    fh = open (v[1], 'rb')
                     output.append (fh.read ())
+                finally:
+                    fh.close ()
 
     output.append ( '--' + boundary + '--' )
     output.append ('')
