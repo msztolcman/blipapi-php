@@ -28,18 +28,19 @@ if (!class_exists ('BlipApi_Update')) {
         * Creating update
         *
         * @param string $body body of status
-        * @param sting $user recipient of message
+        * @param string $user recipient of message
+        * @param bool $private if true, message to user is sent as private
         * @static
         * @access public
         * @return array parameters for BlipApi::__query
         */
-        public static function create ($body, $user=null) {
+        public static function create ($body, $user=null, $private=false) {
             if (!$body) {
                 throw new UnexpectedValueException ('Update body is missing.', -1);
             }
 
             if ($user) {
-                $body = ">$user $body";
+                $body = ($private ? '>' : '') . ">$user $body";
             }
 
             return array ('/updates', 'post', array ('update[body]' => $body));
