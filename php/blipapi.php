@@ -4,7 +4,7 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.14
+ * @version 0.02.15
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
@@ -15,7 +15,7 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.14
+ * @version 0.02.15
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
@@ -83,7 +83,7 @@ if (!class_exists ('BlipApi')) {
         * @access protected
         * @var string
         */
-        protected $_uagent      = 'BlipApi.php/0.02.14 (http://blipapi.googlecode.com)';
+        protected $_uagent      = 'BlipApi.php/0.02.15 (http://blipapi.googlecode.com)';
 
         /**
         *
@@ -411,13 +411,33 @@ if (!class_exists ('BlipApi')) {
         }
 
         /**
-         * Setter for {@link $_parsers} property
+         * Setter for {@link $_parser} property
          *
-         * @params array $data key have to be content-type (i.e. application/json) and value - function name to execute (i.e. json_decode)
+         * @param mixed $parser string|array - arguments for call_user_func
          * @access protected
          */
         protected function __set_parser ($data) {
-            $this->_parser = $data;
+            if (
+                (is_string ($parser) && function_exists ($parser))
+                ||
+                (
+                    is_array ($parser) && count ($parser) == 2 &&
+                        (
+                            (is_object ($parser[0]) && method_exists ($parser[0], $parser[1]))
+                            ||
+                            (is_string ($parser[0]) && class_exists ($parser[0]) && method_exists ($parser[0], $parser[1]))
+                        )
+                )
+            ) {
+                $this->_parser = $parser;
+            }
+
+            else {
+                if (is_array ($parser)) {
+                    $parser = (is_string ($parser[0]) ? $parser[0] : get_class ($parser[0])) . '::' . $parser[1];
+                }
+                throw new BadFunctionCallException ('Specified parser not found: '. $parser .'.');
+            }
         }
 
         /**
@@ -705,17 +725,10 @@ if (!class_exists ('BlipApi')) {
 
             # parsujemy treść odpowiedzi, jeśli mamy odpowiedni parser
             $body_parsed    = false;
-            if (
-                (is_array ($this->parser) && isset ($this->parser[1]) && is_object ($this->parser[0]) &&
-                    method_exists ($this->parser[0], $this->parser[1]))
-                ||
-                function_exists ($this->parser)
-            ) {
-                $body           = call_user_func ($this->parser, $body);
+            $body_tmp       = call_user_func ($this->_parser, $body);
+            if ($body_tmp) {
                 $body_parsed    = true;
-            }
-            else {
-                throw new BadFunctionCallException ('Specified parser not found.');
+                $body           = $body_tmp;
             }
 
             return array (
