@@ -3,7 +3,7 @@
 #
 # Blip! (http://blip.pl) communication library.
 # Author: Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
-# Version: 0.02.04
+# Version: 0.02.05
 # Copyright: (r) 2009 Marcin Sztolcman
 # License: http://opensource.org/licenses/gpl-license.php GNU Public License v.2
 
@@ -11,6 +11,7 @@ BLIPAPI_ALLOW_DANGEROUS_JSON = False
 
 import copy
 import httplib
+import socket
 
 class BlipApiError (Exception):
     pass
@@ -54,15 +55,21 @@ class BlipApi (object):
         if not type (level) is int or level < 0:
             level = 0
         self._debug = level
-        self._ch.set_debuglevel (level)
+        ## nie zawsze _ch bedzie ustawione, bledy wtedy pomijamy
+        try:
+            self._ch.set_debuglevel (level)
+        except:
+            pass
+
     def __debug_del (self):
         self.debug = 0
     debug = property (__debug_get, __debug_set, __debug_del)
 
     def __init__ (self, login=None, passwd=None, dont_connect=False):
+        self._ch        = None
         self._login     = login
         self._password  = passwd
-        self._uagent    = 'BlipApi.py/0.02.04 (http://blipapi.googlecode.com)'
+        self._uagent    = 'BlipApi.py/0.02.05 (http://blipapi.googlecode.com)'
         self._referer   = 'http://urzenia.net/blipapi'
         self._format    = 'application/json'
         self._debug     = 0
@@ -83,12 +90,16 @@ class BlipApi (object):
                 if BLIPAPI_ALLOW_DANGEROUS_JSON:
                     self._parser = eval
 
-        self._ch = httplib.HTTPConnection (self.api_uri, port=httplib.HTTP_PORT)
-
         if not dont_connect:
             self.connect ()
+            ## authorize rzuci wyjatkiem jesli nie podany login lub haslo - zamiast sprawdzac te wartosci
+            ## po prostu ignorujemy blad
+            try:
+                self.authorize ()
+            except BlipApiError:
+                pass
 
-    def connect (self, login=None, passwd=None):
+    def authorize (self, login=None, passwd=None):
         if login is not None:
             self._login = login
         if passwd is not None:
@@ -97,6 +108,13 @@ class BlipApi (object):
         if self._login and self._password is not None:
             import base64
             self._headers['Authorization'] = 'Basic '+base64.b64encode (self._login + ':' + self._password)
+        else:
+            raise BlipApiError ('Authorization failed: missing login or password.')
+
+    def connect (self):
+        self._ch = httplib.HTTPConnection (self.api_uri, port=httplib.HTTP_PORT)
+        if self._ch:
+            self._ch.set_debuglevel (self.debug)
 
     def __call__ (self, fn, *args, **kwargs):
         return getattr (self, fn) (*args, **kwargs)
@@ -121,14 +139,25 @@ class BlipApi (object):
         req_body = req_data.get ('data', '')
         headers['Content-Length'] = len (req_body)
 
-        self._ch.request (req_data['method'].upper (), req_data['url'], body=req_body, headers=headers)
-        response    = self._ch.getresponse ()
+        if not self._ch:
+            self.connect ()
+
+        try:
+            self._ch.request (req_data['method'].upper (), req_data['url'], body=req_body, headers=headers)
+        except socket.error, (errno, error):
+            self._ch = None
+            raise BlipApiError ('Connection error: [%d] %s' % (errno, error))
+        else:
+            response    = self._ch.getresponse ()
 
         body_parsed = False
         body        = response.read ()
         if response.status in (200, 201, 204):
             ## parser errors need to be handled in higher level (by blipapi.py user)
-            body        = self._parser (body)
+            if body:
+                body    = self._parser (body)
+            else:
+                body    = []
             body_parsed = True
 
         return dict (
