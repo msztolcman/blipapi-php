@@ -203,7 +203,7 @@ class BlipApi (object):
 
     def __getattr__ (self, fn):
         if '_' not in fn:
-            raise AttributeError ('Command not found.')
+            raise AttributeError ('Command not found: %s.' % fn)
 
         module_name, method = fn.split ('_', 1)
 
@@ -211,10 +211,10 @@ class BlipApi (object):
             module = self._import ('blipapi.' + module_name)
             method = getattr (module, method)
         except Exception, e:
-            raise AttributeError ('Command not found')
+            raise AttributeError ('Command not found: %s.' % fn)
 
         if not callable (method):
-            raise AttributeError ('Command not found.')
+            raise AttributeError ('Command not found: %s.' % fn)
 
         return lambda *args, **kwargs: self.__execute (method, args, kwargs)
 
