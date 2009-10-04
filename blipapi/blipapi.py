@@ -7,17 +7,19 @@
 # Copyright: (r) 2009 Marcin Sztolcman
 # License: http://opensource.org/licenses/gpl-license.php GNU Public License v.2
 
-BLIPAPI_ALLOW_DANGEROUS_JSON = False
+BLIPAPI_ALLOW_DANGEROUS_JSON    = False
+BLIPAPI_MAX_REQUESTS_PER_MINUTE = 0
 
 import copy
 import httplib
 import socket
+import time
 
 class BlipApiError (Exception):
     pass
 
 class BlipApi (object):
-    api_uri      = 'api.blip.pl'
+    api_uri = 'api.blip.pl'
 
     ## uagent
     def __uagent_get (self):
@@ -64,6 +66,25 @@ class BlipApi (object):
     def __debug_del (self):
         self.debug = 0
     debug = property (__debug_get, __debug_set, __debug_del)
+
+    def _shaperd (self):
+        if not BLIPAPI_MAX_REQUESTS_PER_MINUTE:
+            return True
+
+        ts = time.time ()
+        self._rpm[0] += 1
+
+        if (ts - self._rpm[1]) >= 60:
+            self.shaperd_reset (_counter = 1)
+            return True
+
+        if self._rpm[0] > BLIPAPI_MAX_REQUESTS_PER_MINUTE:
+            return False
+
+        return True
+
+    def shaperd_reset (self, _counter = 0):
+        self._rpm = [_counter, time.time ()]
 
     def __init__ (self, login=None, passwd=None, dont_connect=False):
         self._ch        = None
@@ -114,6 +135,7 @@ class BlipApi (object):
     def connect (self):
         self._ch = httplib.HTTPConnection (self.api_uri, port=httplib.HTTP_PORT)
         if self._ch:
+            self.shaperd_reset ()
             self._ch.set_debuglevel (self.debug)
 
     def __call__ (self, fn, *args, **kwargs):
@@ -143,6 +165,10 @@ class BlipApi (object):
             self.connect ()
 
         try:
+            shaperd = self._shaperd ()
+            if not shaperd:
+                raise BlipApiError ('Too many requests')
+
             self._ch.request (req_data['method'].upper (), req_data['url'], body=req_body, headers=headers)
         except socket.error, (errno, error):
             self._ch = None
