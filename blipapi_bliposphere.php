@@ -35,10 +35,6 @@ if (!class_exists ('BlipApi_Bliposphere')) {
         public static function read ($include=array (), $limit=10) {
             $url = '/bliposphere';
 
-            if ($since_id && is_int ($since_id)) {
-                $url .= '/since/'.$since_id;
-            }
-
             $params = array ();
             if ($limit) {
                 $params['limit'] = $limit;
