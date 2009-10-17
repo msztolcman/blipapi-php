@@ -210,7 +210,7 @@ if (!class_exists ('BlipApi')) {
         */
         public function __call ($fn, $args) {
             # szukamy klasy i metody do uzycia
-            list ($class_name, $method_name) = split ('_', $fn, 2);
+            list ($class_name, $method_name) = preg_split ('/_/', $fn, 2);
             $class_name     = 'BlipApi_'.ucfirst ($class_name);
             $method_name    = strtolower ($method_name);
             if (!class_exists ($class_name) || !method_exists ($class_name, $method_name)) {
@@ -219,7 +219,17 @@ if (!class_exists ('BlipApi')) {
             $this->_debug ('CMD: '. $class_name.'::'.$method_name);
 
             # wywołujemy znalezioną metodę aby pobrac dane dla requestu
-            list ($url, $http_method, $http_data, $opts) = call_user_func_array (array ($class_name, $method_name), $args);
+            $method_data = call_user_func_array (array ($class_name, $method_name), $args);
+            $url            = $method_data[0];
+            $http_method    = $method_data[1];
+            $http_data      = null;
+            if (count ($method_data) > 2) {
+                $http_data  = $method_data[2];
+            }
+            $opt            = null;
+            if (count ($method_data) > 3) {
+                $opts       = $method_data[3];
+            }
 
             # ustawiamy opcje dla konkretnego typu requestu
             $http_method = strtolower ($http_method);
@@ -259,6 +269,7 @@ if (!class_exists ('BlipApi')) {
             $curlopts[CURLOPT_URL] = $this->_root . $url;
 
             $headers_single = array ();
+            $headers_names  = null;
             # jesli trzeba to dodajemy jednorazowe nagłówki które mamy wysłać
             if (isset ($curlopts[CURLOPT_HTTPHEADER])) {
                 $this->headers_set ($curlopts[CURLOPT_HTTPHEADER]);
@@ -582,7 +593,6 @@ if (!class_exists ('BlipApi')) {
                 CURLOPT_RETURNTRANSFER  => 1,
                 CURLOPT_HEADER          => true,
                 CURLOPT_HTTP200ALIASES  => array (201, 204),
-                CURLOPT_HTTP_VERSION    => CURL_HTTP_VERSION_1_0,
                 CURLOPT_CONNECTTIMEOUT  => 10,
             );
 
@@ -687,13 +697,17 @@ if (!class_exists ('BlipApi')) {
         * @access protected
         */
         protected function __parse_reply ($reply) {
-            # rozdzielamy nagłówki od treści
+            ## rozdzielamy nagłówki od treści
             $reply          = preg_split ("/\r?\n\r?\n/mu", $reply, 2);
-            $headers        = $reply[0];
+            ## HTTP1.1 pozwala na wyslanie kilku czesci naglowkow, oddzielonych znakiem nowej linii.
+            while (strtolower (substr ($reply[1], 0, 5)) == 'http/') {
+                $reply = preg_split ("/\r?\n\r?\n/mu", $reply[1], 2);
+            }
             $body           = isset ($reply[1]) ? $reply[1] : '';
+            $headers        = $reply[0];
 
             # parsujemy nagłówki
-            $headers        = explode ("\n", $headers);
+            $headers        = preg_split ("!\r?\n!mu", $headers);
 
             # usuwamy typ protokołu
             $header_http    = array_shift ($headers);
@@ -715,12 +729,12 @@ if (!class_exists ('BlipApi')) {
             if (
                 (isset ($headers['status']) && preg_match ('/(\d+)\s+(.*)/u', $headers['status'], $match))
                 ||
-                (preg_match ('!HTTP/1\.[01]\s+(\d+)\s+([\w ]+)!', $header_http, $match))
+                (preg_match ('!HTTP/(1\.[01])\s+(\d+)\s+([\w ]+)!', $header_http, $match))
             ) {
-                $status = array ( $match[1], $match[2] );
+                $status = array ( $match[1], $match[2], $match[3] );
             }
             else {
-                $status = array (0, '');
+                $status = array (1.0, 0, '');
             }
 
             # parsujemy treść odpowiedzi, jeśli mamy odpowiedni parser
@@ -735,8 +749,9 @@ if (!class_exists ('BlipApi')) {
                 'headers'       => $headers,
                 'body'          => $body,
                 'body_parsed'   => $body_parsed,
-                'status_code'   => $status[0],
-                'status_body'   => $status[1],
+                'http_version'  => $status[0],
+                'status_code'   => $status[1],
+                'status_body'   => $status[2],
             );
         }
     }
