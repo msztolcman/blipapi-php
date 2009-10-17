@@ -27,6 +27,8 @@ if (!class_exists ('BlipApi_Notice')) {
         /**
         * Get last notices for user
         *
+        * @param int $id status ID
+        * @param string $user username
         * @param array $include array of resources to include (more info in official API documentation: {@link http://www.blip.pl/api-0.02.html}.
         * @param int $since_id status ID - will return notices with newest ID then it
         * @param int $limit
@@ -34,11 +36,33 @@ if (!class_exists ('BlipApi_Notice')) {
         * @access public
         * @return array parameters for BlipApi::__query
         */
-        public static function read ($include=null, $since_id=null, $limit=10, $offset=0) {
+        public static function read ($id=null, $user=null, $include=null, $since_id=null, $limit=10, $offset=0) {
             $url = '/notices';
 
-            if ($since_id) {
-                $url .= '/since/' . $since_id;
+            if ($user) {
+                if ($user == '__all__') {
+                    if ($id) {
+                        $url .= "/$id";
+                    }
+                    $url .= "/all";
+                    if ($since_id) {
+                        $url .= '_since';
+                    }
+                }
+                else {
+                    $url = "/users/$user/notices";
+                    if ($since_id && $id) {
+                        $url .= "/$id/since";
+                    }
+                }
+            }
+            else {
+                if ($id && $since_id) {
+                    $url .= "/since/$id";
+                }
+                else if ($id) {
+                    $url .= "/$id";
+                }
             }
 
             $params = array ();
