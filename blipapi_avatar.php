@@ -31,9 +31,9 @@ if (!class_exists ('BlipApi_Avatar')) {
         * @access public
         * @return array parameters for BlipApi::__query
         */
-        public static function read ($user) {
+        public static function read ($user=null) {
             if (!$user) {
-                throw new UnexpectedValueException ('User name is missing.', -1);
+                return array ('/avatar', 'get');
             }
             return array ("/users/$user/avatar", 'get');
         }
