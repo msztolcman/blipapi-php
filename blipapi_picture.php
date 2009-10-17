@@ -31,17 +31,33 @@ if (!class_exists ('BlipApi_Picture')) {
         *
         * @param int $id picture ID
         * @param array $include array of resources to include (more info in official API documentation: {@link http://www.blip.pl/api-0.02.html}.
+        * @param bool $since_id
+        * @param int $limit default to 10
+        * @param int $offset default to 0
         * @access public
         * @return array parameters for BlipApi::__query
         */
-        public static function read ($id, $include=null) {
-            if (!$id) {
-                throw new UnexpectedValueException ('Update ID is missing.', -1);
+
+        public static function read ($id=null, $include=array (), $since_id=false, $limit=10, $offset=0) {
+            if ($id && $since_id) {
+                $url = "/pictures/$id/all_since";
+            }
+            else if ($id) {
+                $url = "/updates/$id/pictures";
+            }
+            else {
+                $url = "/pictures/all";
             }
 
-            $url = "/updates/$id/pictures";
-
             $params = array ();
+
+            if ($limit) {
+                $params['limit'] = $limit;
+            }
+
+            if ($offset) {
+                $params['offset'] = $offset;
+            }
 
             if ($include) {
                 $params['include'] = implode (',', $include);
