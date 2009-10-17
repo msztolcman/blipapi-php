@@ -29,12 +29,13 @@ if (!class_exists ('BlipApi_Update')) {
         *
         * @param string $body body of status
         * @param string $user recipient of message
+        * @param string @picture Absolute path to a picture assigned to update
         * @param bool $private if true, message to user is sent as private
         * @static
         * @access public
         * @return array parameters for BlipApi::__query
         */
-        public static function create ($body, $user=null, $private=false) {
+        public static function create ($body, $user=null, $picture=null, $private=false) {
             if (!$body) {
                 throw new UnexpectedValueException ('Update body is missing.', -1);
             }
@@ -43,7 +44,17 @@ if (!class_exists ('BlipApi_Update')) {
                 $body = ($private ? '>' : '') . ">$user $body";
             }
 
-            return array ('/updates', 'post', array ('update[body]' => $body));
+            $opts = array();
+            $data = array('update[body]' => $body);
+            if ($picture !== null) {
+                if ($picture[0] != '@') {
+                    $picture = '@'.$picture;
+                }
+                $data['update[picture]'] = $picture;
+                $opts['multipart'] = true;
+            }
+
+            return array ('/updates', 'post', $data, $opts);
         }
 
         /**
