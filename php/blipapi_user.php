@@ -32,12 +32,13 @@ if (!class_exists ('BlipApi_User')) {
         * @access public
         * @return array parameters for BlipApi::__query
         */
-        public static function read ($user, $include=array ()) {
-            if (!$user) {
-                throw new UnexpectedValueException ('User name is missing.', -1);
+        public static function read ($user=null, $include=array ()) {
+            if ($user) {
+                $url = '/users/'. $user;
             }
-
-            $url = '/users/'. $user;
+            else {
+                $url = '/profile';
+            }
 
             $params = array ();
             if ($include) {
