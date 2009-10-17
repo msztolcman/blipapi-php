@@ -27,18 +27,23 @@ if (!class_exists ('BlipApi_Shortlink')) {
         /**
         * Get shortlinks from Blip!'s rdir system
         *
+        * @param string $code
         * @param int $since_id status ID - will return statuses with newest ID then it
         * @param int $limit
         * @param int $offset
         * @access public
         * @return array parameters for BlipApi::__query
         */
-        public static function read ($since_id=null, $limit=10, $offset=0) {
-            if ($since_id) {
-                $url = "/shortlinks/$since_id/all_since";
+        public static function read ($code=null, $since_id=null, $limit=10, $offset=0) {
+            $url = '/shortlinks';
+            if ($code) {
+                $url .= "/$code";
+            }
+            else if ($since_id) {
+                $url .= "/$since_id/all_since";
             }
             else {
-                $url = '/shortlinks/all';
+                $url .= '/all';
             }
 
             $params = array ();
