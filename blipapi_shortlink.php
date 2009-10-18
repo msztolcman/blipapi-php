@@ -64,18 +64,52 @@ if (!class_exists ('BlipApi_Shortlink')) {
          */
         protected $_since_id;
 
+        /**
+         * Setter for field: code
+         *
+         * @param string $value
+         * @access protected
+         */
         protected function __set_code ($value) {
             $this->_code = $value;
         }
+
+        /**
+         * Setter for field: limit
+         *
+         * @param string $value
+         * @access protected
+         */
         protected function __set_limit ($value) {
             $this->_limit = $this->__validate_limit ($value);
         }
+
+        /**
+         * Setter for field: link
+         *
+         * @param string $value
+         * @access protected
+         */
         protected function __set_link ($value) {
             $this->_link = $value;
         }
+
+        /**
+         * Setter for field: offset
+         *
+         * @param string $value
+         * @access protected
+         */
         protected function __set_offset ($value) {
             $this->_offset = $this->__validate_offset ($value);
         }
+
+        /**
+         * Setter for field: since_id
+         *
+         * @param string $value
+         * @access protected
+         */
         protected function __set_since_id ($value) {
             $this->_since_id = $this->__validate_offset ($value);
         }

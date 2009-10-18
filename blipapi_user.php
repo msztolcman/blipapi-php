@@ -41,9 +41,22 @@ if (!class_exists ('BlipApi_User')) {
          */
         protected $_user;
 
+        /**
+         * Setter for field: include
+         *
+         * @param string $value
+         * @access protected
+         */
         protected function __set_include ($value) {
             $this->_include = $this->__validate_include ($value);
         }
+
+        /**
+         * Setter for field: user
+         *
+         * @param string $value
+         * @access protected
+         */
         protected function __set_user ($value) {
             $this->_user = $value;
         }

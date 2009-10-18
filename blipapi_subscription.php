@@ -69,6 +69,12 @@ if (!class_exists ('BlipApi_Subscription')) {
          */
         protected $_www;
 
+        /**
+         * Setter for field: direction
+         *
+         * @param string $value
+         * @access protected
+         */
         protected function __set_direction ($value) {
             if (!in_array ($value, array ('from', 'to', 'both'))) {
                 throw new InvalidArgumentException ("Incorrect direction.");
@@ -76,15 +82,43 @@ if (!class_exists ('BlipApi_Subscription')) {
 
             $this->_direction = $value;
         }
+
+        /**
+         * Setter for field: im
+         *
+         * @param string $value
+         * @access protected
+         */
         protected function __set_im ($value) {
             $this->_im = $value;
         }
+
+        /**
+         * Setter for field: include
+         *
+         * @param string $value
+         * @access protected
+         */
         protected function __set_include ($value) {
             $this->_include = $this->__validate_include ($value);
         }
+
+        /**
+         * Setter for field: user
+         *
+         * @param string $value
+         * @access protected
+         */
         protected function __set_user ($value) {
             $this->_user = $value;
         }
+
+        /**
+         * Setter for field: www
+         *
+         * @param string $value
+         * @access protected
+         */
         protected function __set_www ($value) {
             $this->_www = $value;
         }

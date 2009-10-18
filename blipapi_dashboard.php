@@ -65,22 +65,52 @@ if (!class_exists ('BlipApi_Dashboard')) {
          */
         protected $_user;
 
+        /**
+         * Setter for field: include
+         *
+         * @param string $value
+         * @access protected
+         */
         protected function __set_include ($value) {
             $this->_include = $this->__validate_include ($value);
         }
 
+        /**
+         * Setter for field: limit
+         *
+         * @param string $value
+         * @access protected
+         */
         protected function __set_limit ($value) {
             $this->_limit = $this->__validate_limit ($value);
         }
 
+        /**
+         * Setter for field: offset
+         *
+         * @param string $value
+         * @access protected
+         */
         protected function __set_offset ($value) {
             $this->_offset = $this->__validate_offset ($value);
         }
 
+        /**
+         * Setter for field: since_id
+         *
+         * @param string $value
+         * @access protected
+         */
         protected function __set_since_id ($value) {
             $this->_since_id = $this->__validate_offset ($value);
         }
 
+        /**
+         * Setter for field: user
+         *
+         * @param string $value
+         * @access protected
+         */
         protected function __set_user ($value) {
             $this->_user = $value;
         }
