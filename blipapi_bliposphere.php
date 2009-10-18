@@ -4,7 +4,7 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.16
+ * @version 0.02.20
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
@@ -15,7 +15,7 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.16
+ * @version 0.02.20
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
@@ -23,24 +23,33 @@
  */
 
 if (!class_exists ('BlipApi_Bliposphere')) {
-    class BlipApi_Bliposphere implements IBlipApi_Command {
+    class BlipApi_Bliposphere extends BlipApi_Abstract implements IBlipApi_Command {
+        protected $_limit   = 10;
+        protected $_include = null;
+
+        protected function __set_limit ($value) {
+            $this->_limit = $this->__validate_limit ($value);
+        }
+
+        protected function __set_include ($value) {
+            $this->_include = $this->__validate_include ($value);
+        }
+
         /**
         * Return current bliposhpere
         *
-        * @param array $include array of resources to include (more info in official API documentation: {@link http://www.blip.pl/api-0.02.html}.
-        * @param int $limit default to 10
         * @access public
         * @return array parameters for BlipApi::__query
         */
-        public static function read ($include=null, $limit=10) {
+        public function read () {
             $url = '/bliposphere';
 
             $params = array ();
-            if ($limit) {
-                $params['limit'] = $limit;
+            if ($this->_limit) {
+                $params['limit'] = $this->_limit;
             }
-            if ($include) {
-                $params['include'] = implode (',', $include);
+            if ($this->_include) {
+                $params['include'] = implode (',', $this->_include);
             }
 
             if (count ($params)) {

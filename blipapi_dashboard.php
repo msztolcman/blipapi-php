@@ -4,7 +4,7 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.16
+ * @version 0.02.20
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
@@ -15,7 +15,7 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.16
+ * @version 0.02.20
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
@@ -23,42 +23,61 @@
  */
 
 if (!class_exists ('BlipApi_Dashboard')) {
-    class BlipApi_Dashboard implements IBlipApi_Command {
+    class BlipApi_Dashboard extends BlipApi_Abstract implements IBlipApi_Command {
+        protected $_include;
+        protected $_limit       = 10;
+        protected $_offset      = 0;
+        protected $_since_id;
+        protected $_user;
+
+        protected function __set_include ($value) {
+            $this->_include = $this->__validate_include ($value);
+        }
+
+        protected function __set_limit ($value) {
+            $this->_limit = $this->__validate_limit ($value);
+        }
+
+        protected function __set_offset ($value) {
+            $this->_offset = $this->__validate_offset ($value);
+        }
+
+        protected function __set_since_id ($value) {
+            $this->_since_id = $this->__validate_offset ($value);
+        }
+
+        protected function __set_user ($value) {
+            $this->_user = $value;
+        }
+
         /**
         * Return user current dashboard
         *
-        * @param int $since_id status ID - will return statuses with newest ID then it
-        * @param string $user
-        * @param array $include array of resources to include (more info in official API documentation: {@link http://www.blip.pl/api-0.02.html}.
-        * @param int $limit default to 10
-        * @param int $offset default to 0
         * @access public
         * @return array parameters for BlipApi::__query
         */
-        public static function read ($since_id=null, $user=null, $include=null, $limit=10, $offset=0) {
-            if ($user) {
-                $url = "/users/$user/dashboard";
+        public function read () {
+            if ($this->_user) {
+                $url = "/users/$this->_user/dashboard";
             }
             else {
                 $url = '/dashboard';
             }
 
-            if (!is_null ($since_id) && $since_id) {
-                $url .= '/since/' . $since_id;
+            if (!is_null ($this->_since_id) && $this->_since_id) {
+                $url .= '/since/' . $this->_since_id;
             }
 
             $params = array ();
 
-            $limit = (int)$limit;
-            if ($limit) {
-                $params['limit'] = $limit;
+            if ($this->_limit) {
+                $params['limit'] = $this->_limit;
             }
-            $offset = (int)$offset;
-            if ($offset) {
-                $params['offset'] = $offset;
+            if ($this->_offset) {
+                $params['offset'] = $this->_offset;
             }
-            if ($include) {
-                $params['include'] = implode (',', $include);
+            if ($this->_include) {
+                $params['include'] = implode (',', $this->_include);
             }
 
             if (count ($params)) {
