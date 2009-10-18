@@ -11,14 +11,19 @@ import os.path
 
 from _utils import arr2qstr, make_post_data
 
-def create (body, user=None, picture=None):
+def create (body, user=None, picture=None, private=False):
     """ Create new update. """
 
     if not body:
         raise ValueError ('Update body is missing.')
 
     if user:
-        body = u'>%s %s' % (user, body)
+        if private:
+            private = '>'
+        else:
+            private = ''
+
+        body = u'>%s%s %s' % (private, user, body)
 
     if picture and not os.path.isfile (picture):
         picture = None
