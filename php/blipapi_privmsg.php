@@ -4,7 +4,7 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.16
+ * @version 0.02.20
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
@@ -15,7 +15,7 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.16
+ * @version 0.02.20
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
@@ -23,29 +23,58 @@
  */
 
 if (!class_exists ('BlipApi_Privmsg')) {
-    class BlipApi_Privmsg implements IBlipApi_Command {
+    class BlipApi_Privmsg extends BlipApi_Abstract implements IBlipApi_Command {
+        protected $_body;
+        protected $_id;
+        protected $_image;
+        protected $_include;
+        protected $_limit   = 10;
+        protected $_offset  = 0;
+        protected $_since_id;
+        protected $_user;
+
+        protected function __set_body ($value) {
+            $this->_body = $value;
+        }
+        protected function __set_id ($value) {
+            $this->_id = $this->__validate_offset ($value);
+        }
+        protected function __set_include ($value) {
+            $this->_include = $this->__validate_include ($value);
+        }
+        protected function __set_limit ($value) {
+            $this->_limit = $this->__validate_limit ($value);
+        }
+        protected function __set_offset ($value) {
+            $this->_offset = $this->__validate_offset ($value);
+        }
+        protected function __set_image ($value) {
+            $this->_image = $this->__validate_file ($value);
+        }
+        protected function __set_since_id ($value) {
+            $this->_since_id = $this->__validate_offset ($value);
+        }
+        protected function __set_user ($value) {
+            $this->_user = $value;
+        }
+
+
         /**
         * Create private message
         *
-        * Throws UnexpectedValueException if some of parametr is missing.
+        * Throws InvalidArgumentException if some of parametr is missing.
         *
-        * @param string $body Body of sent message
-        * @param int|string $user username or user id
-        * @param string @picture Absolute path to a picture assigned to a message
         * @access public
         * @return array parameters for BlipApi::__query
         */
-        public static function create ($body, $user, $picture = null) {
-            if (!$body || !$user) {
-                throw new UnexpectedValueException ('Private_message body or recipient is missing.', -1);
+        public function create () {
+            if (!$this->_body || !$this->_user) {
+                throw new InvalidArgumentException ('Private_message body or recipient is missing.', -1);
             }
             $opts = array();
-            $data = array('private_message[body]' => $body, 'private_message[recipient]' => $user);
-            if ($picture !== null) {
-                if ($picture[0] != '@') {
-                    $picture = '@'.$picture;
-                }
-                $data['private_message[picture]'] = $picture;
+            $data = array('private_message[body]' => $this->_body, 'private_message[recipient]' => $this->_user);
+            if ($this->_image) {
+                $data['private_message[picture]'] = '@'.$this->_image;
                 $opts['multipart'] = true;
             }
             return array ('/private_messages', 'post', $data, $opts);
@@ -56,38 +85,29 @@ if (!class_exists ('BlipApi_Privmsg')) {
         *
         * Meaning of params: {@link http://www.blip.pl/api-0.02.html}
         *
-        * @param int $id message ID
-        * @param array $include array of resources to include (more info in official API documentation: {@link http://www.blip.pl/api-0.02.html}.
-        * @param bool $since_id
-        * @param int $limit default to 10
-        * @param int $offset default to 0
         * @access public
         * @return array parameters for BlipApi::__query
         */
-        public static function read ($id=null, $include=null, $since_id=false, $limit=10, $offset=0) {
-            # normalnie pobieramy mesgi z tego zasobu
-            $url = '/private_messages';
-
-            if ($since_id) {
-                $url .= '/since';
+        public function read () {
+            if ($this->_since_id) {
+                $url = "/private_messages/since/$this->_since_id";
             }
-
-            if (!is_null ($id) && is_int ($id)) {
-                $url .= '/'. $id;
+            else if ($this->_id) {
+                $url = "/private_messages/$this->_id";
+            }
+            else {
+                $url = "/private_messages";
             }
 
             $params = array ();
-
-            $limit = (int)$limit;
-            if ($limit) {
-                $params['limit'] = $limit;
+            if ($this->_limit) {
+                $params['limit'] = $this->_limit;
             }
-            $offset = (int)$offset;
-            if ($offset) {
-                $params['offset'] = $offset;
+            if ($this->_offset) {
+                $params['offset'] = $this->_offset;
             }
-            if ($include) {
-                $params['include'] = implode (',', $include);
+            if ($this->_include) {
+                $params['include'] = implode (',', $this->_include);
             }
 
             if (count ($params)) {
@@ -97,21 +117,19 @@ if (!class_exists ('BlipApi_Privmsg')) {
             return array ($url, 'get');
         }
 
-
         /**
         * Delete private message
         *
-        * Throws UnexpectedValueException when private message ID is missing
+        * Throws InvalidArgumentException when private message ID is missing
         *
-        * @param int $id message ID
         * @access public
         * @return array parameters for BlipApi::__query
         */
-        public static function delete ($id) {
-            if (!$id) {
-                throw new UnexpectedValueException ('Private_message ID is missing.', -1);
+        public function delete () {
+            if (!$this->_id) {
+                throw new InvalidArgumentException ('Private_message ID is missing.', -1);
             }
-            return array ('/private_messages/'. $id, 'delete');
+            return array ('/private_messages/'. $this->_id, 'delete');
         }
     }
 }

@@ -4,7 +4,7 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.16
+ * @version 0.02.20
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
@@ -15,7 +15,7 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.16
+ * @version 0.02.20
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
@@ -23,41 +23,48 @@
  */
 
 if (!class_exists ('BlipApi_Tag')) {
-    class BlipApi_Tag implements IBlipApi_Command {
+    class BlipApi_Tag extends BlipApi_Abstract implements IBlipApi_Command {
+        protected $_include;
+        protected $_limit       = 10;
+        protected $_since_id;
+        protected $_tag;
+
+        protected function __set_include ($value) {
+            $this->_include = $this->__validate_include ($value);
+        }
+        protected function __set_limit ($value) {
+            $this->_limit = $this->__validate_limit ($value);
+        }
+        protected function __set_since_id ($value) {
+            $this->_since_id = $this->__validate_offset ($value);
+        }
+        protected function __set_tag ($value) {
+            $this->_tag = $value;
+        }
+
         /**
         * Get updates for tag
         *
-        * @param string $tag tag name
-        * @param array $include array of resources to include (more info in official API documentation: {@link http://www.blip.pl/api-0.02.html}.
-        * @param int $since_id status ID - will return statuses with newest ID then it
-        * @param int $limit
-        * @param int $offset
         * @access public
         * @return array parameters for BlipApi::__query
         */
-        public static function read ($tag, $include=null, $since_id=null, $limit=10, $offset=0) {
-            if (!$tag) {
-                throw new UnexpectedValueException ('Tag name is missing.', -1);
+        public function read () {
+            if (!$this->_tag) {
+                throw new InvalidArgumentException ('Tag name is missing.', -1);
             }
 
-            $url = '/tags/'.$tag;
+            $url = '/tags/'.$this->_tag;
 
-            if ($since_id) {
-                $url .= '/since/' . (int)$since_id;
+            if ($this->_since_id) {
+                $url .= '/since/' . $this->_since_id;
             }
 
             $params = array ();
-
-            $limit = (int)$limit;
-            if ($limit) {
-                $params['limit'] = $limit;
+            if ($this->_limit) {
+                $params['limit'] = $this->_limit;
             }
-            $offset = (int)$offset;
-            if ($offset) {
-                $params['offset'] = $offset;
-            }
-            if ($include) {
-                $params['include'] = implode (',', $include);
+            if ($this->_include) {
+                $params['include'] = implode (',', $this->_include);
             }
 
             if (count ($params)) {

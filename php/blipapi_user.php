@@ -4,7 +4,7 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.16
+ * @version 0.02.20
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
@@ -15,7 +15,7 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.16
+ * @version 0.02.20
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
@@ -23,26 +23,34 @@
  */
 
 if (!class_exists ('BlipApi_User')) {
-    class BlipApi_User implements IBlipApi_Command {
+    class BlipApi_User extends BlipApi_Abstract implements IBlipApi_Command {
+        protected $_include;
+        protected $_user;
+
+        protected function __set_include ($value) {
+            $this->_include = $this->__validate_include ($value);
+        }
+        protected function __set_user ($value) {
+            $this->_user = $value;
+        }
+
         /**
         * Return users data
         *
-        * @param string $user
-        * @param array $include array of resources to include (more info in official API documentation: {@link http://www.blip.pl/api-0.02.html}.
         * @access public
         * @return array parameters for BlipApi::__query
         */
-        public static function read ($user=null, $include=null) {
-            if ($user) {
-                $url = '/users/'. $user;
+        public function read () {
+            if ($this->_user) {
+                $url = "/users/$this->_user";
             }
             else {
                 $url = '/profile';
             }
 
             $params = array ();
-            if ($include) {
-                $params['include'] = implode (',', $include);
+            if ($this->_include) {
+                $params['include'] = implode (',', $this->_include);
             }
 
             if (count ($params)) {

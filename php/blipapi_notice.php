@@ -4,7 +4,7 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.16
+ * @version 0.02.20
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
@@ -15,7 +15,7 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.16
+ * @version 0.02.20
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
@@ -23,60 +23,80 @@
  */
 
 if (!class_exists ('BlipApi_Notice')) {
-    class BlipApi_Notice implements IBlipApi_Command {
+    class BlipApi_Notice extends BlipApi_Abstract implements IBlipApi_Command {
+        protected $_id;
+        protected $_include;
+        protected $_limit       = 10;
+        protected $_offset      = 0;
+        protected $_since_id;
+        protected $_user;
+
+        protected function __set_id ($value) {
+            $this->_id = $this->__validate_offset ($value);
+        }
+        protected function __set_include ($value) {
+            $this->_include = $this->__validate_include ($value);
+        }
+        protected function __set_limit ($value) {
+            $this->_limit = $this->__validate_limit ($value);
+        }
+        protected function __set_offset ($value) {
+            $this->_offset = $this->__validate_offset ($value);
+        }
+        protected function __set_since_id ($value) {
+            $this->_since_id = $this->__validate_offset ($value);
+        }
+        protected function __set_user ($value) {
+            $this->_user = $value;
+        }
+
         /**
         * Get last notices for user
         *
-        * @param int $id status ID
-        * @param string $user username
-        * @param array $include array of resources to include (more info in official API documentation: {@link http://www.blip.pl/api-0.02.html}.
-        * @param int $since_id status ID - will return notices with newest ID then it
-        * @param int $limit
-        * @param int $offset
         * @access public
         * @return array parameters for BlipApi::__query
         */
-        public static function read ($id=null, $user=null, $include=null, $since_id=null, $limit=10, $offset=0) {
-            $url = '/notices';
-
-            if ($user) {
-                if ($user == '__all__') {
-                    if ($id) {
-                        $url .= "/$id";
+        public function read () {
+            if ($this->_user) {
+                if ($this->_user == '__ALL__') {
+                    if ($this->_since_id) {
+                        $url = "/notices/$this->_since_id/all_since";
                     }
-                    $url .= "/all";
-                    if ($since_id) {
-                        $url .= '_since';
+                    else {
+                        $url = "/notices/all";
                     }
                 }
                 else {
-                    $url = "/users/$user/notices";
-                    if ($since_id && $id) {
-                        $url .= "/$id/since";
+                    if ($this->_since_id) {
+                        $url = "/users/$this->_user/notices/$this->_since_id/since";
+                    }
+                    else {
+                        $url = "/users/$this->_user/notices";
                     }
                 }
             }
+            else if ($this->_id) {
+                $url = "/notices/$this->_id";
+            }
+
             else {
-                if ($id && $since_id) {
-                    $url .= "/since/$id";
-                }
-                else if ($id) {
-                    $url .= "/$id";
+                $url = '/notices';
+                if ($this->_since_id) {
+                    $url .= "/since/$this->_since_id";
                 }
             }
+
 
             $params = array ();
 
-            $limit = (int)$limit;
-            if ($limit) {
-                $params['limit'] = $limit;
+            if ($this->_limit) {
+                $params['limit'] = $this->_limit;
             }
-            $offset = (int)$offset;
-            if ($offset) {
-                $params['offset'] = $offset;
+            if ($this->_offset) {
+                $params['offset'] = $this->_offset;
             }
-            if ($include) {
-                $params['include'] = implode (',', $include);
+            if ($this->_include) {
+                $params['include'] = implode (',', $this->_include);
             }
 
             if (count ($params)) {
