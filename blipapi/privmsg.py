@@ -33,27 +33,15 @@ def create (body=None, user=None, picture=None):
         boundary    = boundary,
     )
 
-def read (id=None, user=None, include=None, since_id=None, limit=10, offset=0):
+def read (id=None, include=None, since_id=None, limit=10, offset=0):
     """ Read user's private messages. """
 
     url = '/private_messages'
-    if user:
-        user = user.lower ()
-        if user == '__all__':
-            if id:
-                url += '/' + str (id)
-                id = None
-            url += '/all'
-            if since_id:
-                url += '_since'
-                since_id = None
-        else:
-            url = '/users/'+ user +'/private_messages'
 
-    if id:
-        url += '/' + str (id)
     if since_id:
         url += '/since'
+    if id:
+        url += '/' + str (id)
 
     params = dict ()
 
