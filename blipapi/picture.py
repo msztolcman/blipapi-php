@@ -9,16 +9,22 @@
 
 from _utils import arr2qstr
 
-def read (id, include=None):
+def read (id=None, include=None, since_id=false, limit=10, offset=0):
     """ Get info about picture from specified picture. """
 
-    if not id:
-        raise ValueError ('Update ID is missing.')
-
-    url = '/updates/' + str (id) + '/pictures'
+    if id and since_id:
+        url = '/pictures/' + str (id) + '/all_since'
+    elif id:
+        url = '/updates/' + str (id) + '/pictures'
+    else:
+        url = '/pictures/all'
 
     params = dict ()
 
+    if limit:
+        params['limit'] = limit
+    if offset:
+        params['offset'] = offset
     if include:
         params['include'] = ','.join (include)
 
