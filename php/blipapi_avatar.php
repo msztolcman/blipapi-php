@@ -40,10 +40,22 @@ if (!class_exists ('BlipApi_Avatar')) {
          */
         protected $_image   = '';
 
+        /**
+         * Setter for field: user
+         *
+         * @param string $value
+         * @access protected
+         */
         protected function __set_user ($value) {
             $this->_user = $value;
         }
 
+        /**
+         * Setter for field: image
+         *
+         * @param string $value
+         * @access protected
+         */
         protected function __set_image ($value) {
             $this->_image = $this->__validate_file ($value);
         }

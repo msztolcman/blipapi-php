@@ -41,10 +41,22 @@ if (!class_exists ('BlipApi_Bliposphere')) {
          */
         protected $_include = null;
 
+        /**
+         * Setter for field: limit
+         *
+         * @param string $value
+         * @access protected
+         */
         protected function __set_limit ($value) {
             $this->_limit = $this->__validate_limit ($value);
         }
 
+        /**
+         * Setter for field: include
+         *
+         * @param string $value
+         * @access protected
+         */
         protected function __set_include ($value) {
             $this->_include = $this->__validate_include ($value);
         }

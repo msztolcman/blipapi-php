@@ -57,15 +57,42 @@ if (!class_exists ('BlipApi_Tag')) {
          */
         protected $_tag;
 
+        /**
+         * Setter for field: include
+         *
+         * @param string $value
+         * @access protected
+         */
         protected function __set_include ($value) {
             $this->_include = $this->__validate_include ($value);
         }
+
+        /**
+         * Setter for field: limit
+         *
+         * @param string $value
+         * @access protected
+         */
         protected function __set_limit ($value) {
             $this->_limit = $this->__validate_limit ($value);
         }
+
+        /**
+         * Setter for field: since_id
+         *
+         * @param string $value
+         * @access protected
+         */
         protected function __set_since_id ($value) {
             $this->_since_id = $this->__validate_offset ($value);
         }
+
+        /**
+         * Setter for field: tag
+         *
+         * @param string $value
+         * @access protected
+         */
         protected function __set_tag ($value) {
             $this->_tag = $value;
         }
