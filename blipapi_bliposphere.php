@@ -32,7 +32,7 @@ if (!class_exists ('BlipApi_Bliposphere')) {
         * @access public
         * @return array parameters for BlipApi::__query
         */
-        public static function read ($include=array (), $limit=10) {
+        public static function read ($include=null, $limit=10) {
             $url = '/bliposphere';
 
             $params = array ();
