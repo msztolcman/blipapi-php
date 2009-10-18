@@ -65,7 +65,7 @@ if (!class_exists ('BlipApi_Dirmsg')) {
         * @access public
         * @return array parameters for BlipApi::__query
         */
-        public static function read ($id=null, $user=null, $include=array (), $since_id=false, $limit=10, $offset=0) {
+        public static function read ($id=null, $user=null, $include=null, $since_id=false, $limit=10, $offset=0) {
             # normalnie pobieramy mesgi z tego zasobu
             $url = '/directed_messages';
 

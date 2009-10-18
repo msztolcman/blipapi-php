@@ -35,7 +35,7 @@ if (!class_exists ('BlipApi_Subscription')) {
         * @access public
         * @return array parameters for BlipApi::__query
         */
-        public static function read ($user=null, $include=array(), $direction = 'both') {
+        public static function read ($user=null, $include=null, $direction = 'both') {
             $direction = strtolower ($direction);
             if (!in_array ($direction, array ('both', 'to', 'from'))) {
                 throw new UnexpectedValueException (sprintf ('Incorrect param: "direction": "%s". Allowed values: both, from, to.',

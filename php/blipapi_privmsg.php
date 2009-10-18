@@ -64,7 +64,7 @@ if (!class_exists ('BlipApi_Privmsg')) {
         * @access public
         * @return array parameters for BlipApi::__query
         */
-        public static function read ($id=null, $include=array (), $since_id=false, $limit=10, $offset=0) {
+        public static function read ($id=null, $include=null, $since_id=false, $limit=10, $offset=0) {
             # normalnie pobieramy mesgi z tego zasobu
             $url = '/private_messages';
 

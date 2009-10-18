@@ -35,7 +35,7 @@ if (!class_exists ('BlipApi_Dashboard')) {
         * @access public
         * @return array parameters for BlipApi::__query
         */
-        public static function read ($since_id=null, $user=null, $include=array (), $limit=10, $offset=0) {
+        public static function read ($since_id=null, $user=null, $include=null, $limit=10, $offset=0) {
             if ($user) {
                 $url = "/users/$user/dashboard";
             }

@@ -38,7 +38,7 @@ if (!class_exists ('BlipApi_Picture')) {
         * @return array parameters for BlipApi::__query
         */
 
-        public static function read ($id=null, $include=array (), $since_id=false, $limit=10, $offset=0) {
+        public static function read ($id=null, $include=null, $since_id=false, $limit=10, $offset=0) {
             if ($id && $since_id) {
                 $url = "/pictures/$id/all_since";
             }

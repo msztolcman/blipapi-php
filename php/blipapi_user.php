@@ -32,7 +32,7 @@ if (!class_exists ('BlipApi_User')) {
         * @access public
         * @return array parameters for BlipApi::__query
         */
-        public static function read ($user=null, $include=array ()) {
+        public static function read ($user=null, $include=null) {
             if ($user) {
                 $url = '/users/'. $user;
             }
