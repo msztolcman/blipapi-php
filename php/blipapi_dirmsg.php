@@ -35,7 +35,7 @@ if (!class_exists ('BlipApi_Dirmsg')) {
         * @access public
         * @return array parameters for BlipApi::__query
         */
-        public static function create ($body, $user, $picture = null) {
+        public static function create ($body, $user, $picture=null) {
             if (!$body || !$user) {
                 throw new UnexpectedValueException ('Directed_message body or recipient is missing.', -1);
             }
