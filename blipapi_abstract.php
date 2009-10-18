@@ -1,0 +1,133 @@
+<?php
+
+/**
+ * Blip! (http://blip.pl) communication library.
+ *
+ * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
+ * @version 0.02.20
+ * @version $Id: blipapi.php 89 2009-10-18 16:22:13Z urzenia $
+ * @copyright Copyright (c) 2007, Marcin Sztolcman
+ * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
+ * @package blipapi
+ */
+
+/**
+ * Blip! (http://blip.pl) communication library.
+ *
+ * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
+ * @version 0.02.20
+ * @version $Id: blipapi.php 89 2009-10-18 16:22:13Z urzenia $
+ * @copyright Copyright (c) 2007, Marcin Sztolcman
+ * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
+ * @package blipapi
+ */
+
+if (!class_exists ('BlipApi_Abstract')) {
+
+    abstract class BlipApi_Abstract {
+        public function __construct ($args=null) {
+            if (!$args || !is_array ($args)) {
+                return;
+            }
+
+            foreach ($args as $k=>$v) {
+                $this->$k = $v;
+            }
+        }
+
+        /**
+        * Setter for some options
+        *
+        * For specified keys, call proper __set_* method. Throws InvalidArgumentException exception when incorrect key was
+        * specified.
+        *
+        * @param string $key name of property to set
+        * @param mixed $value value of property
+        * @access public
+        */
+        public function __set ($key, $value) {
+            if (!method_exists ($this, '__set_'.$key)) {
+                throw new InvalidArgumentException (sprintf ('Unknown param: "%s".', $key), -1);
+            }
+
+            return call_user_func (array ($this, '__set_'.$key), $value);
+        }
+
+        /**
+        * Getter for some options
+        *
+        * For specified keys, return them. Throws InvalidArgumentException exception when incorrect key was specified.
+        *
+        * @param string $key name of property to return
+        * @return mixed
+        * @access public
+        */
+        public function __get ($key) {
+            if (method_exists ($this, '__get_'.$key)) {
+                return call_user_func (array ($this, '__get_'.$key));
+            }
+
+            else if (!method_exists ($this, '__set_'.$key)) {
+                throw new InvalidArgumentException ("Unknown param: \"$key\".", -1);
+            }
+
+            $key = '_'.$key;
+            return $this->$key;
+        }
+
+        protected function __validate_file ($path=null, $allow_empty=false) {
+            if (!$path) {
+                if ($allow_empty) {
+                    throw new InvalidArgumentException ('File path is missing.');
+                }
+
+                return '';
+            }
+
+            if ($path[0] == '@') {
+                $path = substr ($path, 1);
+            }
+
+            if (!is_file ($path)) {
+                throw new InvalidArgumentException ("File $path not found.");
+            }
+
+            return $path;
+        }
+
+        protected function __validate_limit ($limit) {
+            if (!is_int ($limit) || $limit < 0) {
+                throw new InvalidArgumentException ("Incorrect value of limit.");
+            }
+            else if ($limit == 0) {
+                return 50;
+            }
+            else {
+                return $limit;
+            }
+        }
+
+        protected function __validate_offset ($offset) {
+            if (!is_int ($offset) || $offset < 0) {
+                throw new InvalidArgumentException ("Incorrect value of offset.");
+            }
+            else {
+                return $offset;
+            }
+        }
+
+        protected function __validate_include ($include) {
+            if (!$include) {
+                return;
+            }
+            else if (gettype ($include) != 'array') {
+                return array ($include);
+            }
+            else {
+                return $include;
+            }
+        }
+
+    }
+}
+
