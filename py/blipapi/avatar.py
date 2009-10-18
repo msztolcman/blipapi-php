@@ -11,14 +11,16 @@ import os.path
 
 from _utils import make_post_data
 
-def read (user):
+def read (user=None):
     """ Get info about specified user's avatar. """
 
     if not user:
-        raise ValueError ('User name is missing.')
+        url = '/avatar'
+    else:
+        url     = '/users/' + user + '/avatar',
 
     return dict (
-        url     = '/users/' + user + '/avatar',
+        url     = url,
         method  = 'get',
     )
 
