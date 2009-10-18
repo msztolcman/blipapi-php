@@ -41,9 +41,18 @@ def update (user, www=None, im=None):
 
     url = '/subscriptions/' + user
 
+    if www:
+        www = 1
+    else:
+        www = 0
+
+    if im:
+        im = 1
+    else:
+        im = 0
     data = {
-        'subscription[www]': str (1 if www else 0),
-        'subscription[im]': str (1 if im else 0),
+        'subscription[www]': str (www),
+        'subscription[im]': str (im),
     }
     return dict (
         url     = url + '?' + arr2qstr (data),
