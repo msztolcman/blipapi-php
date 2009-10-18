@@ -25,6 +25,13 @@
 if (!class_exists ('BlipApi_Abstract')) {
 
     abstract class BlipApi_Abstract {
+
+        /**
+         * Automatic constructor - if first argument is an array, assign all keys from it as object properties.
+         *
+         * @param array $args
+         * @access public
+         */
         public function __construct ($args=null) {
             if (!$args || !is_array ($args)) {
                 return;
@@ -75,6 +82,13 @@ if (!class_exists ('BlipApi_Abstract')) {
             return $this->$key;
         }
 
+        /**
+         * Validator for field of type: file
+         *
+         * @param string $path
+         * @param bool $allow_empty
+         * @access protected
+         */
         protected function __validate_file ($path=null, $allow_empty=false) {
             if (!$path) {
                 if ($allow_empty) {
@@ -95,6 +109,12 @@ if (!class_exists ('BlipApi_Abstract')) {
             return $path;
         }
 
+        /**
+         * Validator for field of type: limit
+         *
+         * @param int $limit
+         * @access protected
+         */
         protected function __validate_limit ($limit) {
             if (!is_int ($limit) || $limit < 0) {
                 throw new InvalidArgumentException ("Incorrect value of limit.");
@@ -107,6 +127,12 @@ if (!class_exists ('BlipApi_Abstract')) {
             }
         }
 
+        /**
+         * Validator for field of type: offset
+         *
+         * @param int $offset
+         * @access protected
+         */
         protected function __validate_offset ($offset) {
             if (!is_int ($offset) || $offset < 0) {
                 throw new InvalidArgumentException ("Incorrect value of offset.");
@@ -116,6 +142,12 @@ if (!class_exists ('BlipApi_Abstract')) {
             }
         }
 
+        /**
+         * Validator for field of type: include
+         *
+         * @param misc $include if array, return the same, if any other, return as array with this item as one value
+         * @access protected
+         */
         protected function __validate_include ($include) {
             if (!$include) {
                 return;
