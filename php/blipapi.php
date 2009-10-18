@@ -4,7 +4,7 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.16
+ * @version 0.02.20
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
@@ -15,7 +15,7 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.16
+ * @version 0.02.20
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
@@ -25,6 +25,112 @@
 if (!class_exists ('BlipApi')) {
 
     interface IBlipApi_Command { }
+
+    abstract class BlipApi_Abstract {
+        public function __construct ($args=null) {
+            if (!$args || !is_array ($args)) {
+                return;
+            }
+
+            foreach ($args as $k=>$v) {
+                $this->$k = $v;
+            }
+        }
+
+        /**
+        * Setter for some options
+        *
+        * For specified keys, call proper __set_* method. Throws InvalidArgumentException exception when incorrect key was
+        * specified.
+        *
+        * @param string $key name of property to set
+        * @param mixed $value value of property
+        * @access public
+        */
+        public function __set ($key, $value) {
+            if (!method_exists ($this, '__set_'.$key)) {
+                throw new InvalidArgumentException (sprintf ('Unknown param: "%s".', $key), -1);
+            }
+
+            return call_user_func (array ($this, '__set_'.$key), $value);
+        }
+
+        /**
+        * Getter for some options
+        *
+        * For specified keys, return them. Throws InvalidArgumentException exception when incorrect key was specified.
+        *
+        * @param string $key name of property to return
+        * @return mixed
+        * @access public
+        */
+        public function __get ($key) {
+            if (method_exists ($this, '__get_'.$key)) {
+                return call_user_func (array ($this, '__get_'.$key));
+            }
+
+            else if (!method_exists ($this, '__set_'.$key)) {
+                throw new InvalidArgumentException ("Unknown param: \"$key\".", -1);
+            }
+
+            $key = '_'.$key;
+            return $this->$key;
+        }
+
+        protected function __validate_file ($path=null, $allow_empty=false) {
+            if (!$path) {
+                if ($allow_empty) {
+                    throw new InvalidArgumentException ('File path is missing.');
+                }
+
+                return '';
+            }
+
+            if ($path[0] == '@') {
+                $path = substr ($path, 1);
+            }
+
+            if (!is_file ($path)) {
+                throw new InvalidArgumentException ("File $path not found.");
+            }
+
+            return $path;
+        }
+
+        protected function __validate_limit ($limit) {
+            if (!is_int ($limit) || $limit < 0) {
+                throw new InvalidArgumentException ("Incorrect value of limit.");
+            }
+            else if ($limit == 0) {
+                return 50;
+            }
+            else {
+                return $limit;
+            }
+        }
+
+        protected function __validate_offset ($offset) {
+            if (!is_int ($offset) || $offset < 0) {
+                throw new InvalidArgumentException ("Incorrect value of offset.");
+            }
+            else {
+                return $offset;
+            }
+        }
+
+        protected function __validate_include ($include) {
+            if (!$include) {
+                return;
+            }
+            else if (gettype ($include) != 'array') {
+                return array ($include);
+            }
+            else {
+                return $include;
+            }
+        }
+
+    }
 
     /**
     * Function registered for SPL autoloading - load required class
@@ -52,7 +158,7 @@ if (!class_exists ('BlipApi')) {
         return implode ('&', $ret);
     }
 
-    class BlipApi {
+    class BlipApi extends BlipApi_Abstract {
         /**
         * CURL handler
         *
@@ -83,7 +189,7 @@ if (!class_exists ('BlipApi')) {
         * @access protected
         * @var string
         */
-        protected $_uagent      = 'BlipApi.php/0.02.16 (http://blipapi.googlecode.com)';
+        protected $_uagent      = 'BlipApi.php/0.02.20 (http://blipapi.googlecode.com)';
 
         /**
         *
@@ -208,18 +314,24 @@ if (!class_exists ('BlipApi')) {
         * @access public
         * @return return of {@link execute}
         */
-        public function __call ($fn, $args) {
-            # szukamy klasy i metody do uzycia
-            list ($class_name, $method_name) = preg_split ('/_/', $fn, 2);
-            $class_name     = 'BlipApi_'.ucfirst ($class_name);
-            $method_name    = strtolower ($method_name);
-            if (!class_exists ($class_name) || !method_exists ($class_name, $method_name)) {
-                throw new InvalidArgumentException ('Command not found.', -1);
+        public function __call ($method_name, $args) {
+            if (count ($args) < 1) {
+                throw new InvalidArgumentException ("Missing method object.");
             }
-            $this->_debug ('CMD: '. $class_name.'::'.$method_name);
+            else if (!($args[0] instanceof IBlipApi_Command)) {
+                throw new InvalidArgumentException ("Unknown command: ".(is_object ($args[0]) ? get_class ($args[0]) : gettype ($args[0])));
+            }
+            else if (
+                !in_array ($method_name, array ('create', 'read', 'update', 'delete')) ||
+                !method_exists ($args[0], $method_name)
+            ) {
+                throw new BadMethodCallException ("Unknown method \"$method_name\".");
+            }
+
+            $this->_debug ('CMD: '. get_class ($args[0]).'::'.$method_name);
 
             # wywołujemy znalezioną metodę aby pobrac dane dla requestu
-            $method_data = call_user_func_array (array ($class_name, $method_name), $args);
+            $method_data = call_user_func (array ($args[0], $method_name));
             $url            = $method_data[0];
             $http_method    = $method_data[1];
             $http_data      = null;
@@ -312,42 +424,6 @@ if (!class_exists ('BlipApi')) {
             }
 
             return $reply;
-        }
-
-        /**
-        * Setter for some options
-        *
-        * For specified keys, call proper __set_* method. Throws InvalidArgumentException exception when incorrect key was
-        * specified.
-        *
-        * @param string $key name of property to set
-        * @param mixed $value value of property
-        * @access public
-        */
-        public function __set ($key, $value) {
-            if (!method_exists ($this, '__set_'.$key)) {
-                throw new InvalidArgumentException (sprintf ('Unknown param: "%s".', $key), -1);
-            }
-
-            return call_user_func (array ($this, '__set_'.$key), $value);
-        }
-
-        /**
-        * Getter for some options
-        *
-        * For specified keys, return them. Throws InvalidArgumentException exception when incorrect key was specified.
-        *
-        * @param string $key name of property to return
-        * @return mixed
-        * @access public
-        */
-        public function __get ($key) {
-            if (!method_exists ($this, '__set_'.$key)) {
-                throw new InvalidArgumentException (sprintf ('Unknown param: "%s".', $key), -1);
-            }
-
-            $key = '_'.$key;
-            return $this->$key;
         }
 
         /**
