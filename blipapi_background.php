@@ -52,7 +52,7 @@ if (!class_exists ('BlipApi_Background')) {
         /**
         * Upload new background
         *
-        * Throws UnexpectedValueException if background path is missing, or file not found
+        * Throws InvalidArgumentException if background path is missing, or file not found
         *
         * @param string $background new background path
         * @access public
