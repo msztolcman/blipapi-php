@@ -267,7 +267,7 @@ if (!class_exists ('BlipApi')) {
                 break;
 
                 default:
-                    throw new UnexpectedValueException ('Unknown HTTP method.', -1);
+                    throw new InvalidArgumentException ('Unknown HTTP method.', -1);
             }
             $this->_debug ('METHOD: '. strtoupper ($http_method));
 
@@ -447,7 +447,7 @@ if (!class_exists ('BlipApi')) {
         *
         * Param $headers have to be an array, where key is header name, and value - header value, or string in
         * 'Header-Name: Value'.
-        * Throws UnexpectedValueException of incorect type of $headers is given
+        * Throws InvalidArgumentException of incorect type of $headers is given
         *
         * @param array|string $headers
         * @access protected
@@ -460,7 +460,7 @@ if (!class_exists ('BlipApi')) {
                 $headers = array ( $match[1] => $match[2] );
             }
             else if (!is_array ($headers)) {
-                throw new UnexpectedValueException (sprintf ('%s::$headers have to be an array or string, but %s given.',
+                throw new InvalidArgumentException (sprintf ('%s::$headers have to be an array or string, but %s given.',
                     __CLASS__,
                     gettype ($headers)), -1
                 );
@@ -529,7 +529,7 @@ if (!class_exists ('BlipApi')) {
                 $headers = array ($headers);
             }
             else if (!is_array ($headers)) {
-                throw new UnexpectedValueException ('Incorrect value specified.', -1);
+                throw new InvalidArgumentException ('Incorrect value specified.', -1);
             }
 
             $ret = array ();
