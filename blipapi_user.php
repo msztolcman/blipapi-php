@@ -24,7 +24,21 @@
 
 if (!class_exists ('BlipApi_User')) {
     class BlipApi_User extends BlipApi_Abstract implements IBlipApi_Command {
+        /**
+          * Include some additional data in respond to read method.
+          * More info: http://www.blip.pl/api-0.02.html#parametry
+          *
+          * @access protected
+          * @var string|array
+          */
         protected $_include;
+
+        /**
+         * User name
+         *
+         * @access protected
+         * @var string
+         */
         protected $_user;
 
         protected function __set_include ($value) {
@@ -35,11 +49,11 @@ if (!class_exists ('BlipApi_User')) {
         }
 
         /**
-        * Return users data
-        *
-        * @access public
-        * @return array parameters for BlipApi::__query
-        */
+         * Return users data
+         *
+         * @access public
+         * @return array parameters for BlipApi::__query
+         */
         public function read () {
             if ($this->_user) {
                 $url = "/users/$this->_user";
