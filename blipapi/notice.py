@@ -9,12 +9,25 @@
 
 from _utils import arr2qstr
 
-def read (include=None, since_id=None, limit=10, offset=0):
-    """ Get notices directed to logged user. """
+def read (id=None, user=None, include=None, since_id=None, limit=10, offset=0):
+    """ Get notices. """
 
-    url = '/notices'
-    if since_id:
-        url += '/since/' + str (since_id)
+    if user:
+        if user == '__all__':
+            if id:
+                url += '/' + str (id)
+            url += '/all'
+            if since_id:
+                url += '_since'
+        else:
+            url = '/users/' + str (user) + '/notices'
+            if since_id and id:
+                url += '/' + str (id) + '/since'
+    else:
+        if id and since_id:
+            url += '/since/' + str (id)
+        elif id:
+            url += '/' + str (id)
 
     params = dict ()
 
