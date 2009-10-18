@@ -61,18 +61,18 @@ if (!class_exists ('BlipApi_Dirmsg')) {
         /**
         * Create direct message
         *
-        * Throws UnexpectedValueException if some of parametr is missing.
+        * Throws InvalidArgumentException if some of parametr is missing.
         *
         * @access public
         * @return array parameters for BlipApi::__query
         */
         public function create () {
             if (!$this->_body || !$this->_user) {
-                throw new UnexpectedValueException ('Directed_message body or recipient is missing.', -1);
+                throw new InvalidArgumentException ('Directed_message body or recipient is missing.', -1);
             }
             $opts = array();
             $data = array('directed_message[body]' => $this->_body, 'directed_message[recipient]' => $this->_user);
-            if ($this->_image !== null) {
+            if ($this->_image) {
                 $data['directed_message[picture]'] = '@'.$this->_image;
                 $opts['multipart'] = true;
             }
@@ -139,14 +139,14 @@ if (!class_exists ('BlipApi_Dirmsg')) {
         /**
         * Delete direct message
         *
-        * Throws UnexpectedValueException when directed message ID is missing
+        * Throws InvalidArgumentException when directed message ID is missing
         *
         * @access public
         * @return array parameters for BlipApi::__query
         */
         public function delete () {
             if (!$this->_id) {
-                throw new UnexpectedValueException ('Directed_message ID is missing.', -1);
+                throw new InvalidArgumentException ('Directed_message ID is missing.', -1);
             }
             return array ('/directed_messages/'. $this->_id, 'delete');
         }

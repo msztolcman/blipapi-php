@@ -4,7 +4,7 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.16
+ * @version 0.02.20
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
@@ -15,7 +15,7 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.16
+ * @version 0.02.20
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
@@ -23,21 +23,26 @@
  */
 
 if (!class_exists ('BlipApi_Recording')) {
-    class BlipApi_Recording implements IBlipApi_Command {
+    class BlipApi_Recording extends BlipApi_Abstract implements IBlipApi_Command {
+        protected $_id;
+
+        protected function __set_id ($value) {
+            $this->_id = $this->__validate_offset ($value);
+        }
+
         /**
         * Read recording attached to status/message/update
         *
-        * Throws UnexpectedValueException when status ID is missing
+        * Throws InvalidArgumentException when status ID is missing
         *
-        * @param int $id status ID
         * @access public
         * @return array parameters for BlipApi::__query
         */
-        public static function read ($id) {
-            if (!$id) {
-                throw new UnexpectedValueException ('Update ID is missing.', -1);
+        public function read () {
+            if (!$this->_id) {
+                throw new InvalidArgumentException ('Update ID is missing.', -1);
             }
-            return array ("/updates/$id/recording", 'get');
+            return array ("/updates/$this->_id/recording", 'get');
         }
     }
 }

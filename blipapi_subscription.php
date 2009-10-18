@@ -4,7 +4,7 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.16
+ * @version 0.02.20
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
@@ -15,7 +15,7 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.16
+ * @version 0.02.20
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
@@ -23,37 +23,54 @@
  */
 
 if (!class_exists ('BlipApi_Subscription')) {
-    class BlipApi_Subscription implements IBlipApi_Command {
+    class BlipApi_Subscription extends BlipApi_Abstract implements IBlipApi_Command {
+        protected $_direction   = 'both';
+        protected $_im;
+        protected $_include;
+        protected $_user;
+        protected $_www;
+
+        protected function __set_direction ($value) {
+            if (!in_array ($value, array ('from', 'to', 'both'))) {
+                throw new InvalidArgumentException ("Incorrect direction.");
+            }
+
+            $this->_direction = $value;
+        }
+        protected function __set_im ($value) {
+            $this->_im = $value;
+        }
+        protected function __set_include ($value) {
+            $this->_include = $this->__validate_include ($value);
+        }
+        protected function __set_user ($value) {
+            $this->_user = $value;
+        }
+        protected function __set_www ($value) {
+            $this->_www = $value;
+        }
+
         /**
         * Return user current subscriptions
         *
-        * Throws UnexpectedValueException when incorrect $direction is specified.
+        * Throws InvalidArgumentException when incorrect $direction is specified.
         *
-        * @param string $user
-        * @param array $include array of resources to include (more info in official API documentation: {@link http://www.blip.pl/api-0.02.html}.
-        * @param string $direction subscription direction. Can be: both (default), from, to
         * @access public
         * @return array parameters for BlipApi::__query
         */
-        public static function read ($user=null, $include=null, $direction = 'both') {
-            $direction = strtolower ($direction);
-            if (!in_array ($direction, array ('both', 'to', 'from'))) {
-                throw new UnexpectedValueException (sprintf ('Incorrect param: "direction": "%s". Allowed values: both, from, to.',
-                    $direction), -1);
+        public function read () {
+            if ($this->_direction == 'both') {
+                $this->_direction = '';
             }
 
-            if ($direction == 'both') {
-                $direction = '';
-            }
-
-            $url = '/subscriptions/' . $direction;
-            if (!is_null ($user) && $user) {
-                $url = '/users/'. $user . $url;
+            $url = '/subscriptions/' . $this->_direction;
+            if ($this->_user) {
+                $url = '/users/'. $this->_user . $url;
             }
 
             $params = array ();
-            if ($include) {
-                $params['include'] = implode (',', $include);
+            if ($this->_include) {
+                $params['include'] = implode (',', $this->_include);
             }
 
             if (count ($params)) {
@@ -66,21 +83,18 @@ if (!class_exists ('BlipApi_Subscription')) {
         /**
         * Create or delete subscription of given user to current signed
         *
-        * @param string $user subscribed user
-        * @param bool $www
-        * @param bool $im
         * @access public
         * @return array parameters for BlipApi::__query
         */
-        public static function update ($user, $www=null, $im=null) {
+        public function update () {
             $url = '/subscriptions';
-            if (!is_null ($user) && $user) {
-                $url .= '/'. $user;
+            if ($this->_user) {
+                $url .= "/$this->_user";
             }
 
             $data = array (
-                'subscription[www]' => $www ? 1 : 0,
-                'subscription[im]'  => $im  ? 1 : 0,
+                'subscription[www]' => $this->_www ? 1 : 0,
+                'subscription[im]'  => $this->_im  ? 1 : 0,
             );
             return array ($url . '?' . BlipApi__arr2qstr ($data), 'put');
         }
@@ -88,12 +102,15 @@ if (!class_exists ('BlipApi_Subscription')) {
         /**
         * Delete subscription
         *
-        * @param string $user
         * @access public
         * @return array parameters for BlipApi::__query
         */
-        public static function delete ($user) {
-            return array ('/subscriptions/'. $user, 'delete');
+        public function delete () {
+            if (!$this->_user) {
+                throw new InvalidArgumentException ("Missing user");
+            }
+
+            return array ("/subscriptions/$this->_user", 'delete');
         }
     }
 }

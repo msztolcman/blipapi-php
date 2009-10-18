@@ -51,7 +51,7 @@ if (!class_exists ('BlipApi_Avatar')) {
         /**
         * Upload new avatar
         *
-        * Throws UnexpectedValueException if avatar path is missing or file not found
+        * Throws InvalidArgumentException if avatar path is missing or file not found
         *
         * @access public
         * @return array parameters for BlipApi::__query

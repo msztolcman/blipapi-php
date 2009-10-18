@@ -4,7 +4,7 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.16
+ * @version 0.02.20
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
@@ -15,7 +15,7 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.16
+ * @version 0.02.20
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
@@ -23,28 +23,57 @@
  */
 
 if (!class_exists ('BlipApi_Status')) {
-    class BlipApi_Status implements IBlipApi_Command {
+    class BlipApi_Status extends BlipApi_Abstract implements IBlipApi_Command {
+        protected $_body;
+        protected $_id;
+        protected $_include;
+        protected $_limit   = 10;
+        protected $_offset  = 0;
+        protected $_image;
+        protected $_since_id;
+        protected $_user;
+
+        protected function __set_body ($value) {
+            $this->_body = $value;
+        }
+        protected function __set_id ($value) {
+            $this->_id = $this->__validate_offset ($value);
+        }
+        protected function __set_include ($value) {
+            $this->_include = $this->__validate_include ($value);
+        }
+        protected function __set_limit ($value) {
+            $this->_limit = $this->__validate_limit ($value);
+        }
+        protected function __set_offset ($value) {
+            $this->_offset = $this->__validate_offset ($value);
+        }
+        protected function __set_image ($value) {
+            $this->_image = $this->__validate_file ($value);
+        }
+        protected function __set_since_id ($value) {
+            $this->_since_id = $this->__validate_offset ($value);
+        }
+        protected function __set_user ($value) {
+            $this->_user = $value;
+        }
+
         /**
         * Create status
         *
-        * Throws UnexpectedValueException when status body is missing
+        * Throws InvalidArgumentException when status body is missing
         *
-        * @param string $body Body of setted message
-        * @param string @picture Absolute path to a picture assigned to a status
         * @access public
         * @return array parameters for BlipApi::__query
         */
-        public static function create ($body, $picture = null) {
-            if (!$body) {
-                throw new UnexpectedValueException ('Status body is missing.', -1);
+        public function create () {
+            if (!$this->_body) {
+                throw new InvalidArgumentException ('Status body is missing.', -1);
             }
             $opts = array();
-            $data = array('status[body]' => $body);
-            if ($picture !== null) {
-                if ($picture[0] != '@') {
-                    $picture = '@'.$picture;
-                }
-                $data['status[picture]'] = $picture;
+            $data = array('status[body]' => $this->_body);
+            if ($this->_image) {
+                $data['status[picture]'] = '@'.$this->_image;
                 $opts['multipart'] = true;
             }
             return array ('/statuses', 'post', $data, $opts);
@@ -55,60 +84,48 @@ if (!class_exists ('BlipApi_Status')) {
         *
         * Meaning of params: {@link http://www.blip.pl/api-0.02.html}
         *
-        * @param int $id status ID
-        * @param string $user username
-        * @param array $include array of resources to include (more info in official API documentation: {@link http://www.blip.pl/api-0.02.html}.
-        * @param bool $since_id
-        * @param int $limit default to 10
-        * @param int $offset default to 0
         * @access public
         * @return array parameters for BlipApi::__query
         */
-        public static function read ($id=null, $user=null, $include=null, $since_id=false, $limit=10, $offset=0) {
-            # normalnie pobieramy statusy z tego zasobu
-            $url = '/statuses';
-
-            if ($user) {
-                # ten user nie istnieje, wprowadzamy go dla wygody użytkownika biblioteki.
-                if (strtolower ($user) == '__all__') {
-                    if ($id) {
-                        $url    .= '/'. $id;
-                        $id     = null;
+        public function read () {
+            if ($this->_user) {
+                if ($this->_user == '__ALL__') {
+                    if ($this->_since_id) {
+                        $url = "/statuses/$this->_since_id/all_since";
                     }
-                    $url        .= '/all';
-                    if ($since_id) {
-                        $url    .= '_since';
-                        $since_id  = null;
+                    else {
+                        $url = "/statuses/all";
                     }
                 }
-                # jeśli pobieramy konkretnego usera, to wszystko jest prostsze
                 else {
-                    $url = "/users/$user/statuses";
+                    if ($this->_since_id) {
+                        $url = "/users/$this->_user/statuses/$this->_since_id/since";
+                    }
+                    else {
+                        $url = "/users/$this->_user/statuses";
+                    }
                 }
             }
-
-            # dla pojedynczego usera, innego niż __all__, dodajemy id wpisu
-            if (!is_null ($id) && $id) {
-                $url .= '/'. $id;
+            else if ($this->_id) {
+                $url = "/statuses/$this->_id";
             }
 
-            if ($since_id) {
-                $url .= '/since';
+            else {
+                $url = '/statuses';
+                if ($this->_since_id) {
+                    $url .= "/$this->_since_id/since";
+                }
             }
 
             $params = array ();
-            $limit = (int)$limit;
-            if ($limit) {
-                $params['limit'] = $limit;
+            if ($this->_limit) {
+                $params['limit'] = $this->_limit;
             }
-
-            $offset = (int)$offset;
-            if ($offset) {
-                $params['offset'] = $offset;
+            if ($this->_offset) {
+                $params['offset'] = $this->_offset;
             }
-
-            if ($include) {
-                $params['include'] = implode (',', $include);
+            if ($this->_include) {
+                $params['include'] = implode (',', $this->_include);
             }
 
             if (count ($params)) {
@@ -121,17 +138,16 @@ if (!class_exists ('BlipApi_Status')) {
         /**
         * Delete status
         *
-        * Throws UnexpectedValueException when status ID is missing
+        * Throws InvalidArgumentException when status ID is missing
         *
-        * @param int $id status ID
         * @access public
         * @return array parameters for BlipApi::__query
         */
-        public static function delete ($id) {
-            if (!$id) {
-                throw new UnexpectedValueException ('Status ID is missing.', -1);
+        public function delete () {
+            if (!$this->_id) {
+                throw new InvalidArgumentException ('Status ID is missing.', -1);
             }
-            return array ('/statuses/'. $id, 'delete');
+            return array ("/statuses/$this->_id", 'delete');
         }
     }
 }
