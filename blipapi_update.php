@@ -95,7 +95,7 @@ if (!class_exists ('BlipApi_Update')) {
         * It's hard to explain what are doing specified parameters. Please consult with offcial API
         * documentation: {@link http://www.blip.pl/api-0.02.html}.
         *
-        * Differences with official API: if you want messages from all users, specify $user == __all__.
+        * Differences with official API: if you want messages from all users, specify $user == __ALL__.
         *
         * @static
         * @access public

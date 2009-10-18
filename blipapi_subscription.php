@@ -65,7 +65,7 @@ if (!class_exists ('BlipApi_Subscription')) {
 
             $url = '/subscriptions/' . $this->_direction;
             if ($this->_user) {
-                $url = '/users/'. $this->_user . $url;
+                $url = "/users/$this->_user$url";
             }
 
             $params = array ();
