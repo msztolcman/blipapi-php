@@ -64,8 +64,8 @@ if (!class_exists ('BlipApi_Dashboard')) {
                 $url = '/dashboard';
             }
 
-            if (!is_null ($this->_since_id) && $this->_since_id) {
-                $url .= '/since/' . $this->_since_id;
+            if ($this->_since_id) {
+                $url .= "/since/$this->_since_id";
             }
 
             $params = array ();

@@ -53,10 +53,10 @@ if (!class_exists ('BlipApi_Tag')) {
                 throw new InvalidArgumentException ('Tag name is missing.', -1);
             }
 
-            $url = '/tags/'.$this->_tag;
+            $url = "/tags/$this->_tag";
 
             if ($this->_since_id) {
-                $url .= '/since/' . $this->_since_id;
+                $url .= "/since/$this->_since_id";
             }
 
             $params = array ();
