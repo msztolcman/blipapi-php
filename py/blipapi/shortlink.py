@@ -9,7 +9,7 @@
 
 from _utils import arr2qstr
 
-def read (code=None, since_id=None, limit=None, offset=None):
+def read (code=None, since_id=None, limit=10, offset=0):
     """ Get list of shortlinks, or info about specified shortlink (by it's code). """
 
     url = '/shortlinks'
