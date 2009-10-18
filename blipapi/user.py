@@ -9,13 +9,13 @@
 
 from _utils import arr2qstr
 
-def read (user, include=None):
+def read (user=None, include=None):
     """ Get info about user. """
 
-    if not user:
-        raise ValueError ('User name is missing.')
-
-    url = '/users/' + user
+    if user:
+        url = '/users/' + user
+    else:
+        url = '/profile'
 
     params = dict ()
 
