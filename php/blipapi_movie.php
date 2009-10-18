@@ -32,14 +32,14 @@ if (!class_exists ('BlipApi_Movie')) {
         /**
         * Read movie attached to status/message/update
         *
-        * Throws UnexpectedValueException when status ID is missing
+        * Throws InvalidArgumentException when status ID is missing
         *
         * @access public
         * @return array parameters for BlipApi::__query
         */
         public function read () {
             if (!$this->_id) {
-                throw new UnexpectedValueException ('Update ID is missing.', -1);
+                throw new InvalidArgumentException ('Update ID is missing.', -1);
             }
             return array ("/updates/$this->_id/movie", 'get');
         }
