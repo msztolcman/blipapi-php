@@ -43,15 +43,15 @@ if (!class_exists ('BlipApi_Abstract')) {
         }
 
         /**
-        * Setter for some options
-        *
-        * For specified keys, call proper __set_* method. Throws InvalidArgumentException exception when incorrect key was
-        * specified.
-        *
-        * @param string $key name of property to set
-        * @param mixed $value value of property
-        * @access public
-        */
+         * Setter for some options
+         *
+         * For specified keys, call proper __set_* method. Throws InvalidArgumentException exception when incorrect key was
+         * specified.
+         *
+         * @param string $key name of property to set
+         * @param mixed $value value of property
+         * @access public
+         */
         public function __set ($key, $value) {
             if (!method_exists ($this, '__set_'.$key)) {
                 throw new InvalidArgumentException (sprintf ('Unknown param: "%s".', $key), -1);
@@ -61,14 +61,14 @@ if (!class_exists ('BlipApi_Abstract')) {
         }
 
         /**
-        * Getter for some options
-        *
-        * For specified keys, return them. Throws InvalidArgumentException exception when incorrect key was specified.
-        *
-        * @param string $key name of property to return
-        * @return mixed
-        * @access public
-        */
+         * Getter for some options
+         *
+         * For specified keys, return them. Throws InvalidArgumentException exception when incorrect key was specified.
+         *
+         * @param string $key name of property to return
+         * @return mixed
+         * @access public
+         */
         public function __get ($key) {
             if (method_exists ($this, '__get_'.$key)) {
                 return call_user_func (array ($this, '__get_'.$key));

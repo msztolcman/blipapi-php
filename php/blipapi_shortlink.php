@@ -24,10 +24,44 @@
 
 if (!class_exists ('BlipApi_Shortlink')) {
     class BlipApi_Shortlink extends BlipApi_Abstract implements IBlipApi_Command {
+        /**
+         * Code from rdir.pl to decode
+         *
+         * @access protected
+         * @var string
+         */
         protected $_code;
+
+        /**
+         * Limit read results to $_limit items
+         *
+         * @access protected
+         * @var int
+         */
         protected $_limit       = 10;
+
+        /**
+         * URL to encode
+         *
+         * @access protected
+         * @var string
+         */
         protected $_link;
+
+        /**
+         * Offset for read result set
+         *
+         * @access protected
+         * @var int
+         */
         protected $_offset      = 0;
+
+        /**
+         * ID of item where data is being set.
+         *
+         * @access protected
+         * @var int
+         */
         protected $_since_id;
 
         protected function __set_code ($value) {
@@ -47,13 +81,13 @@ if (!class_exists ('BlipApi_Shortlink')) {
         }
 
         /**
-        * Create shortlink
-        *
-        * Throws InvalidArgumentException if url is missing.
-        *
-        * @access public
-        * @return array parameters for BlipApi::__call
-        */
+         * Create shortlink
+         *
+         * Throws InvalidArgumentException if url is missing.
+         *
+         * @access public
+         * @return array parameters for BlipApi::__call
+         */
         public function create () {
             if (!$this->_link) {
                 throw new InvalidArgumentException ("Url is missing.");
@@ -67,11 +101,11 @@ if (!class_exists ('BlipApi_Shortlink')) {
         }
 
         /**
-        * Get shortlinks from Blip!'s rdir system
-        *
-        * @access public
-        * @return array parameters for BlipApi::__call
-        */
+         * Get shortlinks from Blip!'s rdir system
+         *
+         * @access public
+         * @return array parameters for BlipApi::__call
+         */
         public function read () {
             if ($this->_code) {
                 $url = "/shortlinks/$this->_code";

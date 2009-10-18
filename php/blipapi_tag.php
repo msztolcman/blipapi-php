@@ -24,9 +24,37 @@
 
 if (!class_exists ('BlipApi_Tag')) {
     class BlipApi_Tag extends BlipApi_Abstract implements IBlipApi_Command {
+        /**
+         * Include some additional data in respond to read method.
+         * More info: http://www.blip.pl/api-0.02.html#parametry
+         *
+         * @access protected
+         * @var string|array
+         */
         protected $_include;
+
+        /**
+         * Limit read results to $_limit items
+         *
+         * @access protected
+         * @var int
+         */
         protected $_limit       = 10;
+
+        /**
+         * ID of item where data is being set.
+         *
+         * @access protected
+         * @var int
+         */
         protected $_since_id;
+
+        /**
+         * Name of tag
+         *
+         * @access protected
+         * @var string
+         */
         protected $_tag;
 
         protected function __set_include ($value) {
@@ -43,11 +71,11 @@ if (!class_exists ('BlipApi_Tag')) {
         }
 
         /**
-        * Get updates for tag
-        *
-        * @access public
-        * @return array parameters for BlipApi::__query
-        */
+         * Get updates for tag
+         *
+         * @access public
+         * @return array parameters for BlipApi::__query
+         */
         public function read () {
             if (!$this->_tag) {
                 throw new InvalidArgumentException ('Tag name is missing.', -1);

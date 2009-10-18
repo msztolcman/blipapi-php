@@ -24,10 +24,49 @@
 
 if (!class_exists ('BlipApi_Subscription')) {
     class BlipApi_Subscription extends BlipApi_Abstract implements IBlipApi_Command {
+        /**
+         * Specify whis subscription is read: to user, from user or both.
+         * Accepted values:
+         *  * to
+         *  * from
+         *  * both (default)
+         *
+         * @access protected
+         * @var string
+         */
         protected $_direction   = 'both';
+
+        /**
+         * Affect Instant Messenger subscription
+         *
+         * @access protected
+         * @var bool
+         */
         protected $_im;
+
+        /**
+         * Include some additional data in respond to read method.
+         * More info: http://www.blip.pl/api-0.02.html#parametry
+         *
+         * @access protected
+         * @var string|array
+         */
         protected $_include;
+
+        /**
+         * User name
+         *
+         * @access protected
+         * @var string
+         */
         protected $_user;
+
+        /**
+         * Affect WWW subscription
+         *
+         * @access protected
+         * @var bool
+         */
         protected $_www;
 
         protected function __set_direction ($value) {
@@ -51,13 +90,13 @@ if (!class_exists ('BlipApi_Subscription')) {
         }
 
         /**
-        * Return user current subscriptions
-        *
-        * Throws InvalidArgumentException when incorrect $direction is specified.
-        *
-        * @access public
-        * @return array parameters for BlipApi::__query
-        */
+         * Return user current subscriptions
+         *
+         * Throws InvalidArgumentException when incorrect $direction is specified.
+         *
+         * @access public
+         * @return array parameters for BlipApi::__query
+         */
         public function read () {
             if ($this->_direction == 'both') {
                 $this->_direction = '';
@@ -81,11 +120,11 @@ if (!class_exists ('BlipApi_Subscription')) {
         }
 
         /**
-        * Create or delete subscription of given user to current signed
-        *
-        * @access public
-        * @return array parameters for BlipApi::__query
-        */
+         * Create or delete subscription of given user to current signed
+         *
+         * @access public
+         * @return array parameters for BlipApi::__query
+         */
         public function update () {
             $url = '/subscriptions';
             if ($this->_user) {
@@ -100,11 +139,11 @@ if (!class_exists ('BlipApi_Subscription')) {
         }
 
         /**
-        * Delete subscription
-        *
-        * @access public
-        * @return array parameters for BlipApi::__query
-        */
+         * Delete subscription
+         *
+         * @access public
+         * @return array parameters for BlipApi::__query
+         */
         public function delete () {
             if (!$this->_user) {
                 throw new InvalidArgumentException ("Missing user");

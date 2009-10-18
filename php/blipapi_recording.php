@@ -24,6 +24,12 @@
 
 if (!class_exists ('BlipApi_Recording')) {
     class BlipApi_Recording extends BlipApi_Abstract implements IBlipApi_Command {
+        /**
+         * ID of item to read
+         *
+         * @access protected
+         * @var int
+         */
         protected $_id;
 
         protected function __set_id ($value) {
@@ -31,13 +37,13 @@ if (!class_exists ('BlipApi_Recording')) {
         }
 
         /**
-        * Read recording attached to status/message/update
-        *
-        * Throws InvalidArgumentException when status ID is missing
-        *
-        * @access public
-        * @return array parameters for BlipApi::__query
-        */
+         * Read recording attached to status/message/update
+         *
+         * Throws InvalidArgumentException when status ID is missing
+         *
+         * @access public
+         * @return array parameters for BlipApi::__query
+         */
         public function read () {
             if (!$this->_id) {
                 throw new InvalidArgumentException ('Update ID is missing.', -1);

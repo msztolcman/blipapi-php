@@ -27,10 +27,10 @@ if (!class_exists ('BlipApi')) {
     interface IBlipApi_Command { }
 
     /**
-    * Function registered for SPL autoloading - load required class
-    *
-    * @param array $class_name
-    */
+     * Function registered for SPL autoloading - load required class
+     *
+     * @param array $class_name
+     */
     function BlipApi__autoload ($class_name) {
         if (substr ($class_name, 0, 8) == 'BlipApi_') {
             include strtolower ($class_name).'.php';
@@ -39,11 +39,11 @@ if (!class_exists ('BlipApi')) {
     spl_autoload_register ('BlipApi__autoload');
 
     /**
-    * Converts specified array of params to query string
-    *
-    * @param array $arr
-    * @return string
-    */
+     * Converts specified array of params to query string
+     *
+     * @param array $arr
+     * @return string
+     */
     function BlipApi__arr2qstr ($arr) {
         $ret = array ();
         foreach ($arr as $k => $v) {
@@ -54,113 +54,113 @@ if (!class_exists ('BlipApi')) {
 
     class BlipApi extends BlipApi_Abstract {
         /**
-        * CURL handler
-        *
-        * @access protected
-        * @var resource
-        */
+         * CURL handler
+         *
+         * @access protected
+         * @var resource
+         */
         protected $_ch;
 
         /**
-        * Login to Blip!
-        *
-        * @access protected
-        * @var string
-        */
+         * Login to Blip!
+         *
+         * @access protected
+         * @var string
+         */
         protected $_login;
 
         /**
-        * Password to Blip!
-        *
-        * @access protected
-        * @var string
-        */
+         * Password to Blip!
+         *
+         * @access protected
+         * @var string
+         */
         protected $_password;
 
         /**
-        * Useragent
-        *
-        * @access protected
-        * @var string
-        */
+         * Useragent
+         *
+         * @access protected
+         * @var string
+         */
         protected $_uagent      = 'BlipApi.php/0.02.20 (http://blipapi.googlecode.com)';
 
         /**
-        *
-        *
-        * @access protected
-        * @var string
-        */
+         *
+         *
+         * @access protected
+         * @var string
+         */
         protected $_referer     = 'http://urzenia.net';
 
         /**
-        * URI to API host
-        *
-        * @access protected
-        * @var string
-        */
+         * URI to API host
+         *
+         * @access protected
+         * @var string
+         */
         protected $_root        = 'http://api.blip.pl';
 
         /**
-        * Mime type for "Accept" header in request
-        *
-        * @access protected
-        * @var string
-        */
+         * Mime type for "Accept" header in request
+         *
+         * @access protected
+         * @var string
+         */
         protected $_format      = 'application/json';
 
         /**
-        *
-        *
-        * @access protected
-        * @var string
-        */
+         *
+         *
+         * @access protected
+         * @var string
+         */
         protected $_timeout     = 10;
 
         /**
-        * Debug mode flag
-        *
-        * @access protected
-        * @var bool
-        */
+         * Debug mode flag
+         *
+         * @access protected
+         * @var bool
+         */
         protected $_debug       = false;
 
         /**
-        * Debug message type
-        *
-        * @access protected
-        * @var bool
-        */
+         * Debug message type
+         *
+         * @access protected
+         * @var bool
+         */
         protected $_debug_tpl   = array ('', '');
 
         /**
-        * Headers to be sent
-        *
-        * @access protected
-        * @var array
-        */
+         * Headers to be sent
+         *
+         * @access protected
+         * @var array
+         */
         protected $_headers     = array ();
 
         /**
-        * Parser for JSON format
-        *
-        * This needs to contain name of the function for parsing JSON.
-        * Alternatively it may be an array with object and its method name:
-        * array ($json, 'decode')
-        *
-        * @access protected
-        * @var array
-        */
+         * Parser for JSON format
+         *
+         * This needs to contain name of the function for parsing JSON.
+         * Alternatively it may be an array with object and its method name:
+         * array ($json, 'decode')
+         *
+         * @access protected
+         * @var array
+         */
         protected $_parser     = 'json_decode';
 
         /**
-        * BlipApi constructor
-        *
-        * Initialize CURL handler ({@link $_ch}). Throws RuntimeException exception if no CURL extension found.
-        *
-        * @param string $login
-        * @param string $passwd
-        */
+         * BlipApi constructor
+         *
+         * Initialize CURL handler ({@link $_ch}). Throws RuntimeException exception if no CURL extension found.
+         *
+         * @param string $login
+         * @param string $passwd
+         */
         public function __construct ($login=null, $passwd=null, $dont_connect=false) {
             if (!function_exists ('curl_init')) {
                 throw new RuntimeException ('CURL missing!', -1);
@@ -190,10 +190,10 @@ if (!class_exists ('BlipApi')) {
         }
 
         /**
-        * BlipApi destructor
-        *
-        * Close CURL handler, if active
-        */
+         * BlipApi destructor
+         *
+         * Close CURL handler, if active
+         */
         public function __destruct () {
             if (is_resource ($this->_ch)) {
                 curl_close ($this->_ch);
@@ -201,13 +201,13 @@ if (!class_exists ('BlipApi')) {
         }
 
         /**
-        * Magic method to execute commands as their names - it makes all dirty job...
-        *
-        * @param string $fn name of command
-        * @param array $args arguments
-        * @access public
-        * @return return of {@link execute}
-        */
+         * Magic method to execute commands as their names - it makes all dirty job...
+         *
+         * @param string $fn name of command
+         * @param array $args arguments
+         * @access public
+         * @return return of {@link execute}
+         */
         public function __call ($method_name, $args) {
             if (count ($args) < 1) {
                 throw new InvalidArgumentException ("Missing method object.");
@@ -321,11 +321,11 @@ if (!class_exists ('BlipApi')) {
         }
 
         /**
-        * Setter for {@link $_debug} property
-        *
-        * @param bool $enable
-        * @access protected
-        */
+         * Setter for {@link $_debug} property
+         *
+         * @param bool $enable
+         * @access protected
+         */
         protected function __set_debug ($enable = null) {
             $this->_debug = $enable ? true : false;
 
@@ -333,11 +333,11 @@ if (!class_exists ('BlipApi')) {
         }
 
         /**
-        * Setter for {@link $_debug_html} property
-        *
-        * @param bool $enable
-        * @access protected
-        */
+         * Setter for {@link $_debug_html} property
+         *
+         * @param bool $enable
+         * @access protected
+         */
         protected function __set_debug_html ($enable = null) {
             if ($enable) {
                 $this->_debug_tpl = array (
@@ -354,13 +354,13 @@ if (!class_exists ('BlipApi')) {
         }
 
         /**
-        * Setter for {@link $_format} property
-        *
-        * Format have to be string in mime type format. In other case, there will be prepended 'application/' prefix.
-        *
-        * @param string $format
-        * @access protected
-        */
+         * Setter for {@link $_format} property
+         *
+         * Format have to be string in mime type format. In other case, there will be prepended 'application/' prefix.
+         *
+         * @param string $format
+         * @access protected
+         */
         protected function __set_format ($format) {
             # jeśli nie jest to pełen typ mime, to doklejamy na początek 'application/'
             if ($format && strpos ($format, '/') === false) {
@@ -370,22 +370,22 @@ if (!class_exists ('BlipApi')) {
         }
 
         /**
-        * Setter for {@link $_uagent} property
-        *
-        * @param string $uagent
-        * @access protected
-        */
+         * Setter for {@link $_uagent} property
+         *
+         * @param string $uagent
+         * @access protected
+         */
         protected function __set_uagent ($uagent) {
             $this->_uagent = (string) $uagent;
             curl_setopt ($this->_ch, CURLOPT_USERAGENT, $this->_uagent);
         }
 
         /**
-        * Setter for {@link $_referer} property
-        *
-        * @param string $referer
-        * @access protected
-        */
+         * Setter for {@link $_referer} property
+         *
+         * @param string $referer
+         * @access protected
+         */
         protected function __set_referer ($referer) {
             $this->_referer = (string) $referer;
             curl_setopt ($this->_ch, CURLOPT_REFERER, $referer);
@@ -422,36 +422,36 @@ if (!class_exists ('BlipApi')) {
         }
 
         /**
-        * Setter for {@link $_timeout} property
-        *
-        * @param string $timeout
-        * @access protected
-        */
+         * Setter for {@link $_timeout} property
+         *
+         * @param string $timeout
+         * @access protected
+         */
         protected function __set_timeout ($timeout) {
             $this->_timeout = (int) $timeout;
             curl_setopt ($this->_ch, CURLOPT_CONNECTTIMEOUT, $this->_timeout);
         }
 
         /**
-        * Setter for {@link $_headers} property
-        *
-        * @param array|string $headers headers in format specified at {@link _parse_headers}
-        * @access protected
-        */
+         * Setter for {@link $_headers} property
+         *
+         * @param array|string $headers headers in format specified at {@link _parse_headers}
+         * @access protected
+         */
         protected function __set_headers ($headers) {
             $this->_headers = $this->_parse_headers ($headers);
         }
 
         /**
-        * Parsing headers parameter to correct format
-        *
-        * Param $headers have to be an array, where key is header name, and value - header value, or string in
-        * 'Header-Name: Value'.
-        * Throws InvalidArgumentException of incorect type of $headers is given
-        *
-        * @param array|string $headers
-        * @access protected
-        */
+         * Parsing headers parameter to correct format
+         *
+         * Param $headers have to be an array, where key is header name, and value - header value, or string in
+         * 'Header-Name: Value'.
+         * Throws InvalidArgumentException of incorect type of $headers is given
+         *
+         * @param array|string $headers
+         * @access protected
+         */
         protected function _parse_headers ($headers) {
             if (!$headers) {
                 $headers = array ();
@@ -470,12 +470,12 @@ if (!class_exists ('BlipApi')) {
         }
 
         /**
-        * Add or replace headers to be sent to remote server
-        *
-        * @param array|string $headers headers in format specified at {@link _parse_headers}
-        * @access public
-        * @return bool false if empty array specified
-        */
+         * Add or replace headers to be sent to remote server
+         *
+         * @param array|string $headers headers in format specified at {@link _parse_headers}
+         * @access public
+         * @return bool false if empty array specified
+         */
         public function headers_set ($headers) {
             $headers = $this->_parse_headers ($headers);
             if (!$headers) {
@@ -489,12 +489,12 @@ if (!class_exists ('BlipApi')) {
         }
 
         /**
-        * Remove specified header
-        *
-        * @param array|string $headers headers in format specified at {@link _parse_headers}
-        * @access public
-        * @return bool false if empty array specified
-        */
+         * Remove specified header
+         *
+         * @param array|string $headers headers in format specified at {@link _parse_headers}
+         * @access public
+         * @return bool false if empty array specified
+         */
         public function headers_remove ($headers) {
             $headers = $this->_parse_headers ($headers);
             if (!$headers) {
@@ -510,17 +510,17 @@ if (!class_exists ('BlipApi')) {
         }
 
         /**
-        * Get headers set to sent
-        *
-        * $headers have to be:
-        *  * array - with names of headers values to return
-        *  * string - with single header name
-        *  * null - if all headers have to be returned
-        *
-        * @param mixed $headers
-        * @access public
-        * @return array
-        */
+         * Get headers set to sent
+         *
+         * $headers have to be:
+         *  * array - with names of headers values to return
+         *  * string - with single header name
+         *  * null - if all headers have to be returned
+         *
+         * @param mixed $headers
+         * @access public
+         * @return array
+         */
         public function headers_get ($headers=null) {
             if (is_null ($headers)) {
                 return $this->_headers;
@@ -540,15 +540,15 @@ if (!class_exists ('BlipApi')) {
         }
 
         /**
-        * Create connection with CURL, setts some CURL options etc
-        *
-        * Throws RuntimeException exception when CURL initialization has failed
-        *
-        * @param string $login as in {@link __construct}
-        * @param string $passwd as in {@link __construct}
-        * @access public
-        * @return bool always true
-        */
+         * Create connection with CURL, setts some CURL options etc
+         *
+         * Throws RuntimeException exception when CURL initialization has failed
+         *
+         * @param string $login as in {@link __construct}
+         * @param string $passwd as in {@link __construct}
+         * @access public
+         * @return bool always true
+         */
         public function connect ($login=null, $passwd=null) {
             if (!is_null ($login)) {
                 $this->_login       = (string) $login;
@@ -579,18 +579,18 @@ if (!class_exists ('BlipApi')) {
         }
 
         /**
-        * Execute command and parse reply
-        *
-        * Throws InvalidArgumentException exception when specified command does not exists, or RuntimeException
-        * when exists some CURL error or returned status code is greater or equal 400.
-        *
-        * Internally using magic method BlipApi::__call.
-        *
-        * @param string $command command to execute
-        * @param mixed $options,... options passed to proper command method (prefixed with _cmd__)
-        * @access public
-        * @return array like {@link __query}
-        */
+         * Execute command and parse reply
+         *
+         * Throws InvalidArgumentException exception when specified command does not exists, or RuntimeException
+         * when exists some CURL error or returned status code is greater or equal 400.
+         *
+         * Internally using magic method BlipApi::__call.
+         *
+         * @param string $command command to execute
+         * @param mixed $options,... options passed to proper command method (prefixed with _cmd__)
+         * @access public
+         * @return array like {@link __query}
+         */
         public function execute () {
             if (!func_num_args ()) {
                 throw new InvalidArgumentException ('Command missing.', -1);
@@ -601,12 +601,12 @@ if (!class_exists ('BlipApi')) {
         }
 
         /**
-        * Print debug mesage if debug mode is enabled
-        *
-        * @param string $msg,... messages to print to stdout
-        * @access protected
-        * @return bool
-        */
+         * Print debug mesage if debug mode is enabled
+         *
+         * @param string $msg,... messages to print to stdout
+         * @access protected
+         * @return bool
+         */
         protected function _debug () {
             if (!$this->_debug) {
                 return;
@@ -624,12 +624,12 @@ if (!class_exists ('BlipApi')) {
         }
 
         /**
-        * Return array with CURLOPT_* constants values replaced by these names. For debugging purposes only.
-        *
-        * @param array $opts array with CURLOPTS_* as keys
-        * @return array the same as $opts, but keys are replaced by names of constants
-        * @access protected
-        */
+         * Return array with CURLOPT_* constants values replaced by these names. For debugging purposes only.
+         *
+         * @param array $opts array with CURLOPTS_* as keys
+         * @return array the same as $opts, but keys are replaced by names of constants
+         * @access protected
+         */
         protected function _debug_curlopts ($opts) {
             $copts = array ();
             foreach (get_defined_constants () as $k => $v) {
@@ -652,20 +652,20 @@ if (!class_exists ('BlipApi')) {
         }
 
         /**
-        * Parse reply
-        *
-        * Throws BadFunctionCallException exception when specified parser was not found.
-        * Return array with keys
-        *  * headers - (array) array of headers (keys are lowercased)
-        *  * body - (mixed) body of response. If reply's mime type is found in {@link $_parser}, then contains reply of specified parser, in other case contains raw string reply.
-        *  * body_parse - (bool) if true, content was successfully parsed by specified parser
-        *  * status_code - (int) status code from server
-        *  * status_body - (string) content of status
-        *
-        * @param string $reply
-        * @return array
-        * @access protected
-        */
+         * Parse reply
+         *
+         * Throws BadFunctionCallException exception when specified parser was not found.
+         * Return array with keys
+         *  * headers - (array) array of headers (keys are lowercased)
+         *  * body - (mixed) body of response. If reply's mime type is found in {@link $_parser}, then contains reply of specified parser, in other case contains raw string reply.
+         *  * body_parse - (bool) if true, content was successfully parsed by specified parser
+         *  * status_code - (int) status code from server
+         *  * status_body - (string) content of status
+         *
+         * @param string $reply
+         * @return array
+         * @access protected
+         */
         protected function __parse_reply ($reply) {
             ## rozdzielamy nagłówki od treści
             $reply          = preg_split ("/\r?\n\r?\n/mu", $reply, 2);

@@ -24,19 +24,26 @@
 
 if (!class_exists ('BlipApi_Movie')) {
     class BlipApi_Movie extends BlipApi_Abstract implements IBlipApi_Command {
+        /**
+         * ID of item to read
+         *
+         * @access protected
+         * @var int
+         */
         protected $_id;
+
         protected function __set_id ($value) {
             $this->_id = $this->__validate_offset ($value);
         }
 
         /**
-        * Read movie attached to status/message/update
-        *
-        * Throws InvalidArgumentException when status ID is missing
-        *
-        * @access public
-        * @return array parameters for BlipApi::__query
-        */
+         * Read movie attached to status/message/update
+         *
+         * Throws InvalidArgumentException when status ID is missing
+         *
+         * @access public
+         * @return array parameters for BlipApi::__query
+         */
         public function read () {
             if (!$this->_id) {
                 throw new InvalidArgumentException ('Update ID is missing.', -1);

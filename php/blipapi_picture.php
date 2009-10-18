@@ -24,10 +24,45 @@
 
 if (!class_exists ('BlipApi_Picture')) {
     class BlipApi_Picture extends BlipApi_Abstract implements IBlipApi_Command {
+        /**
+         * ID of item to read
+         *
+         * @access protected
+         * @var int
+         */
         protected $_id;
+
+        /**
+         * Include some additional data in respond to read method.
+         * More info: http://www.blip.pl/api-0.02.html#parametry
+         *
+         * @access protected
+         * @var string|array
+         */
         protected $_include;
+
+        /**
+         * Limit read results to $_limit items
+         *
+         * @access protected
+         * @var int
+         */
         protected $_limit       = 10;
+
+        /**
+         * Offset for read result set
+         *
+         * @access protected
+         * @var int
+         */
         protected $_offset      = 0;
+
+        /**
+         * ID of item where data is being set.
+         *
+         * @access protected
+         * @var int
+         */
         protected $_since_id;
 
         protected function __set_id ($value) {
@@ -47,13 +82,13 @@ if (!class_exists ('BlipApi_Picture')) {
         }
 
         /**
-        * Read picture attached to status/message/update
-        *
-        * Throws InvalidArgumentException when update ID is missing
-        *
-        * @access public
-        * @return array parameters for BlipApi::__query
-        */
+         * Read picture attached to status/message/update
+         *
+         * Throws InvalidArgumentException when update ID is missing
+         *
+         * @access public
+         * @return array parameters for BlipApi::__query
+         */
 
         public function read () {
             if ($this->_since_id) {

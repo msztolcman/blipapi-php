@@ -24,7 +24,20 @@
 
 if (!class_exists ('BlipApi_Avatar')) {
     class BlipApi_Avatar extends BlipApi_Abstract implements IBlipApi_Command {
+        /**
+         * User name
+         *
+         * @access protected
+         * @var string
+         */
         protected $_user    = '';
+
+        /**
+         * Path to image
+         *
+         * @access protected
+         * @var string
+         */
         protected $_image   = '';
 
         protected function __set_user ($value) {
@@ -36,11 +49,11 @@ if (!class_exists ('BlipApi_Avatar')) {
         }
 
         /**
-        * Get info about users avatar
-        *
-        * @access public
-        * @return array parameters for BlipApi::__query
-        */
+         * Get info about users avatar
+         *
+         * @access public
+         * @return array parameters for BlipApi::__query
+         */
         public function read () {
             if (!$this->_user) {
                 return array ('/avatar', 'get');
@@ -49,13 +62,13 @@ if (!class_exists ('BlipApi_Avatar')) {
         }
 
         /**
-        * Upload new avatar
-        *
-        * Throws InvalidArgumentException if avatar path is missing or file not found
-        *
-        * @access public
-        * @return array parameters for BlipApi::__query
-        */
+         * Upload new avatar
+         *
+         * Throws InvalidArgumentException if avatar path is missing or file not found
+         *
+         * @access public
+         * @return array parameters for BlipApi::__query
+         */
         public function update () {
             if (!$this->_image) {
                 throw new InvalidArgumentException ('Avatar path missing or file not found.', -1);
@@ -64,11 +77,11 @@ if (!class_exists ('BlipApi_Avatar')) {
         }
 
         /**
-        * Delete avatar
-        *
-        * @access public
-        * @return array parameters for BlipApi::__query
-        */
+         * Delete avatar
+         *
+         * @access public
+         * @return array parameters for BlipApi::__query
+         */
         public function delete () {
             return array ('/avatar', 'delete');
         }

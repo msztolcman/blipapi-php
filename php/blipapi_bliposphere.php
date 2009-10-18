@@ -24,7 +24,21 @@
 
 if (!class_exists ('BlipApi_Bliposphere')) {
     class BlipApi_Bliposphere extends BlipApi_Abstract implements IBlipApi_Command {
+        /**
+         * Limit read results to $_limit items
+         *
+         * @access protected
+         * @var int
+         */
         protected $_limit   = 10;
+
+        /**
+         * Include some additional data in respond to read method.
+         * More info: http://www.blip.pl/api-0.02.html#parametry
+         *
+         * @access protected
+         * @var string|array
+         */
         protected $_include = null;
 
         protected function __set_limit ($value) {
@@ -36,11 +50,11 @@ if (!class_exists ('BlipApi_Bliposphere')) {
         }
 
         /**
-        * Return current bliposhpere
-        *
-        * @access public
-        * @return array parameters for BlipApi::__query
-        */
+         * Return current bliposhpere
+         *
+         * @access public
+         * @return array parameters for BlipApi::__query
+         */
         public function read () {
             $url = '/bliposphere';
 
