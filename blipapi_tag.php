@@ -101,7 +101,7 @@ if (!class_exists ('BlipApi_Tag')) {
          * Get updates for tag
          *
          * @access public
-         * @return array parameters for BlipApi::__query
+         * @return array parameters for BlipApi::__call
          */
         public function read () {
             if (!$this->_tag) {

@@ -193,7 +193,7 @@ if (!class_exists ('BlipApi_Update')) {
          *
          * @static
          * @access public
-         * @return array parameters for BlipApi::__query
+         * @return array parameters for BlipApi::__call
          */
         public function create () {
             if (!$this->_body) {
@@ -224,7 +224,7 @@ if (!class_exists ('BlipApi_Update')) {
          *
          * @static
          * @access public
-         * @return array parameters for BlipApi::__query
+         * @return array parameters for BlipApi::__call
          */
         public function read () {
             if ($this->_user) {
@@ -282,7 +282,7 @@ if (!class_exists ('BlipApi_Update')) {
          * @param int $id update ID
          * @static
          * @access public
-         * @return array parameters for BlipApi::__query
+         * @return array parameters for BlipApi::__call
          */
         public function delete () {
             if (!$this->_id) {

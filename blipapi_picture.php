@@ -121,7 +121,7 @@ if (!class_exists ('BlipApi_Picture')) {
          * Throws InvalidArgumentException when update ID is missing
          *
          * @access public
-         * @return array parameters for BlipApi::__query
+         * @return array parameters for BlipApi::__call
          */
 
         public function read () {

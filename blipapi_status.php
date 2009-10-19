@@ -175,7 +175,7 @@ if (!class_exists ('BlipApi_Status')) {
          * Throws InvalidArgumentException when status body is missing
          *
          * @access public
-         * @return array parameters for BlipApi::__query
+         * @return array parameters for BlipApi::__call
          */
         public function create () {
             if (!$this->_body) {
@@ -196,7 +196,7 @@ if (!class_exists ('BlipApi_Status')) {
          * Meaning of params: {@link http://www.blip.pl/api-0.02.html}
          *
          * @access public
-         * @return array parameters for BlipApi::__query
+         * @return array parameters for BlipApi::__call
          */
         public function read () {
             if ($this->_user) {
@@ -252,7 +252,7 @@ if (!class_exists ('BlipApi_Status')) {
          * Throws InvalidArgumentException when status ID is missing
          *
          * @access public
-         * @return array parameters for BlipApi::__query
+         * @return array parameters for BlipApi::__call
          */
         public function delete () {
             if (!$this->_id) {

@@ -175,7 +175,7 @@ if (!class_exists ('BlipApi_Dirmsg')) {
          * Throws InvalidArgumentException if some of parametr is missing.
          *
          * @access public
-         * @return array parameters for BlipApi::__query
+         * @return array parameters for BlipApi::__call
          */
         public function create () {
             if (!$this->_body || !$this->_user) {
@@ -196,7 +196,7 @@ if (!class_exists ('BlipApi_Dirmsg')) {
          * Meaning of params: {@link http://www.blip.pl/api-0.02.html}
          *
          * @access public
-         * @return array parameters for BlipApi::__query
+         * @return array parameters for BlipApi::__call
          */
         public function read () {
             # normalnie pobieramy mesgi z tego zasobu
@@ -253,7 +253,7 @@ if (!class_exists ('BlipApi_Dirmsg')) {
          * Throws InvalidArgumentException when directed message ID is missing
          *
          * @access public
-         * @return array parameters for BlipApi::__query
+         * @return array parameters for BlipApi::__call
          */
         public function delete () {
             if (!$this->_id) {
