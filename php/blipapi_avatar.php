@@ -64,7 +64,7 @@ if (!class_exists ('BlipApi_Avatar')) {
          * Get info about users avatar
          *
          * @access public
-         * @return array parameters for BlipApi::__query
+         * @return array parameters for BlipApi::__call
          */
         public function read () {
             if (!$this->_user) {
@@ -79,7 +79,7 @@ if (!class_exists ('BlipApi_Avatar')) {
          * Throws InvalidArgumentException if avatar path is missing or file not found
          *
          * @access public
-         * @return array parameters for BlipApi::__query
+         * @return array parameters for BlipApi::__call
          */
         public function update () {
             if (!$this->_image) {
@@ -92,7 +92,7 @@ if (!class_exists ('BlipApi_Avatar')) {
          * Delete avatar
          *
          * @access public
-         * @return array parameters for BlipApi::__query
+         * @return array parameters for BlipApi::__call
          */
         public function delete () {
             return array ('/avatar', 'delete');

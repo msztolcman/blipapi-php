@@ -129,7 +129,7 @@ if (!class_exists ('BlipApi_Subscription')) {
          * Throws InvalidArgumentException when incorrect $direction is specified.
          *
          * @access public
-         * @return array parameters for BlipApi::__query
+         * @return array parameters for BlipApi::__call
          */
         public function read () {
             if ($this->_direction == 'both') {
@@ -157,7 +157,7 @@ if (!class_exists ('BlipApi_Subscription')) {
          * Create or delete subscription of given user to current signed
          *
          * @access public
-         * @return array parameters for BlipApi::__query
+         * @return array parameters for BlipApi::__call
          */
         public function update () {
             $url = '/subscriptions';
@@ -176,7 +176,7 @@ if (!class_exists ('BlipApi_Subscription')) {
          * Delete subscription
          *
          * @access public
-         * @return array parameters for BlipApi::__query
+         * @return array parameters for BlipApi::__call
          */
         public function delete () {
             if (!$this->_user) {

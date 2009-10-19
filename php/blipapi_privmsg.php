@@ -176,7 +176,7 @@ if (!class_exists ('BlipApi_Privmsg')) {
          * Throws InvalidArgumentException if some of parametr is missing.
          *
          * @access public
-         * @return array parameters for BlipApi::__query
+         * @return array parameters for BlipApi::__call
          */
         public function create () {
             if (!$this->_body || !$this->_user) {
@@ -197,7 +197,7 @@ if (!class_exists ('BlipApi_Privmsg')) {
          * Meaning of params: {@link http://www.blip.pl/api-0.02.html}
          *
          * @access public
-         * @return array parameters for BlipApi::__query
+         * @return array parameters for BlipApi::__call
          */
         public function read () {
             if ($this->_since_id) {
@@ -234,7 +234,7 @@ if (!class_exists ('BlipApi_Privmsg')) {
          * Throws InvalidArgumentException when private message ID is missing
          *
          * @access public
-         * @return array parameters for BlipApi::__query
+         * @return array parameters for BlipApi::__call
          */
         public function delete () {
             if (!$this->_id) {

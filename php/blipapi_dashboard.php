@@ -119,7 +119,7 @@ if (!class_exists ('BlipApi_Dashboard')) {
          * Return user current dashboard
          *
          * @access public
-         * @return array parameters for BlipApi::__query
+         * @return array parameters for BlipApi::__call
          */
         public function read () {
             if ($this->_user) {

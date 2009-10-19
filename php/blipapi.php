@@ -589,7 +589,7 @@ if (!class_exists ('BlipApi')) {
          * @param string $command command to execute
          * @param mixed $options,... options passed to proper command method (prefixed with _cmd__)
          * @access public
-         * @return array like {@link __query}
+         * @return array like {@link __call}
          */
         public function execute () {
             if (!func_num_args ()) {

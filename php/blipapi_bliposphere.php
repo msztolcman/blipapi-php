@@ -65,7 +65,7 @@ if (!class_exists ('BlipApi_Bliposphere')) {
          * Return current bliposhpere
          *
          * @access public
-         * @return array parameters for BlipApi::__query
+         * @return array parameters for BlipApi::__call
          */
         public function read () {
             $url = '/bliposphere';
