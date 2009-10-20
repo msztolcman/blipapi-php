@@ -20,13 +20,15 @@ Wymagania:
 
 Uzycie:
 $blipapi = new BlipApi ('login', 'haslo');
-$updates = $blipapi->update_read (null, 'mysz');
+$update = new BlipApi_Update ();
+$update->user = 'mysz';
+$updates = $blipapi->read ($update);
 print_r ($updates);
 
 // Alternatywnie, gdy nazwe metody przechowujemy w jakiejs zmiennej, moze
 // byc prosciej uzyc:
 
-$updates = $blipapi->execute ('update_read', null, 'mysz');
+$updates = $blipapi->execute ('read', $update);
 print_r ($updates);
 
 // Jeśli posiadamy wersję PHP bez modułu JSON, możemy użyć dowolnej
@@ -35,4 +37,7 @@ print_r ($updates);
 
 $blipapi = new BlipApi ('login', 'haslo');
 $blipapi->parser = 'moja_funkcja_parsujaca_json';
+
+// Tak samo można zmienić User-Agent:
+$blipapi->uagent = 'Moj UserAgent';
 
