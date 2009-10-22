@@ -4,6 +4,9 @@ Marcin Sztolcman (http://urzenia.net)
 Adres:
 http://blipapi.googlecode.com
 
+Wersja:
+$Id$
+
 Opis:
 BlipApi.php jest to biblioteka służąca do komunikacji z serwisem Blip!
 (http://blip.pl). Zawiera kompletne, ciągle uzupełniane API, pozwalające na
