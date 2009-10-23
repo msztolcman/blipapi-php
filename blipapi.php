@@ -4,7 +4,7 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.20
+ * @version 0.02.21
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
@@ -15,7 +15,7 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.20
+ * @version 0.02.21
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
@@ -37,20 +37,6 @@ if (!class_exists ('BlipApi')) {
         }
     }
     spl_autoload_register ('BlipApi__autoload');
-
-    /**
-     * Converts specified array of params to query string
-     *
-     * @param array $arr
-     * @return string
-     */
-    function BlipApi__arr2qstr ($arr) {
-        $ret = array ();
-        foreach ($arr as $k => $v) {
-            $ret[] = sprintf ('%s=%s', $k, $v);
-        }
-        return implode ('&', $ret);
-    }
 
     class BlipApi extends BlipApi_Abstract {
         /**
@@ -83,7 +69,7 @@ if (!class_exists ('BlipApi')) {
          * @access protected
          * @var string
          */
-        protected $_uagent      = 'BlipApi.php/0.02.20 (http://blipapi.googlecode.com)';
+        protected $_uagent      = 'BlipApi.php/0.02.21 (http://blipapi.googlecode.com)';
 
         /**
          *
@@ -242,7 +228,7 @@ if (!class_exists ('BlipApi')) {
             switch ($http_method) {
                 case 'post':
                     if (!isset ($opts['multipart']) || !$opts['multipart']) {
-                        $http_data = BlipApi__arr2qstr ($http_data);
+                        $http_data = http_build_query ($http_data);
                     }
 
                     $curlopts = array (
