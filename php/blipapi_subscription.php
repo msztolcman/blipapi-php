@@ -4,7 +4,7 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.20
+ * @version 0.02.21
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
@@ -15,7 +15,7 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.20
+ * @version 0.02.21
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
@@ -147,7 +147,7 @@ if (!class_exists ('BlipApi_Subscription')) {
             }
 
             if (count ($params)) {
-                $url .= '?'.BlipApi__arr2qstr ($params);
+                $url .= '?'.http_build_query ($params);
             }
 
             return array ($url, 'get');
@@ -169,7 +169,7 @@ if (!class_exists ('BlipApi_Subscription')) {
                 'subscription[www]' => $this->_www ? 1 : 0,
                 'subscription[im]'  => $this->_im  ? 1 : 0,
             );
-            return array ($url . '?' . BlipApi__arr2qstr ($data), 'put');
+            return array ($url . '?' . http_build_query ($data), 'put');
         }
 
         /**
