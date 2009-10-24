@@ -50,22 +50,6 @@ if (!class_exists ('BlipApi')) {
         protected $_ch;
 
         /**
-         * Login to Blip!
-         *
-         * @access protected
-         * @var string
-         */
-        protected $_login;
-
-        /**
-         * Password to Blip!
-         *
-         * @access protected
-         * @var string
-         */
-        protected $_password;
-
-        /**
          * Useragent
          *
          * @access protected
@@ -88,14 +72,6 @@ if (!class_exists ('BlipApi')) {
          * @var string
          */
         protected $_root        = 'http://api.blip.pl';
-
-        /**
-         * Mime type for "Accept" header in request
-         *
-         * @access protected
-         * @var string
-         */
-        protected $_format      = 'application/json';
 
         /**
          *
@@ -122,14 +98,6 @@ if (!class_exists ('BlipApi')) {
         protected $_debug_tpl   = array ('', '');
 
         /**
-         * Headers to be sent
-         *
-         * @access protected
-         * @var array
-         */
-        protected $_headers     = array ();
-
-        /**
          * Parser for JSON format
          *
          * This needs to contain name of the function for parsing JSON.
@@ -141,7 +109,7 @@ if (!class_exists ('BlipApi')) {
          */
         protected $_parser     = 'json_decode';
 
-        protected $_oauth;
+        public $_oauth;
         protected $_consumer_key;
         protected $_consumer_secret;
 
@@ -153,7 +121,7 @@ if (!class_exists ('BlipApi')) {
          * @param string $oauth_key
          * @param string $oauth_secret
          */
-        public function __construct ($consumer_key=null, $consumer_secret=null, $dont_connect=false) {
+        public function __construct ($consumer_key=null, $consumer_secret=null) {
             if (!function_exists ('curl_init')) {
                 throw new RuntimeException ('CURL missing!', -1);
             }
@@ -161,178 +129,45 @@ if (!class_exists ('BlipApi')) {
             $this->_consumer_key    = $consumer_key;
             $this->_consumer_secret = $consumer_secret;
 
-            # inicjalizujemy handler curla
-            $this->_ch = curl_init ($this->_root);
-            if (!$this->_ch) {
-                throw new RuntimeException ('CURL initialize error: '. curl_error ($this->_ch), curl_errno ($this->_ch));
-            }
-
-            # ustawiamy domyślne nagłówki
-            $this->_headers = array (
-                'Accept'        => $this->format,
-                'X-Blip-API'    => '0.02',
-            );
-
             # inicjalizujemy szablon dla debugow
             $this->debug_html = false;
-
-            if (!$dont_connect) {
-                $this->connect ();
-            }
         }
 
-        function authorize () {
-            echo "consumer key:\n$this->_consumer_key\nconsumer secret:\n$this->_consumer_secret\n";
-            if (!isset ($_SESSION['oauth_state']) || !$_SESSION['oauth_state']) {
-                $this->_oauth = new BlipApi_OAuth ($this->_consumer_key, $this->_consumer_secret);
-                $args = array ('oauth_callback' => 'http://urzenia.net/blipapi/test.php');
-                $tok = $this->_oauth->get_request_token ($args);
-
-                $_SESSION['oauth_request_token']        = $tok['oauth_token'];
-                $_SESSION['oauth_request_token_secret'] = $tok['oauth_token_secret'];
-                $_SESSION['oauth_state']                = "start";
-
-                if ($request_link = $this->_oauth->get_authorize_url ($tok['oauth_token'])) {
-                    header ('Location: '. $request_link);
-                    exit;
-                }
-
-                $this->_debug ('request_link', $request_link);
+        function get_request_token ($oauth_callback=null) {
+            $args = array ();
+            if ($oauth_callback) {
+                $args['oauth_callback'] = $oauth_callback;
             }
-            else if (
-                !isset ($_SESSION['oauth_access_token']) &&
-                !isset ($_SESSION['oauth_access_token_secret'])
-            ) {
-                echo "Data:\nPOST\n";
-                print_r ($_POST);
-                echo "\nGET\n";
-                print_r ($_GET);
-                echo "\nSESSION\n";
-                print_r ($_SESSION);
-                $this->_oauth = new BlipApi_OAuth (
-                    $this->_consumer_key,
-                    $this->_consumer_secret,
-                    $_SESSION['oauth_request_token'],
-                    $_SESSION['oauth_request_token_secret']
-                );
-                $args = array (
-                    'oauth_verifier' => $_GET['oauth_verifier'],
-                );
-                $tok = $this->_oauth->get_access_token ($args);
-                echo "TOKEN:\n";
-                print_r ($tok);
-#                 exit;
-
-                /* Save the access tokens. Normally these would be saved in a database for future use. */
-                $_SESSION['oauth_access_token']         = $tok['oauth_token'];
-                $_SESSION['oauth_access_token_secret']  = $tok['oauth_token_secret'];
-                $_SESSION['oauth_request_verifier']     = $_GET['oauth_verifier'];
-
-                header ('Location: /blipapi/test.php');
-                die;
-            }
-            else {
-                $this->_oauth = new BlipApi_OAuth (
-                    $this->_consumer_key,
-                    $this->_consumer_secret,
-                    $_SESSION['oauth_access_token'],
-                    $_SESSION['oauth_access_token_secret']
-                );
-
-#                 echo "TADAM\n";
-#                 $args = array ();
-#                 $args['oauth_verifier'] = $_SESSION['oauth_request_verifier'];
-#                 print_r ($this->_oauth->request ($this->_root.'/avatar', 'get', $args));die;
-
-#                 print_r ($_SESSION);
-            }
+            $this->_oauth = new BlipApi_OAuth ($this->_consumer_key, $this->_consumer_secret);
+            return $this->_oauth->get_request_token ($args);
         }
 
-        function http ($method_data) {
-            $url            = $this->_root . $method_data[0];
-            $http_method    = $method_data[1];
-            $http_data      = array ();
-            if (count ($method_data) > 2) {
-                $http_data  = $method_data[2];
-            }
-            $opts            = null;
-            if (count ($method_data) > 3) {
-                $opts       = $method_data[3];
-            }
-
-            switch ($http_method) {
-                case 'post':
-                    if (!isset ($opts['multipart']) || !$opts['multipart']) {
-                        $http_data = http_build_query ($http_data);
-                    }
-
-                    $curlopts = array (
-                        CURLOPT_POST        => true,
-                        CURLOPT_POSTFIELDS  => $http_data,
-                    );
-                break;
-
-                case 'get':
-                    $curlopts = array ( CURLOPT_HTTPGET => true );
-                break;
-
-                case 'put':
-                    $curlopts = array ( CURLOPT_PUT => true,);
-                    if (!$http_data) {
-                        $curlopts[CURLOPT_HTTPHEADER] = array ('Content-Length' => 0);
-                    }
-                break;
-
-                case 'delete':
-                    $curlopts = array ( CURLOPT_CUSTOMREQUEST => 'DELETE' );
-                break;
-
-                default:
-                    throw new InvalidArgumentException ('Unknown HTTP method.', -1);
-            }
-            $this->_debug ('METHOD: '. strtoupper ($http_method));
-
-            # ustawiamy url
-            $curlopts[CURLOPT_URL] = $url;
-
-            $headers_single = array ();
-            $headers_names  = null;
-            # jesli trzeba to dodajemy jednorazowe nagłówki które mamy wysłać
-            if (isset ($curlopts[CURLOPT_HTTPHEADER])) {
-                $this->headers_set ($curlopts[CURLOPT_HTTPHEADER]);
-                $headers_names = array_keys ($curlopts[CURLOPT_HTTPHEADER]);
-            }
-
-            # nagłówki do wysłania
-            if ($this->_headers) {
-                $headers = array ();
-                foreach ($this->_headers as $k=>$v) {
-                    $headers[]          = sprintf ('%s: %s', $k, $v);
-                }
-                $curlopts[CURLOPT_HTTPHEADER] = $headers;
-            }
-            $this->_debug ('post2', print_r ($this->_headers, 1), print_r ($headers_names, 1));
-            $this->_debug ('DATA: '. print_r ($http_data, 1), 'CURLOPTS: '.print_r ($this->_debug_curlopts ($curlopts), 1));
-
-            return $this->_oauth->request ($url, $http_method, $http_data, $opts);#, $curlopts);
-
-#             if (!curl_setopt_array ($this->_ch, $curlopts)) {
-#                 throw new RuntimeException (curl_error ($this->_ch), curl_errno ($this->_ch));
-#             }
-#
-#             # wykonujemy zapytanie
-#             return curl_exec ($this->_ch);
+        function get_authorize_url ($oauth_token) {
+            return $this->_oauth->get_authorize_url ($oauth_token);
         }
 
-        /**
-         * BlipApi destructor
-         *
-         * Close CURL handler, if active
-         */
-        public function __destruct () {
-            if (is_resource ($this->_ch)) {
-                curl_close ($this->_ch);
+        function get_access_token ($oauth_token, $oauth_token_secret, $oauth_verifier=null) {
+            $this->_oauth = new BlipApi_OAuth (
+                $this->_consumer_key,
+                $this->_consumer_secret,
+                $oauth_token,
+                $oauth_token_secret
+            );
+            $args = array ();
+            if ($oauth_verifier) {
+                $args['oauth_verifier'] = $oauth_verifier;
             }
+            return $this->_oauth->get_access_token ($args);
+        }
+
+        function authorize ($oauth_token, $oauth_token_secret) {
+            $this->_oauth = new BlipApi_OAuth (
+                $this->_consumer_key,
+                $this->_consumer_secret,
+                $oauth_token,
+                $oauth_token_secret
+            );
+            return 1;
         }
 
         /**
@@ -345,10 +180,10 @@ if (!class_exists ('BlipApi')) {
          */
         public function __call ($method_name, $args) {
             if (count ($args) < 1) {
-                throw new InvalidArgumentException ("Missing method object.");
+                throw new InvalidArgumentException ('Missing method object.');
             }
             else if (!($args[0] instanceof IBlipApi_Command)) {
-                throw new InvalidArgumentException ("Unknown command: ".(is_object ($args[0]) ? get_class ($args[0]) : gettype ($args[0])));
+                throw new InvalidArgumentException ('Unknown command: '.(is_object ($args[0]) ? get_class ($args[0]) : gettype ($args[0])));
             }
             else if (
                 !in_array ($method_name, array ('create', 'read', 'update', 'delete')) ||
@@ -357,25 +192,10 @@ if (!class_exists ('BlipApi')) {
                 throw new BadMethodCallException ("Unknown method \"$method_name\".");
             }
 
-            $this->_debug ('CMD: '. get_class ($args[0]).'::'.$method_name);
-
             # wywołujemy znalezioną metodę aby pobrac dane dla requestu
-            $method_data = call_user_func (array ($args[0], $method_name));
-            $reply = $this->http ($method_data);
-#             $reply = $this->_oauth->request ($this->_root . $method_data[0], $method_data[1]);
-
-            # usuwamy z zestawu naglowkow do wyslania te ktore mialy byc jednorazowe
-            if (isset($headers_names)) {
-                $this->headers_remove ($headers_names);
-            }
-            $this->_debug ('post3', print_r ($this->_headers, 1));
-
-            if (!$reply) {
-                throw new RuntimeException ('CURL Error: '. curl_error ($this->_ch), curl_errno ($this->_ch));
-            }
-
-            $this->_debug ($reply);
-            $reply = $this->__parse_reply ($reply);
+            $method_data    = call_user_func (array ($args[0], $method_name));
+            $reply          = $this->_oauth->request ($this->_root . $method_data[0], $method_data[1], null, true);
+            $reply          = $this->__parse_reply ($reply);
 
             if ($reply['status_code'] >= 400) {
                 throw new RuntimeException ($reply['status_body'], $reply['status_code']);
@@ -415,22 +235,6 @@ if (!class_exists ('BlipApi')) {
                     "\n",
                 );
             }
-        }
-
-        /**
-         * Setter for {@link $_format} property
-         *
-         * Format have to be string in mime type format. In other case, there will be prepended 'application/' prefix.
-         *
-         * @param string $format
-         * @access protected
-         */
-        protected function __set_format ($format) {
-            # jeśli nie jest to pełen typ mime, to doklejamy na początek 'application/'
-            if ($format && strpos ($format, '/') === false) {
-                $format = 'application/'. $format;
-            }
-            $this->_format = $format;
         }
 
         /**
@@ -497,16 +301,6 @@ if (!class_exists ('BlipApi')) {
         }
 
         /**
-         * Setter for {@link $_headers} property
-         *
-         * @param array|string $headers headers in format specified at {@link _parse_headers}
-         * @access protected
-         */
-        protected function __set_headers ($headers) {
-            $this->_headers = $this->_parse_headers ($headers);
-        }
-
-        /**
          * Parsing headers parameter to correct format
          *
          * Param $headers have to be an array, where key is header name, and value - header value, or string in
@@ -520,7 +314,7 @@ if (!class_exists ('BlipApi')) {
             if (!$headers) {
                 $headers = array ();
             }
-            else if (is_string ($headers) && preg_match ('/^(\w+):\s(.*)/', $headers, $match)) {
+            else if (is_string ($headers) && preg_match ('/^(\w+):\s*(.*)/', $headers, $match)) {
                 $headers = array ( $match[1] => $match[2] );
             }
             else if (!is_array ($headers)) {
@@ -534,76 +328,6 @@ if (!class_exists ('BlipApi')) {
         }
 
         /**
-         * Add or replace headers to be sent to remote server
-         *
-         * @param array|string $headers headers in format specified at {@link _parse_headers}
-         * @access public
-         * @return bool false if empty array specified
-         */
-        public function headers_set ($headers) {
-            $headers = $this->_parse_headers ($headers);
-            if (!$headers) {
-                return false;
-            }
-
-            foreach ($headers as $k=>$v) {
-                $this->_headers[$k] = $v;
-            }
-            return true;
-        }
-
-        /**
-         * Remove specified header
-         *
-         * @param array|string $headers headers in format specified at {@link _parse_headers}
-         * @access public
-         * @return bool false if empty array specified
-         */
-        public function headers_remove ($headers) {
-            $headers = $this->_parse_headers ($headers);
-            if (!$headers) {
-                return false;
-            }
-
-            foreach ($headers as $k=>$v) {
-                if (isset ($this->_headers[$k])) {
-                    unset ($this->_headers[$k]);
-                }
-            }
-            return true;
-        }
-
-        /**
-         * Get headers set to sent
-         *
-         * $headers have to be:
-         *  * array - with names of headers values to return
-         *  * string - with single header name
-         *  * null - if all headers have to be returned
-         *
-         * @param mixed $headers
-         * @access public
-         * @return array
-         */
-        public function headers_get ($headers=null) {
-            if (is_null ($headers)) {
-                return $this->_headers;
-            }
-            else if (is_string ($headers)) {
-                $headers = array ($headers);
-            }
-            else if (!is_array ($headers)) {
-                throw new InvalidArgumentException ('Incorrect value specified.', -1);
-            }
-
-            $ret = array ();
-            foreach ($headers as $header) {
-                $ret[$header] = (isset ($this->_headers[$header])) ? $this->_headers[$header] : null;
-            }
-            return $ret;
-        }
-
-        /**
          * Create connection with CURL, setts some CURL options etc
          *
          * Throws RuntimeException exception when CURL initialization has failed
@@ -613,14 +337,7 @@ if (!class_exists ('BlipApi')) {
          * @access public
          * @return bool always true
          */
-        public function connect ($login=null, $passwd=null) {
-            if (!is_null ($login)) {
-                $this->_login       = (string) $login;
-            }
-            if (!is_null ($passwd)) {
-                $this->_password    = (string) $passwd;
-            }
-
+        public function connect () {
             # standardowe opcje curla
             $curlopts = array (
                 CURLOPT_USERAGENT       => $this->uagent,
@@ -629,12 +346,6 @@ if (!class_exists ('BlipApi')) {
                 CURLOPT_HTTP200ALIASES  => array (201, 204),
                 CURLOPT_CONNECTTIMEOUT  => 10,
             );
-
-            # jeśli podane login i hasło, to logujemy się
-            if ($this->_login && !is_null ($this->_password)) {
-                $curlopts[CURLOPT_HTTPAUTH] = CURLAUTH_BASIC;
-                $curlopts[CURLOPT_USERPWD]  = sprintf ('%s:%s', $this->_login, $this->_password);
-            }
 
             # ustawiamy opcje
             curl_setopt_array ($this->_ch, $curlopts);
@@ -715,19 +426,6 @@ if (!class_exists ('BlipApi')) {
             return $ret;
         }
 
-        protected function __split_response_body ($body) {
-            ## rozdzielamy nagłówki od treści
-            $body          = preg_split ("/\r?\n\r?\n/mu", $body, 2);
-            ## HTTP1.1 pozwala na wyslanie kilku czesci naglowkow, oddzielonych znakiem nowej linii.
-            while (strtolower (substr ($body[1], 0, 5)) == 'http/') {
-                $body = preg_split ("/\r?\n\r?\n/mu", $body[1], 2);
-            }
-            $headers        = $body[0];
-            $body           = isset ($body[1]) ? $body[1] : '';
-
-            return array ($headers, $body);
-        }
-
         /**
          * Parse reply
          *
@@ -744,10 +442,19 @@ if (!class_exists ('BlipApi')) {
          * @access protected
          */
         protected function __parse_reply ($reply) {
-            list ($headers, $reply) = $this->__split_response_body ($reply);
+            ## rozdzielamy nagłówki od treści
+            $body          = preg_split ("/\r?\n\r?\n/mu", $reply, 2);
+            ## HTTP1.1 pozwala na wyslanie kilku czesci naglowkow, oddzielonych znakiem nowej linii.
+            if (isset ($body[1])) {
+                while (strtolower (substr ($body[1], 0, 5)) == 'http/') {
+                    $body = preg_split ("/\r?\n\r?\n/mu", $body[1], 2);
+                }
+            }
+            $headers        = $body[0];
+            $body           = isset ($body[1]) ? $body[1] : '';
 
             # parsujemy nagłówki
-            $headers        = preg_split ("!\r?\n!mu", $headers);
+            $headers        = preg_split ("!\r?\n!", $headers);
 
             # usuwamy typ protokołu
             $header_http    = array_shift ($headers);
