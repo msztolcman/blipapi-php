@@ -256,6 +256,9 @@ if (!class_exists ('BlipApi')) {
 
                 case 'get':
                     $curlopts = array ( CURLOPT_HTTPGET => true );
+                    if (count ($http_data)) {
+                        $url .= '?' . http_build_query ($http_data);
+                    }
                 break;
 
                 case 'put':
