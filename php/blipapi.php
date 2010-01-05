@@ -48,20 +48,28 @@ if (!class_exists ('BlipApi')) {
         protected $_ch;
 
         /**
-         * Login to Blip!
+         * OAuth token
          *
          * @access protected
-         * @var string
+         * @var OAuthToken
          */
-        protected $_login;
+        protected $_oauth_token;
 
         /**
-         * Password to Blip!
+         * OAuth consumer
          *
          * @access protected
-         * @var string
+         * @var OAuthConsumer
          */
-        protected $_password;
+        protected $_oauth_consumer;
+
+        /**
+         * OAuth signing method
+         *
+         * @access protected
+         * @var OAuthSignatureMethod_HMAC_SHA1
+         */
+        protected $_oauth_method;
 
         /**
          * Useragent
@@ -144,31 +152,35 @@ if (!class_exists ('BlipApi')) {
          *
          * Initialize CURL handler ({@link $_ch}). Throws RuntimeException exception if no CURL extension found.
          *
-         * @param string $login
-         * @param string $passwd
+         * @param string $oauth_consumer
+         * @param string $oauth_token
          */
-        public function __construct ($login=null, $passwd=null, $dont_connect=false) {
+        public function __construct ($oauth_consumer=null, $oauth_token=null, $dont_connect=false) {
             if (!function_exists ('curl_init')) {
                 throw new RuntimeException ('CURL missing!', -1);
             }
 
-            $this->_login       = $login;
-            $this->_password    = $passwd;
+            $this->_oauth_consumer  = $oauth_consumer;
+            $this->_oauth_token     = $oauth_token;
+            if ($oauth_token && $oauth_consumer) {
+                $this->_oauth_method    = new OAuthSignatureMethod_HMAC_SHA1 ();
+                require_once 'OAuth.php';
+            }
 
             # inicjalizujemy handler curla
-            $this->_ch = curl_init ($this->_root);
+            $this->_ch              = curl_init ($this->_root);
             if (!$this->_ch) {
                 throw new RuntimeException ('CURL initialize error: '. curl_error ($this->_ch), curl_errno ($this->_ch));
             }
 
             # ustawiamy domyślne nagłówki
-            $this->_headers = array (
+            $this->_headers         = array (
                 'Accept'        => $this->format,
                 'X-Blip-API'    => '0.02',
             );
 
             # inicjalizujemy szablon dla debugow
-            $this->debug_html = false;
+            $this->debug_html       = false;
 
             if (!$dont_connect) {
                 $this->connect ();
@@ -211,16 +223,17 @@ if (!class_exists ('BlipApi')) {
             $this->_debug ('CMD: '. get_class ($args[0]).'::'.$method_name);
 
             # wywołujemy znalezioną metodę aby pobrac dane dla requestu
-            $method_data = call_user_func (array ($args[0], $method_name));
+            $method_data    = call_user_func (array ($args[0], $method_name));
             $url            = $method_data[0];
             $http_method    = $method_data[1];
-            $http_data      = null;
+            $http_data      = array ();
+            $opts           = array ();
             if (count ($method_data) > 2) {
                 $http_data  = $method_data[2];
             }
-            $opt            = null;
             if (count ($method_data) > 3) {
                 $opts       = $method_data[3];
+                $this->_debug ('method opts', $opts);
             }
 
             # ustawiamy opcje dla konkretnego typu requestu
@@ -228,12 +241,16 @@ if (!class_exists ('BlipApi')) {
             switch ($http_method) {
                 case 'post':
                     if (!isset ($opts['multipart']) || !$opts['multipart']) {
-                        $http_data = http_build_query ($http_data);
+                        $post_http_data = http_build_query ($http_data);
                     }
+                    else {
+                        $post_http_data = $http_data;
+                    }
+                    $this->_debug ('post http data', $post_http_data);
 
                     $curlopts = array (
                         CURLOPT_POST        => true,
-                        CURLOPT_POSTFIELDS  => $http_data,
+                        CURLOPT_POSTFIELDS  => $post_http_data,
                     );
                 break;
 
@@ -243,7 +260,7 @@ if (!class_exists ('BlipApi')) {
 
                 case 'put':
                     $curlopts = array ( CURLOPT_PUT => true,);
-                    if (!$http_data) {
+                    if (!count ($http_data)) {
                         $curlopts[CURLOPT_HTTPHEADER] = array ('Content-Length' => 0);
                     }
                 break;
@@ -258,25 +275,43 @@ if (!class_exists ('BlipApi')) {
             $this->_debug ('METHOD: '. strtoupper ($http_method));
 
             # ustawiamy url
-            $curlopts[CURLOPT_URL] = $this->_root . $url;
+            $curlopts[CURLOPT_URL]  = $this->_root . $url;
 
-            $headers_single = array ();
-            $headers_names  = null;
+            $headers_names          = null;
             # jesli trzeba to dodajemy jednorazowe nagłówki które mamy wysłać
             if (isset ($curlopts[CURLOPT_HTTPHEADER])) {
                 $this->headers_set ($curlopts[CURLOPT_HTTPHEADER]);
                 $headers_names = array_keys ($curlopts[CURLOPT_HTTPHEADER]);
             }
 
+            $headers = array ();
+
             # nagłówki do wysłania
             if ($this->_headers) {
-                $headers = array ();
                 foreach ($this->_headers as $k=>$v) {
-                    $headers[]          = sprintf ('%s: %s', $k, $v);
+                    $headers[] = sprintf ('%s: %s', $k, $v);
                 }
+            }
+
+            ## jesli mamy oauth, to podpisujemy request - tworzymy dodatkowy OAUth-owy naglowek
+            if ($this->_oauth_consumer && $this->_oauth_token) {
+                $oauth_request = OAuthRequest::from_consumer_and_token (
+                    $this->_oauth_consumer,
+                    $this->_oauth_token,
+                    strtoupper ($http_method),
+                    $curlopts[CURLOPT_URL],
+                    (isset ($opts['multipart']) ? array () : $http_data)
+                );
+                $oauth_request->sign_request ($this->_oauth_method, $this->_oauth_consumer, $this->_oauth_token);
+
+                $headers[] = $oauth_request->to_header ();
+            }
+
+            if (count ($headers)) {
                 $curlopts[CURLOPT_HTTPHEADER] = $headers;
             }
-            $this->_debug ('post2', print_r ($this->_headers, 1), print_r ($headers_names, 1));
+
+            $this->_debug ('post2', print_r ($this->_headers, 1), $headers, print_r ($headers_names, 1));
             $this->_debug ('DATA: '. print_r ($http_data, 1), 'CURLOPTS: '.print_r ($this->_debug_curlopts ($curlopts), 1));
 
             if (!curl_setopt_array ($this->_ch, $curlopts)) {
@@ -287,7 +322,7 @@ if (!class_exists ('BlipApi')) {
             $reply = curl_exec ($this->_ch);
 
             # usuwamy z zestawu naglowkow do wyslania te ktore mialy byc jednorazowe
-            if (isset($headers_names)) {
+            if (isset ($headers_names)) {
                 $this->headers_remove ($headers_names);
             }
             $this->_debug ('post3', print_r ($this->_headers, 1));
@@ -296,7 +331,6 @@ if (!class_exists ('BlipApi')) {
                 throw new RuntimeException ('CURL Error: '. curl_error ($this->_ch), curl_errno ($this->_ch));
             }
 
-            $this->_debug ($reply);
             $reply = $this->__parse_reply ($reply);
 
             if ($reply['status_code'] >= 400) {
@@ -530,19 +564,10 @@ if (!class_exists ('BlipApi')) {
          *
          * Throws RuntimeException exception when CURL initialization has failed
          *
-         * @param string $login as in {@link __construct}
-         * @param string $passwd as in {@link __construct}
          * @access public
          * @return bool always true
          */
-        public function connect ($login=null, $passwd=null) {
-            if (!is_null ($login)) {
-                $this->_login       = (string) $login;
-            }
-            if (!is_null ($passwd)) {
-                $this->_password    = (string) $passwd;
-            }
-
+        public function connect () {
             # standardowe opcje curla
             $curlopts = array (
                 CURLOPT_USERAGENT       => $this->uagent,
@@ -551,12 +576,6 @@ if (!class_exists ('BlipApi')) {
                 CURLOPT_HTTP200ALIASES  => array (201, 204),
                 CURLOPT_CONNECTTIMEOUT  => 10,
             );
-
-            # jeśli podane login i hasło, to logujemy się
-            if ($this->_login && !is_null ($this->_password)) {
-                $curlopts[CURLOPT_HTTPAUTH] = CURLAUTH_BASIC;
-                $curlopts[CURLOPT_USERPWD]  = sprintf ('%s:%s', $this->_login, $this->_password);
-            }
 
             # ustawiamy opcje
             curl_setopt_array ($this->_ch, $curlopts);
@@ -670,10 +689,10 @@ if (!class_exists ('BlipApi')) {
             $headers_parsed = array ();
             $header_name    = '';
             foreach ($headers as $header) {
-            	if ($header[0] == ' ' || $header[0] == "\t") {
-            		$headers_parsed[$header_name] .= trim ($header);
-            	}
-            	else {
+                if ($header[0] == ' ' || $header[0] == "\t") {
+                    $headers_parsed[$header_name] .= trim ($header);
+                }
+                else {
                     $header                         = preg_split ('/\s*:\s*/', trim ($header), 2);
                     $header_name                    = strtolower ($header[0]);
                     $headers_parsed[$header_name]   = $header[1];
