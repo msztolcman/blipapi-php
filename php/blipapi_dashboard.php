@@ -102,7 +102,7 @@ if (!class_exists ('BlipApi_Dashboard')) {
          * @access protected
          */
         protected function __set_since_id ($value) {
-            $this->_since_id = $this->__validate_offset ($value);
+            $this->_since_id = $this->__validate_offset ($value, 'since ID');
         }
 
         /**
