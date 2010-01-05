@@ -39,7 +39,7 @@ if (!class_exists ('BlipApi_Movie')) {
          * @access protected
          */
         protected function __set_id ($value) {
-            $this->_id = $this->__validate_offset ($value);
+            $this->_id = $this->__validate_offset ($value, 'ID');
         }
 
         /**

@@ -106,7 +106,7 @@ if (!class_exists ('BlipApi_Privmsg')) {
          * @access protected
          */
         protected function __set_id ($value) {
-            $this->_id = $this->__validate_offset ($value);
+            $this->_id = $this->__validate_offset ($value, 'ID');
         }
 
         /**
@@ -156,7 +156,7 @@ if (!class_exists ('BlipApi_Privmsg')) {
          * @access protected
          */
         protected function __set_since_id ($value) {
-            $this->_since_id = $this->__validate_offset ($value);
+            $this->_since_id = $this->__validate_offset ($value, 'since ID');
         }
 
         /**

@@ -133,9 +133,9 @@ if (!class_exists ('BlipApi_Abstract')) {
          * @param int $offset
          * @access protected
          */
-        protected function __validate_offset ($offset) {
+        protected function __validate_offset ($offset, $type='offset') {
             if (!is_int ($offset) || $offset < 0) {
-                throw new InvalidArgumentException ("Incorrect value of offset.");
+                throw new InvalidArgumentException ("Incorrect value of $type.");
             }
             else {
                 return $offset;
