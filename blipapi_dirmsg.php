@@ -106,7 +106,7 @@ if (!class_exists ('BlipApi_Dirmsg')) {
          * @access protected
          */
         protected function __set_id ($value) {
-            $this->_id = $this->__validate_offset ($value, 'ID');
+            $this->_id = $this->__validate_int ($value, 'ID');
         }
 
         /**
@@ -136,7 +136,7 @@ if (!class_exists ('BlipApi_Dirmsg')) {
          * @access protected
          */
         protected function __set_offset ($value) {
-            $this->_offset = $this->__validate_offset ($value);
+            $this->_offset = $this->__validate_int ($value, 'offset');
         }
 
         /**
@@ -156,7 +156,7 @@ if (!class_exists ('BlipApi_Dirmsg')) {
          * @access protected
          */
         protected function __set_since_id ($value) {
-            $this->_since_id = $this->__validate_offset ($value, 'since ID');
+            $this->_since_id = $this->__validate_int ($value, 'since ID');
         }
 
         /**

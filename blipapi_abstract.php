@@ -128,17 +128,18 @@ if (!class_exists ('BlipApi_Abstract')) {
         }
 
         /**
-         * Validator for field of type: offset
+         * Validator for field of type: int (offset, id, etc)
          *
-         * @param int $offset
+         * @param int $int
+         * @param string $field name
          * @access protected
          */
-        protected function __validate_offset ($offset, $type='offset') {
-            if (!is_int ($offset) || $offset < 0) {
-                throw new InvalidArgumentException ("Incorrect value of $type.");
+        protected function __validate_int ($int, $field) {
+            if (!is_int ($int) || $int < 0) {
+                throw new InvalidArgumentException ("Incorrect value of $field.");
             }
             else {
-                return $offset;
+                return $int;
             }
         }
 
