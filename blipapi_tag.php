@@ -42,6 +42,14 @@ if (!class_exists ('BlipApi_Tag')) {
         protected $_limit       = 10;
 
         /**
+         * Offset for read result set
+         *
+         * @access protected
+         * @var int
+         */
+        protected $_offset  = 0;
+
+        /**
          * ID of item where data is being set.
          *
          * @access protected
@@ -75,6 +83,16 @@ if (!class_exists ('BlipApi_Tag')) {
          */
         protected function __set_limit ($value) {
             $this->_limit = $this->__validate_limit ($value);
+        }
+
+        /**
+         * Setter for field: offset
+         *
+         * @param string $value
+         * @access protected
+         */
+        protected function __set_offset ($value) {
+            $this->_offset = $this->__validate_offset ($value);
         }
 
         /**
@@ -118,15 +136,14 @@ if (!class_exists ('BlipApi_Tag')) {
             if ($this->_limit) {
                 $params['limit'] = $this->_limit;
             }
+            if ($this->_offset) {
+                $params['offset'] = $this->_offset;
+            }
             if ($this->_include) {
                 $params['include'] = implode (',', $this->_include);
             }
 
-            if (count ($params)) {
-                $url .= '?' . http_build_query ($params);
-            }
-
-            return array ($url, 'get');
+            return array ($url, 'get', $params);
         }
     }
 }

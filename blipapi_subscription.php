@@ -146,11 +146,7 @@ if (!class_exists ('BlipApi_Subscription')) {
                 $params['include'] = implode (',', $this->_include);
             }
 
-            if (count ($params)) {
-                $url .= '?'.http_build_query ($params);
-            }
-
-            return array ($url, 'get');
+            return array ($url, 'get', $params);
         }
 
         /**
@@ -169,7 +165,7 @@ if (!class_exists ('BlipApi_Subscription')) {
                 'subscription[www]' => $this->_www ? 1 : 0,
                 'subscription[im]'  => $this->_im  ? 1 : 0,
             );
-            return array ($url . '?' . http_build_query ($data), 'put');
+            return array ($url, 'put', $data);
         }
 
         /**

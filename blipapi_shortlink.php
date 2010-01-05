@@ -158,11 +158,8 @@ if (!class_exists ('BlipApi_Shortlink')) {
             if ($this->_offset) {
                 $params['offset'] = $this->_offset;
             }
-            if (count ($params)) {
-                $url .= '?'.http_build_query ($params);
-            }
 
-            return array ($url, 'get');
+            return array ($url, 'get', $params);
         }
     }
 }

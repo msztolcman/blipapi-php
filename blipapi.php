@@ -266,6 +266,9 @@ if (!class_exists ('BlipApi')) {
                     if (!count ($http_data)) {
                         $curlopts[CURLOPT_HTTPHEADER] = array ('Content-Length' => 0);
                     }
+                    else {
+                        $url .= '?' . http_build_query ($http_data);
+                    }
                 break;
 
                 case 'delete':
