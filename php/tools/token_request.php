@@ -13,7 +13,7 @@
  * @package blipapi_tools
  */
 
-require_once 'OAuth.php';
+require_once '../lib/OAuth.php';
 
 define ('URL_REQUEST_TOKEN',    'http://blip.pl/oauth/request_token');
 define ('URL_ACCESS_TOKEN',     'http://blip.pl/oauth/access_token');
