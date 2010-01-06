@@ -85,7 +85,7 @@ if (!class_exists ('BlipApi')) {
          * @access protected
          * @var string
          */
-        protected $_referer         = 'http://urzenia.net';
+        protected $_referer         = '';
 
         /**
          * URI to API host
