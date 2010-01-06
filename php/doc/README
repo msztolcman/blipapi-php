@@ -22,7 +22,7 @@ Wymagania:
 - Włączona możliwość połączeń z hostami zewnętrznymi
 
 Uzycie:
-$blipapi = new BlipApi ('login', 'haslo');
+$blipapi = new BlipApi ($oauth_consumer, $oauth_token);
 $update = new BlipApi_Update ();
 $update->user = 'mysz';
 $updates = $blipapi->read ($update);
@@ -38,9 +38,23 @@ print_r ($updates);
 // znalezionej np. na http://phpclasses.org biblioteki która będzie
 // potrafiła sparsować nam format JSON, i podpiąć ją jako parser:
 
-$blipapi = new BlipApi ('login', 'haslo');
+$blipapi = new BlipApi ($oauth_consumer, $oauth_token);
 $blipapi->parser = 'moja_funkcja_parsujaca_json';
 
-// Tak samo można zmienić User-Agent:
+// Podobnie można zmienić User-Agent:
 $blipapi->uagent = 'Moj UserAgent';
+
+// lub Referer:
+$blipapi->referer = 'http://moja.strona.example.com';
+
+// Dla potrzeb dewelopeskich, można też włączyć tryb debugowania, podczas którego na
+// STDOUT (i STDERR) jest wyrzucanych dużo informacji nt połączenia etc.:
+$blipapi->debug = true;
+
+// Może też być przydatne przełączenie debugów w tryb HTML:
+$blipapi->debug_html = true;
+
+// Domyślnie timeout na połączenie z serwera Blip! wynosi 5 sekund, a na wykonanie komendy: 10. Można to łatwo zmienić:
+$blipapi->connect_timeout = 10;
+$blipapi->timeout = 5;
 
