@@ -77,7 +77,7 @@ if (!class_exists ('BlipApi')) {
          * @access protected
          * @var string
          */
-        protected $_uagent      = 'BlipApi.php/0.02.30 (http://blipapi.googlecode.com)';
+        protected $_uagent          = 'BlipApi.php/0.02.30 (http://blipapi.googlecode.com)';
 
         /**
          *
@@ -85,7 +85,7 @@ if (!class_exists ('BlipApi')) {
          * @access protected
          * @var string
          */
-        protected $_referer     = 'http://urzenia.net';
+        protected $_referer         = 'http://urzenia.net';
 
         /**
          * URI to API host
@@ -93,7 +93,7 @@ if (!class_exists ('BlipApi')) {
          * @access protected
          * @var string
          */
-        protected $_root        = 'http://api.blip.pl';
+        protected $_root            = 'http://api.blip.pl';
 
         /**
          * Mime type for "Accept" header in request
@@ -101,15 +101,23 @@ if (!class_exists ('BlipApi')) {
          * @access protected
          * @var string
          */
-        protected $_format      = 'application/json';
+        protected $_format          = 'application/json';
 
         /**
-         *
+         * Timeout for connecting
          *
          * @access protected
          * @var string
          */
-        protected $_timeout     = 10;
+        protected $_connect_timeout;
+
+        /**
+         * Timeout for command execution
+         *
+         * @access protected
+         * @var string
+         */
+        protected $_timeout;
 
         /**
          * Debug mode flag
@@ -117,7 +125,7 @@ if (!class_exists ('BlipApi')) {
          * @access protected
          * @var bool
          */
-        protected $_debug       = false;
+        protected $_debug;
 
         /**
          * Debug message type
@@ -125,7 +133,7 @@ if (!class_exists ('BlipApi')) {
          * @access protected
          * @var bool
          */
-        protected $_debug_tpl   = array ('', '');
+        protected $_debug_tpl       = array ('', '');
 
         /**
          * Headers to be sent
@@ -133,7 +141,7 @@ if (!class_exists ('BlipApi')) {
          * @access protected
          * @var array
          */
-        protected $_headers     = array ();
+        protected $_headers         = array ();
 
         /**
          * Parser for JSON format
@@ -145,7 +153,7 @@ if (!class_exists ('BlipApi')) {
          * @access protected
          * @var array
          */
-        protected $_parser     = 'json_decode';
+        protected $_parser          = 'json_decode';
 
         /**
          * BlipApi constructor
@@ -181,6 +189,9 @@ if (!class_exists ('BlipApi')) {
 
             # inicjalizujemy szablon dla debugow
             $this->debug_html       = false;
+            # ustawiamy odpowiednie timeouty
+            $this->connect_timeout  = 5;
+            $this->timeout          = 10;
 
             if (!$dont_connect) {
                 $this->connect ();
@@ -456,6 +467,17 @@ if (!class_exists ('BlipApi')) {
         }
 
         /**
+         * Setter for {@link $_connect_timeout} property
+         *
+         * @param string $timeout
+         * @access protected
+         */
+        protected function __set_connect_timeout ($timeout) {
+            $this->_connect_timeout = (int) $timeout;
+            curl_setopt ($this->_ch, CURLOPT_CONNECTTIMEOUT, $this->_connect_timeout);
+        }
+
+        /**
          * Setter for {@link $_timeout} property
          *
          * @param string $timeout
@@ -463,7 +485,7 @@ if (!class_exists ('BlipApi')) {
          */
         protected function __set_timeout ($timeout) {
             $this->_timeout = (int) $timeout;
-            curl_setopt ($this->_ch, CURLOPT_CONNECTTIMEOUT, $this->_timeout);
+            curl_setopt ($this->_ch, CURLOPT_TIMEOUT, $this->_timeout);
         }
 
         /**
