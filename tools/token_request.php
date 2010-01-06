@@ -13,15 +13,17 @@
  * @package blipapi_tools
  */
 
-require_once '../lib/OAuth.php';
+define ('ROOT', dirname (dirname (__FILE__)));
+require_once ROOT.'/lib/OAuth.php';
+require_once ROOT.'/tools/lib.php';
 
 define ('URL_REQUEST_TOKEN',    'http://blip.pl/oauth/request_token');
 define ('URL_ACCESS_TOKEN',     'http://blip.pl/oauth/access_token');
 define ('URL_AUTHORIZE',        'http://blip.pl/oauth/authorize');
 
-define ('CONSUMER_KEY',         '');
-define ('CONSUMER_SECRET',      '');
 define ('CALLBACK_URL',         'http://blipapi.googlecode.com');
+
+import_const ();
 
 $oauth_consumer = new OAuthConsumer (CONSUMER_KEY, CONSUMER_SECRET);
 $oauth_method   = new OAuthSignatureMethod_HMAC_SHA1 ();
@@ -41,7 +43,7 @@ echo "Visit this URL and accept access::\n".$oauth_request->to_url()."\n\n";
 echo "Now enter PIN code from blip.pl: ";
 
 $fh             = fopen ('php://stdin', 'r');
-$oauth_verifier = trim (fgets ($fh, 10));
+$oauth_verifier = trim (fgets ($fh, 16));
 echo "\n\n";
 
 $oauth_request  = OAuthRequest::from_consumer_and_token ($oauth_consumer, $oauth_token, 'GET', URL_ACCESS_TOKEN, array ('oauth_verifier' => $oauth_verifier));
