@@ -1,5 +1,18 @@
 <?php
 
+/**
+ * Blip! (http://blip.pl) communication library.
+ *
+ * Common things (functions and settings) for tools
+ *
+ * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
+ * @version 0.02.30
+ * @version $Id$
+ * @copyright Copyright (c) 2007, Marcin Sztolcman
+ * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
+ * @package blipapi_tools
+ */
+
 error_reporting (E_ALL|E_STRICT|E_DEPRECATED);
 ini_set ('display_errors', true);
 
