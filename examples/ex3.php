@@ -25,7 +25,6 @@ $oauth_consumer = new OAuthConsumer (CONSUMER_KEY, CONSUMER_SECRET);
 $oauth_token    = new OAuthToken (TOKEN_KEY, TOKEN_SECRET);
 
 $blipapi = new BlipApi ($oauth_consumer, $oauth_token);
-$blipapi->timeout = 0;
 
 $b_dirmsg          = new BlipApi_Privmsg ();
 $b_dirmsg->limit   = 3;
