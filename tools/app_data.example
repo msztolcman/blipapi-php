@@ -1,0 +1,4 @@
+CONSUMER_KEY = Klucz aplikacji
+CONSUMER_SECRET = Haslo aplikacji
+TOKEN_KEY = Otrzymany token (np. z wyniku dzialania skryptu token_request.php)
+TOKEN_SECRET = Otrzymane haslo
