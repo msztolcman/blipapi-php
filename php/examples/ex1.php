@@ -6,7 +6,7 @@
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
  * @version 0.02.30
- * @version $Id: token_request.php 139 2010-01-06 21:04:29Z urzenia $
+ * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
  * @package blipapi_examples
