@@ -342,6 +342,14 @@ if (!class_exists ('BlipApi')) {
             if ($reply['status_code'] >= 400) {
                 throw new RuntimeException ($reply['status_body'], $reply['status_code']);
             }
+            ## hack na 302 i przekierowanie na strone gg
+            else if (
+                $reply['status_code'] == 302 &&
+                isset ($reply['headers']['location']) &&
+                stripos ($reply['headers']['location'], 'http://help.gadu-gadu.pl/errors') === 0
+            ) {
+                throw new RuntimeException ('Service Unavailable', 503);
+            }
 
             return $reply;
         }
