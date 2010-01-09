@@ -1,25 +1,11 @@
 <?php
 
-require_once 'PHPUnit/Framework.php';
-define ('ROOT', dirname (__FILE__).'/..');
-require_once ROOT.'/lib/blipapi.php';
+define ('ROOT', dirname (__FILE__).'/../../..');
+require_once ROOT.'/tools/Tests/AbstractNotLogged.php';
 
-class TestBackgroundNotLogged extends  PHPUnit_Framework_TestCase {
-    protected $B;
-
-    public function setUp () {
-        $this->B = new BlipApi ();
-    }
-
-    public function tearDown () {
-        $this->B = null;
-    }
-
-    private function validateResponse ($R, $code=200) {
-        $this->assertEquals ($R['status_code'], $code);
-    }
-
+class TestBackgroundNotLogged extends TestsAbstractNotLogged {
     public function testReadOwn () {
+        $this->markTestSkipped ('obecnie blip nie pozwala na odczyt wlasnego background (bez podania usera)');
         $o = new BlipApi_Background ();
 
         $R = $this->B->read ($o);
