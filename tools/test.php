@@ -58,12 +58,12 @@ $i2 = '/Users/mysz/test_img/test_jpg/01.jpg';
 $t = strftime ('%Y%m%d %H%M%S', time ());
 
 ## Avatar
-# test ('avatar', 'read', 'user', 'myszapi');
 # test ('avatar', 'update', 'image', $i1);
+# test ('avatar', 'read', 'user', 'myszapi');
 # test ('avatar', 'delete');
 
 ## Background
-# test ('background', 'read', 'user', 'myszapi');
+test ('background', 'read', 'user', 'myszapi');
 # test ('background', 'update', 'image', $i1);
 # test ('background', 'delete');
 
@@ -90,7 +90,7 @@ $t = strftime ('%Y%m%d %H%M%S', time ());
 ## Notice
 # test ('notice', 'read', 'user', 'myszapi', 'limit', 2);
 # test ('notice', 'read', 'user', 'myszapi', 'limit', 2, 'offset', 1);
-# test ('notice', 'read', 'user', 'myszapi', 'limit', 2, 'offset', 1, 'include', array ('user'));
+# test ('notice', 'read', 'user', 'myszapi', 'limit', 2, 'offset', 1, 'include', array ('user', 'user[avatar]'));
 
 ## Picture
 # test ('picture', 'read', 'id', 8336732);
@@ -108,7 +108,7 @@ $t = strftime ('%Y%m%d %H%M%S', time ());
 # test ('privmsg', 'delete', 'id', 31531016);
 
 ## Recording
-# test ('recording', 'read', 'id', 'NIEZNANE');
+# test ('recording', 'read', 'id', 26884443);
 
 ## Shortlink
 # test ('shortlink', 'create', 'link', 'http://asd.qwe.urzenia.net');
@@ -128,7 +128,7 @@ $t = strftime ('%Y%m%d %H%M%S', time ());
 ## Subscription
 # test ('subscription', 'read', 'direction', 'to');
 # test ('subscription', 'read', 'direction', 'from');
-# test ('subscription', 'read', 'direction', 'to', 'include', 'tracking_user');
+# test ('subscription', 'read', 'direction', 'to', 'include', array ('tracking_user', 'tracking_user[current_status]'));
 # test ('subscription', 'update', 'user', 'mysz', 'www', true);
 # test ('subscription', 'update', 'user', 'mysz', 'www', false);
 # test ('subscription', 'delete', 'user', 'mysz');
@@ -137,6 +137,7 @@ $t = strftime ('%Y%m%d %H%M%S', time ());
 # test ('tag', 'read', 'tag', 'wpblip');
 # test ('tag', 'read', 'tag', 'wpblip', 'limit', 3);
 # test ('tag', 'read', 'tag', 'wpblip', 'limit', 3, 'include', 'user');
+# test ('tag', 'read', 'tag', 'foto', 'limit', 3, 'include', array ('user', 'pictures'));
 
 ## Update
 # test ('update', 'create', 'body', 'qwe ' . $t);
