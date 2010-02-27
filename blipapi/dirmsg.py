@@ -11,7 +11,7 @@ import os.path
 
 from _utils import arr2qstr, make_post_data
 
-def create (body, user, picture=None):
+def create (body, user, image=None):
     """ Create new directed message. """
 
     if not body or not user:
@@ -21,8 +21,8 @@ def create (body, user, picture=None):
         'directed_message[body]':      body,
         'directed_message[recipient]': user,
     }
-    if picture:
-        fields['directed_message[picture]'] = (picture, picture, )
+    if image:
+        fields['directed_message[picture]'] = (image, image, )
 
     data, boundary = make_post_data (fields)
 
@@ -36,40 +36,40 @@ def create (body, user, picture=None):
 def read (id=None, user=None, include=None, since_id=None, limit=10, offset=0):
     """ Read directed messages to specified or logged user, or by ID. """
 
-    url = '/directed_messages'
     if user:
-        user = user.lower ()
-        if user.lower () == '__all__':
-            if id:
-                url += '/' + str (id)
-                id = None
-            url += '/all'
+        if user == '__ALL__':
             if since_id:
-                url += '_since'
-                since_id = None
+                url = '/directed_messages/' + str (since_id) + '/all_since'
+            else:
+                url = '/directed_messages/all'
         else:
-            url = '/users/' + user + '/directed_messages'
+            if since_id:
+                url = '/users/' + user + '/directed_messages/' + str (since_id) + '/since'
+            else:
+                url = '/users/' + user + '/directed_messages'
+    elif id:
+        url = '/directed_messages/' + str (id)
 
-    if id:
-        url += '/' + str (id)
-    if since_id:
-        url += '/since'
+    else:
+        url = '/directed_messages'
+        if since_id:
+            url += str (since_id) + '/since'
 
     params = dict ()
 
     if limit:
-        params['limit'] = limit
+        params['limit']     = limit
     if offset:
-        params['offset'] = offset
+        params['offset']    = offset
     if include:
-        params['include'] = ','.join (include)
+        params['include']   = ','.join (include)
 
     if params:
         url += '?' + arr2qstr (params)
 
     return dict (
-        url         = url,
-        method      = 'get',
+        url     = url,
+        method  = 'get',
     )
 
 def delete (id):
@@ -79,7 +79,7 @@ def delete (id):
         raise ValueError ('Directed_message ID is missing.')
 
     return dict (
-        url         = '/directed_messages/' + str (id),
-        method      = 'delete',
+        url     = '/directed_messages/' + str (id),
+        method  = 'delete',
     )
 
