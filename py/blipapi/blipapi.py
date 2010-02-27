@@ -8,7 +8,6 @@
 # License: http://opensource.org/licenses/gpl-license.php GNU Public License v.2
 
 BLIPAPI_ALLOW_DANGEROUS_JSON    = False
-BLIPAPI_MAX_REQUESTS_PER_MINUTE = 0
 
 import copy
 import httplib
@@ -20,35 +19,6 @@ class BlipApiError (Exception):
 
 class BlipApi (object):
     api_uri = 'api.blip.pl'
-
-    ## uagent
-    def __uagent_get (self):
-        return self._uagent
-    def __uagent_set (self, uagent):
-        self._uagent = str (uagent or '')
-    def __uagent_del (self):
-        self._uagent = ''
-    uagent = property (__uagent_get, __uagent_set, __uagent_del)
-
-    ## referer
-    def __referer_get (self):
-        return self._referer
-    def __referer_set (self, referer):
-        self._referer = str (referer or '')
-    def __referer_del (self):
-        self._referer = ''
-    referer = property (__referer_get, __referer_set, __referer_del)
-
-    ## parser
-    def __parser_get (self):
-        return self._parser
-    def __parser_set (self, parser):
-        if not callable (parser):
-            raise BlipApiError ('Given parser is not callable!')
-        self._parser = parser
-    def __parser_del (self):
-        raise BlipApiError ('Cannot delete parser!')
-    parser = property (__parser_get, __parser_set, __parser_del)
 
     ## debug
     def __debug_get (self):
@@ -68,38 +38,78 @@ class BlipApi (object):
         self.debug = 0
     debug = property (__debug_get, __debug_set, __debug_del)
 
+    ## parser
+    def __parser_get (self):
+        return self._parser
+    def __parser_set (self, parser):
+        if not callable (parser):
+            raise BlipApiError ('Given parser is not callable!')
+        self._parser = parser
+    def __parser_del (self):
+        raise BlipApiError ('Cannot delete parser!')
+    parser = property (__parser_get, __parser_set, __parser_del)
+
+    ## referer
+    def __referer_get (self):
+        return self._referer
+    def __referer_set (self, referer):
+        self._referer = str (referer or '')
+    def __referer_del (self):
+        self._referer = ''
+    referer = property (__referer_get, __referer_set, __referer_del)
+
+    ## rpm
+    def __rpm_get (self):
+        return self._rpm
+    def __rpm_set (self, rpm):
+        self._rpm = int (rpm)
+    def __rpm_del (self):
+        self._rpm = 0
+    rpm = property (__rpm_get, __rpm_set, __rpm_del)
+
+    ## uagent
+    def __uagent_get (self):
+        return self._uagent
+    def __uagent_set (self, uagent):
+        self._uagent = str (uagent or '')
+    def __uagent_del (self):
+        self._uagent = ''
+    uagent = property (__uagent_get, __uagent_set, __uagent_del)
+
     def _shaperd (self):
-        if not BLIPAPI_MAX_REQUESTS_PER_MINUTE:
+        if not self._rpm:
             return True
 
         ts = time.time ()
-        self._rpm[0] += 1
+        self._shaperd_data[0] += 1
 
-        if (ts - self._rpm[1]) >= 60:
+        if (ts - self._shaperd_data[1]) >= 60:
             self.shaperd_reset (_counter = 1)
             return True
 
-        if self._rpm[0] > BLIPAPI_MAX_REQUESTS_PER_MINUTE:
+        if self._shaperd_data[0] > self._rpm:
+            print self._shaperd_data
             return False
 
         return True
 
     def shaperd_reset (self, _counter = 0):
-        self._rpm = [_counter, time.time ()]
+        self._shaperd_data = [_counter, time.time ()]
 
     def __init__ (self, login=None, passwd=None, dont_connect=False):
         self._ch        = None
-        self._login     = login
-        self._password  = passwd
-        self._uagent    = 'BlipApi.py/0.02.05 (http://blipapi.googlecode.com)'
-        self._referer   = ''
-        self._format    = 'application/json'
         self._debug     = 0
-        self._parser    = None
+        self._format    = 'application/json'
         self._headers   = {
             'Accept':       self._format,
             'X-Blip-API':   '0.02',
         }
+        self._login     = login
+        self._parser    = None
+        self._password  = passwd
+        self._referer   = ''
+        self._rpm       = 0
+        self._uagent    = 'BlipApi.py/0.02.05 (http://blipapi.googlecode.com)'
 
         try:
             import json
