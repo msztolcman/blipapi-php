@@ -11,20 +11,18 @@ import os.path
 
 from _utils import arr2qstr, make_post_data
 
-def create (body, picture=None):
+def create (body, image=None):
     """ Create new status. """
 
     if not body:
         raise ValueError ('Status body is missing.')
 
-    if picture and not os.path.isfile (picture):
-        picture = None
-
     fields = {
-        'status[body]':      body,
+        'status[body]': body,
     }
-    if picture:
-        fields['status[picture]'] = (picture, picture, )
+
+    if image and os.path.isfile (image):
+        fields['status[picture]'] = (image, image, )
 
     data, boundary = make_post_data (fields)
 
@@ -38,25 +36,25 @@ def create (body, picture=None):
 def read (id=None, user=None, include=None, since_id=None, limit=10, offset=0):
     """ Get info about statuses. """
 
-    url = '/statuses'
     if user:
-        user = user.lower ()
-        if user == '__all__':
-            if id:
-                url += '/' + str (id)
-                id = None
-            url += '/all'
+        if user == '__ALL__':
             if since_id:
-                url += '_since'
-                since_id = None
+                url = '/statuses/' + str (since_id) + '/all_since'
+            else:
+                url = '/statuses/all'
         else:
-            url = '/users/'+ user +'/statuses'
+            if since_id:
+                url = '/users/' + user + '/statuses/' + str (since_id) + '/since'
+            else:
+                url = '/users/' + user + '/statuses'
 
-    # dla pojedynczego usera, innego niż __all__, dodajemy id wpisu
-    if id:
-        url += '/' + str (id)
-    if since_id:
-        url += '/since'
+    elif id:
+        url = '/statuses/' + str (id)
+
+    else:
+        url = '/statuses'
+        if since_id:
+            url += '/' + str (since_id) + '/since'
 
     params = dict ()
 
@@ -80,6 +78,7 @@ def delete (id):
 
     if not id:
         raise ValueError ('Status ID is missing.')
+
     return dict (
         url     = '/statuses/' + str (id),
         method  = 'delete',
