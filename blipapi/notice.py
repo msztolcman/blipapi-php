@@ -13,30 +13,32 @@ def read (id=None, user=None, include=None, since_id=None, limit=10, offset=0):
     """ Get notices. """
 
     if user:
-        if user == '__all__':
-            if id:
-                url += '/' + str (id)
-            url += '/all'
+        if user == '__ALL__':
             if since_id:
-                url += '_since'
+                url = '/notices/' + str (since_id) + '/all_since'
+            else:
+                url = '/notices/all'
         else:
-            url = '/users/' + str (user) + '/notices'
-            if since_id and id:
-                url += '/' + str (id) + '/since'
+            if since_id:
+                url = '/users/' + user + '/notices/' + str (since_id) + '/since'
+            else:
+                url = '/users/' + user + '/notices'
+    elif id:
+        url = '/notices/' + str (id)
+
     else:
-        if id and since_id:
-            url += '/since/' + str (id)
-        elif id:
-            url += '/' + str (id)
+        url = '/notices'
+        if since_id:
+            url += '/since/' + str (since_id)
 
     params = dict ()
 
     if limit:
-        params['limit'] = limit
+        params['limit']     = limit
     if offset:
-        params['offset'] = offset
+        params['offset']    = offset
     if include:
-        params['include'] = ','.join (include)
+        params['include']   = ','.join (include)
 
     if params:
         url += '?' + arr2qstr (params)
