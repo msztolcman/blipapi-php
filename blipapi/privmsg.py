@@ -11,7 +11,7 @@ import os.path
 
 from _utils import arr2qstr, make_post_data
 
-def create (body=None, user=None, picture=None):
+def create (body, user, image=None):
     """ Create new private message. """
 
     if not body or not user:
@@ -21,8 +21,8 @@ def create (body=None, user=None, picture=None):
         'private_message[body]':      body,
         'private_message[recipient]': user,
     }
-    if picture:
-        fields['private_message[picture]'] = (picture, picture, )
+    if image:
+        fields['private_message[picture]'] = (image, image, )
 
     data, boundary = make_post_data (fields)
 
@@ -36,21 +36,21 @@ def create (body=None, user=None, picture=None):
 def read (id=None, include=None, since_id=None, limit=10, offset=0):
     """ Read user's private messages. """
 
-    url = '/private_messages'
-
     if since_id:
-        url += '/since'
-    if id:
-        url += '/' + str (id)
+        url = '/private_messages/since/' + str (since_id)
+    elif id:
+        url = '/private_messages/' + str (id)
+    else:
+        url = '/private_messages'
 
     params = dict ()
 
     if limit:
-        params['limit'] = limit
+        params['limit']     = limit
     if offset:
-        params['offset'] = offset
+        params['offset']    = offset
     if include:
-        params['include'] = ','.join (include)
+        params['include']   = ','.join (include)
 
     if params:
         url += '?' + arr2qstr (params)
