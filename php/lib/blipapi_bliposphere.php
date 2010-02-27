@@ -42,6 +42,14 @@ if (!class_exists ('BlipApi_Bliposphere')) {
         protected $_include = null;
 
         /**
+         * ID of item where data is being set.
+         *
+         * @access protected
+         * @var int
+         */
+        protected $_since_id;
+
+        /**
          * Setter for field: limit
          *
          * @param string $value
@@ -62,6 +70,16 @@ if (!class_exists ('BlipApi_Bliposphere')) {
         }
 
         /**
+         * Setter for field: since_id
+         *
+         * @param string $value
+         * @access protected
+         */
+        protected function __set_since_id ($value) {
+            $this->_since_id = $this->__validate_int ($value, 'since ID');
+        }
+
+        /**
          * Return current bliposhpere
          *
          * @access public
@@ -69,6 +87,9 @@ if (!class_exists ('BlipApi_Bliposphere')) {
          */
         public function read () {
             $url = '/bliposphere';
+            if ($this->_since_id) {
+                $url .= "/since/$this->_since_id";
+            }
 
             $params = array ();
             if ($this->_limit) {
