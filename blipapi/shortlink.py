@@ -7,7 +7,7 @@
 # Copyright: (r) 2009 Marcin Sztolcman
 # License: http://opensource.org/licenses/gpl-license.php GNU Public License v.2
 
-from _utils import arr2qstr
+from _utils import arr2qstr, make_post_data
 
 def create (link):
     """ Create new shortened link. """
