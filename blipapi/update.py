@@ -11,7 +11,7 @@ import os.path
 
 from _utils import arr2qstr, make_post_data
 
-def create (body, user=None, picture=None, private=False):
+def create (body, user=None, image=None, private=False):
     """ Create new update. """
 
     if not body:
@@ -25,15 +25,12 @@ def create (body, user=None, picture=None, private=False):
 
         body = u'>%s%s %s' % (private, user, body)
 
-    if picture and not os.path.isfile (picture):
-        picture = None
-
-
     fields = {
         'update[body]':      body,
     }
-    if picture:
-        fields['update[picture]'] = (picture, picture, )
+
+    if image and os.path.isfile (image):
+        fields['update[picture]'] = (image, image, )
 
     data, boundary = make_post_data (fields)
 
@@ -47,34 +44,33 @@ def create (body, user=None, picture=None, private=False):
 def read (id=None, user=None, include=None, since_id=None, limit=10, offset=0):
     """ Read updates. """
 
-    url = '/updates'
     if user:
-        user = user.lower ()
-        if user == '__all__':
-            if id:
-                url += '/' + str (id)
-                id = None
-            url += '/all'
+        if user == '__ALL__':
             if since_id:
-                url += '_since'
-                since_id = None
+                url = '/updates/' + str (since_id) + '/all_since'
+            else:
+                url = '/updates/all'
         else:
-            url = '/users/'+ user +'/updates'
+            if since_id:
+                url = '/users/' + user + '/updates/' + str (since_id) + '/since'
+            else:
+                url = '/users/' + user + '/updates'
+    elif id:
+        url = '/updates/' + str (id)
 
-    # dla pojedynczego usera, innego niż __all__, dodajemy id wpisu
-    if id:
-        url += '/' + str (id)
-    if since_id:
-        url += '/since'
+    else:
+        url = '/updates';
+        if since_id:
+            url += '/' + str (since_id) + '/since'
 
     params = dict ()
 
     if limit:
-        params['limit'] = limit
+        params['limit']     = limit
     if offset:
-        params['offset'] = offset
+        params['offset']    = offset
     if include:
-        params['include'] = ','.join (include)
+        params['include']   = ','.join (include)
 
     if params:
         url += '?' + arr2qstr (params)
