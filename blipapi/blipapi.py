@@ -57,6 +57,7 @@ class BlipApi (object):
         if not type (level) is int or level < 0:
             level = 0
         self._debug = level
+
         ## nie zawsze _ch bedzie ustawione, bledy wtedy pomijamy
         try:
             self._ch.set_debuglevel (level)
@@ -91,7 +92,7 @@ class BlipApi (object):
         self._login     = login
         self._password  = passwd
         self._uagent    = 'BlipApi.py/0.02.05 (http://blipapi.googlecode.com)'
-        self._referer   = 'http://urzenia.net/blipapi'
+        self._referer   = ''
         self._format    = 'application/json'
         self._debug     = 0
         self._parser    = None
@@ -185,6 +186,10 @@ class BlipApi (object):
             else:
                 body    = []
             body_parsed = True
+
+        ## hack na 302 i przekierowanie na strone gg
+        elif response.status == 302 and response.getheader ('Location', '').startswith ('http://help.gadu-gadu.pl/errors'):
+            raise BlipApiError ('Service Unavailable')
 
         return dict (
             headers     = dict ((k.lower (), v) for k, v in response.getheaders ()),
