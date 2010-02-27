@@ -17,20 +17,20 @@ def read (user=None):
     if not user:
         url = '/avatar'
     else:
-        url     = '/users/' + user + '/avatar',
+        url = '/users/' + user + '/avatar'
 
     return dict (
         url     = url,
         method  = 'get',
     )
 
-def update (avatar):
+def update (image):
     """ Update current user avatar. """
 
-    if not os.path.isfile (avatar):
+    if not os.path.isfile (image):
         raise ValueError ('Avatar path missing or file not found.')
 
-    data, boundary = make_post_data ({'avatar[file]': (avatar, avatar,)})
+    data, boundary = make_post_data ({'avatar[file]': (image, image,)})
 
     return dict (
         url         = '/avatar',
