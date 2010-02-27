@@ -9,10 +9,12 @@
 
 from _utils import arr2qstr
 
-def read (include=None, limit=10):
+def read (since_id=None, include=None, limit=10):
     """ Get users statuses from bliposphere. """
 
     url = '/bliposphere'
+    if since_id:
+        url += '/since/' + str (since_id)
 
     params = dict ()
     if limit:
