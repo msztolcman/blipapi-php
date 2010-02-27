@@ -7,5 +7,6 @@
 # Copyright: (r) 2009 Marcin Sztolcman
 # License: http://opensource.org/licenses/gpl-license.php GNU Public License v.2
 
-from blipapi import BlipApi, BlipApiError
+from blipapi import BlipApi
+from blipapi import BlipApiError
 
