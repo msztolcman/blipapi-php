@@ -9,16 +9,35 @@
 
 from _utils import arr2qstr
 
+def create (link):
+    """ Create new shortened link. """
+
+    if not link:
+        raise ValueError ('Url is missing.')
+
+    url     = '/shortlinks'
+    fields  = {
+        'shortlink[original_link]': link
+    }
+
+    data, boundary = make_post_data (fields)
+
+    return dict (
+        url         = url,
+        method      = 'post',
+        data        = data,
+        boundary    = boundary,
+    )
+
 def read (code=None, since_id=None, limit=10, offset=0):
     """ Get list of shortlinks, or info about specified shortlink (by it's code). """
 
-    url = '/shortlinks'
     if code:
-        url += '/' + code
+        url = '/shortlinks/' + code
     elif since_id:
-        url += '/' + str (since_id) + '/all_since'
+        url = '/shortlinks/' + str (since_id) + '/all_since'
     else:
-        url += '/all'
+        url = '/shortlinks/all'
 
     params = dict ()
 
