@@ -12,13 +12,13 @@ import os.path
 import random
 import urllib
 
-def arr2qstr (arr):
+def arr2qstr (arr, all=False):
     """ Create urlencoded query string """
     return '&'.join (
         '%s=%s' % (
             urllib.quote_plus (str (k)),
             urllib.quote_plus (str (v), ',')
-        ) for k, v in arr.items ()
+        ) for k, v in arr.items () if all or v
     )
 
 def gen_boundary ():
