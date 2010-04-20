@@ -293,6 +293,7 @@ if (!class_exists ('BlipApi')) {
 
             # ustawiamy url
             $curlopts[CURLOPT_URL]  = $this->_root . $url;
+            $this->_debug ('Connecting to: '. $curlopts[CURLOPT_URL]);
 
             $headers_names          = null;
             # jesli trzeba to dodajemy jednorazowe nagłówki które mamy wysłać
