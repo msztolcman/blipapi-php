@@ -9,39 +9,36 @@
 
 from _utils import arr2qstr
 
-def read (id=None, user=None, include=None, since_id=None, limit=10, offset=0):
+def read (**args):
     """ Get notices. """
 
-    if user:
-        if user == '__ALL__':
-            if since_id:
-                url = '/notices/' + str (since_id) + '/all_since'
+    if args.get ('user'):
+        if args['user'] == '__ALL__':
+            if args.get ('since_id'):
+                url = '/notices/' + str (args['since_id']) + '/all_since'
             else:
                 url = '/notices/all'
         else:
-            if since_id:
-                url = '/users/' + user + '/notices/' + str (since_id) + '/since'
+            if args.get ('since_id'):
+                url = '/users/' + args['user'] + '/notices/' + str (args['since_id']) + '/since'
             else:
-                url = '/users/' + user + '/notices'
-    elif id:
-        url = '/notices/' + str (id)
+                url = '/users/' + args['user'] + '/notices'
+    elif args.get ('id'):
+        url = '/notices/' + str (args['id'])
 
     else:
         url = '/notices'
-        if since_id:
-            url += '/since/' + str (since_id)
+        if args.get ('since_id'):
+            url += '/since/' + str (args['since_id'])
 
     params = dict ()
-
-    if limit:
-        params['limit']     = limit
-    if offset:
-        params['offset']    = offset
-    if include:
-        params['include']   = ','.join (include)
+    params['limit']     = args.get ('limit', 10)
+    params['offset']    = args.get ('offset', 0)
+    params['include']   = ','.join (args.get ('include', ''))
+    params              = arr2qstr (params)
 
     if params:
-        url += '?' + arr2qstr (params)
+        url += '?' + params
 
     return dict (
         url     = url,

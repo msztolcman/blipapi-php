@@ -9,64 +9,66 @@
 
 from _utils import arr2qstr
 
-def read (user=None, include=None, direction='both'):
+def read (**args):
     """Get info about user's subscriptions (to or from user). """
 
-    if direction not in ('both', 'to', 'from', ''):
-        raise ValueError ('Incorrect param: "direction": "%s". Allowed values: both, from, to.' % direction)
+    if args.setdefault ('direction', 'both') not in ('both', 'to', 'from', ''):
+        raise ValueError ('Incorrect param: "direction": "%s". Allowed values: both, from, to.' % args['direction'])
 
-    if direction == 'both':
-        direction = ''
+    if args['direction'] == 'both':
+        args['direction'] = ''
 
-    url = '/subscriptions/' + direction
-    if user:
-        url = '/users/' + user + url
+    url = '/subscriptions/' + args['direction']
+    if args.get ('user'):
+        url = '/users/' + args['user'] + url
 
     params = dict ()
-
-    if include:
-        params['include'] = ','.join (include)
+    params['include']   = ','.join (args.get ('include', ''))
+    params              = arr2qstr (params)
 
     if params:
-        url += '?' + arr2qstr (params)
+        url += '?' + params
 
     return dict (
         url     = url,
         method  = 'get',
     )
 
-def update (user=None, www=None, im=None):
+def update (**args):
     """ Modify user's subscriptions. """
 
-    if user:
-        url = '/subscriptions/' + user
+    if args.get ('user'):
+        url = '/subscriptions/' + args['user']
     else:
         url = '/subscriptions'
 
-    if www:
-        www = 1
+    if args.get ('www'):
+        args['www'] = 1
     else:
-        www = 0
+        args['www'] = 0
 
-    if im:
-        im = 1
+    if args.get ('im'):
+        args['im'] = 1
     else:
-        im = 0
+        args['im'] = 0
 
     data = {
-        'subscription[www]':    str (www),
-        'subscription[im]':     str (im),
+        'subscription[www]':    str (args['www']),
+        'subscription[im]':     str (args['im']),
     }
     return dict (
-        url     = url + '?' + arr2qstr (data),
+        url     = url + '?' + arr2qstr (data, True),
         method  = 'put',
     )
 
-def delete (user):
+def delete (**args):
     """ Delete subscription to specified user. """
 
+    if not args.get ('user'):
+        raise ValueError ('User is missing.')
+
     return dict (
-        url     = '/subscriptions/' + user,
+        url     = '/subscriptions/' + args['user'],
         method  = 'delete',
     )
 

@@ -11,18 +11,18 @@ import os.path
 
 from _utils import arr2qstr, make_post_data
 
-def create (body, user, image=None):
+def create (**args):
     """ Create new private message. """
 
-    if not body or not user:
+    if not args.get ('body') or not args.get ('user'):
         raise ValueError ('Private_message body or recipient is missing.')
 
     fields = {
-        'private_message[body]':      body,
-        'private_message[recipient]': user,
+        'private_message[body]':      args['body'],
+        'private_message[recipient]': args['user'],
     }
-    if image:
-        fields['private_message[picture]'] = (image, image, )
+    if args.get ('image') and os.path.isfile (args['image']):
+        fields['private_message[picture]'] = (args['image'], args['image'], )
 
     data, boundary = make_post_data (fields)
 
@@ -33,41 +33,38 @@ def create (body, user, image=None):
         boundary    = boundary,
     )
 
-def read (id=None, include=None, since_id=None, limit=10, offset=0):
+def read (**args):
     """ Read user's private messages. """
 
-    if since_id:
-        url = '/private_messages/since/' + str (since_id)
-    elif id:
-        url = '/private_messages/' + str (id)
+    if args.get ('since_id'):
+        url = '/private_messages/since/' + str (args['since_id'])
+    elif args.get ('id'):
+        url = '/private_messages/' + str (args['id'])
     else:
         url = '/private_messages'
 
     params = dict ()
-
-    if limit:
-        params['limit']     = limit
-    if offset:
-        params['offset']    = offset
-    if include:
-        params['include']   = ','.join (include)
+    params['limit']     = args.get ('limit', 10)
+    params['offset']    = args.get ('offset', 0)
+    params['include']   = ','.join (args.get ('include', ''))
+    params              = arr2qstr (params)
 
     if params:
-        url += '?' + arr2qstr (params)
+        url += '?' + params
 
     return dict (
         url         = url,
         method      = 'get',
     )
 
-def delete (id):
+def delete (**args):
     """ Delete specified private message. """
 
-    if not id:
+    if not args.get ('id'):
         raise ValueError ('Private_message ID is missing.')
 
     return dict (
-        url         = '/private_messages/' + str (id),
+        url         = '/private_messages/' + str (args['id']),
         method      = 'delete',
     )
 

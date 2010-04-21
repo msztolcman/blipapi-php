@@ -33,7 +33,6 @@ class BlipApi (object):
             self._ch.set_debuglevel (level)
         except:
             pass
-
     def __debug_del (self):
         self.debug = 0
     debug = property (__debug_get, __debug_set, __debug_del)

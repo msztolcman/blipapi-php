@@ -9,15 +9,15 @@
 
 from _utils import arr2qstr, make_post_data
 
-def create (link):
+def create (**args):
     """ Create new shortened link. """
 
-    if not link:
+    if not args.get('link'):
         raise ValueError ('Url is missing.')
 
     url     = '/shortlinks'
     fields  = {
-        'shortlink[original_link]': link
+        'shortlink[original_link]': args['link']
     }
 
     data, boundary = make_post_data (fields)
@@ -29,25 +29,23 @@ def create (link):
         boundary    = boundary,
     )
 
-def read (code=None, since_id=None, limit=10, offset=0):
+def read (**args):
     """ Get list of shortlinks, or info about specified shortlink (by it's code). """
 
-    if code:
-        url = '/shortlinks/' + code
-    elif since_id:
-        url = '/shortlinks/' + str (since_id) + '/all_since'
+    if args.get ('code'):
+        url = '/shortlinks/' + args['code']
+    elif args.get ('since_id'):
+        url = '/shortlinks/' + str (args['since_id']) + '/all_since'
     else:
         url = '/shortlinks/all'
 
     params = dict ()
-
-    if limit:
-        params['limit'] = limit
-    if offset:
-        params['offset'] = offset
+    params['limit']     = args.get ('limit', 10)
+    params['offset']    = args.get ('offset', 0)
+    params              = arr2qstr (params)
 
     if params:
-        url += '?' + arr2qstr (params)
+        url += '?' + params
 
     return dict (
         url     = url,

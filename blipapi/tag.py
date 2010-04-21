@@ -9,28 +9,25 @@
 
 from _utils import arr2qstr
 
-def read (tag, include=None, since_id=None, limit=10, offset=0):
+def read (**args):
     """ Get statuses by tag. """
 
-    if not tag:
+    if not args.get ('tag'):
         raise ValueError ('Tag name is missing.')
 
-    url = '/tags/' + tag
+    url = '/tags/' + args['tag']
 
-    if since_id:
-        url += '/since/' + str (since_id)
+    if args.get ('since_id'):
+        url += '/since/' + str (args['since_id'])
 
     params = dict ()
-
-    if limit:
-        params['limit']     = limit
-    if offset:
-        params['offset']    = offset
-    if include:
-        params['include']   = ','.join (include)
+    params['limit']     = args.get ('limit', 10)
+    params['offset']    = args.get ('offset', 0)
+    params['include']   = ','.join (args.get ('include', ''))
+    params              = arr2qstr (params)
 
     if params:
-        url += '?' + arr2qstr (params)
+        url += '?' + params
 
     return dict (
         url     = url,

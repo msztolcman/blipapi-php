@@ -11,26 +11,26 @@ import os.path
 
 from _utils import arr2qstr, make_post_data
 
-def create (body, user=None, image=None, private=False):
+def create (**args):
     """ Create new update. """
 
-    if not body:
+    if not args.get ('body'):
         raise ValueError ('Update body is missing.')
 
-    if user:
-        if private:
-            private = '>'
+    if args.get ('user'):
+        if args.get ('private'):
+            args['private'] = '>'
         else:
-            private = ''
+            args['private'] = ''
 
-        body = u'>%s%s %s' % (private, user, body)
+        args['body'] = u'>%s%s %s' % (args['private'], args['user'], args['body'])
 
     fields = {
-        'update[body]':      body,
+        'update[body]':      args['body'],
     }
 
-    if image and os.path.isfile (image):
-        fields['update[picture]'] = (image, image, )
+    if args.get ('image') and os.path.isfile (args['image']):
+        fields['update[picture]'] = (args['image'], args['image'], )
 
     data, boundary = make_post_data (fields)
 
@@ -41,53 +41,50 @@ def create (body, user=None, image=None, private=False):
         boundary    = boundary,
     )
 
-def read (id=None, user=None, include=None, since_id=None, limit=10, offset=0):
+def read (**args):
     """ Read updates. """
 
-    if user:
-        if user == '__ALL__':
-            if since_id:
-                url = '/updates/' + str (since_id) + '/all_since'
+    if args.get ('user'):
+        if args['user'] == '__ALL__':
+            if args.get ('since_id'):
+                url = '/updates/' + str (args['since_id']) + '/all_since'
             else:
                 url = '/updates/all'
         else:
-            if since_id:
-                url = '/users/' + user + '/updates/' + str (since_id) + '/since'
+            if args.get ('since_id'):
+                url = '/users/' + args['user'] + '/updates/' + str (args['since_id']) + '/since'
             else:
-                url = '/users/' + user + '/updates'
-    elif id:
-        url = '/updates/' + str (id)
+                url = '/users/' + args['user'] + '/updates'
+    elif args.get ('id'):
+        url = '/updates/' + str (args['id'])
 
     else:
         url = '/updates';
-        if since_id:
-            url += '/' + str (since_id) + '/since'
+        if args.get ('since_id'):
+            url += '/' + str (args['since_id']) + '/since'
 
     params = dict ()
-
-    if limit:
-        params['limit']     = limit
-    if offset:
-        params['offset']    = offset
-    if include:
-        params['include']   = ','.join (include)
+    params['limit']     = args.get ('limit', 10)
+    params['offset']    = args.get ('offset', 0)
+    params['include']   = ','.join (args.get ('include', ''))
+    params              = arr2qstr (params)
 
     if params:
-        url += '?' + arr2qstr (params)
+        url += '?' + params
 
     return dict (
         url     = url,
         method  = 'get',
     )
 
-def delete (id):
+def delete (**args):
     """ Delete update. """
 
-    if not id:
+    if not args.get ('id'):
         raise ValueError ('Update ID is missing.')
 
     return dict (
-        url     = '/updates/' + str (id),
+        url     = '/updates/' + str (args['id']),
         method  = 'delete',
     )
 

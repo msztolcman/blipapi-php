@@ -11,26 +11,26 @@ import os.path
 
 from _utils import make_post_data
 
-def read (user=None):
+def read (**args):
     """ Get specified user's background info. """
 
-    if not user:
+    if not args.get ('user'):
         url = '/background'
     else:
-        url = '/users/' + user + '/background'
+        url = '/users/' + args['user'] + '/background'
 
     return dict (
-        url     = '/users/' + user + '/background',
+        url     = '/users/' + args['user'] + '/background',
         method  = 'get',
     )
 
-def update (image):
+def update (**args):
     """ Update current user background. """
 
-    if not os.path.isfile (image):
+    if not args.get ('image') or not os.path.isfile (args['image']):
         raise ValueError ('Background path is missing or file not found.')
 
-    data, boundary = make_post_data ({ 'background[file]': (image, image, ) })
+    data, boundary = make_post_data ({ 'background[file]': (args['image'], args['image'], ) })
 
     return dict (
         url         = '/background',
