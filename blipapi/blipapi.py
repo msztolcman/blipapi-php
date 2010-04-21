@@ -3,7 +3,7 @@
 #
 # Blip! (http://blip.pl) communication library.
 # Author: Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
-# Version: 0.02.05
+# Version: 0.02.10
 # Copyright: (r) 2009 Marcin Sztolcman
 # License: http://opensource.org/licenses/gpl-license.php GNU Public License v.2
 
@@ -106,7 +106,7 @@ class BlipApi (object):
         self._password  = passwd
         self._referer   = ''
         self._rpm       = 0
-        self._uagent    = 'BlipApi.py/0.02.05 (http://blipapi.googlecode.com)'
+        self._uagent    = 'BlipApi.py/0.02.10 (http://blipapi.googlecode.com)'
 
         try:
             import json
