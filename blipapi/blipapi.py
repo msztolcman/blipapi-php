@@ -7,8 +7,6 @@
 # Copyright: (r) 2009 Marcin Sztolcman
 # License: http://opensource.org/licenses/gpl-license.php GNU Public License v.2
 
-BLIPAPI_ALLOW_DANGEROUS_JSON    = False
-
 import copy
 import httplib
 import socket
@@ -118,8 +116,7 @@ class BlipApi (object):
                 import cjson
                 self._parser = cjson.decode
             except ImportError:
-                if BLIPAPI_ALLOW_DANGEROUS_JSON:
-                    self._parser = eval
+                pass
 
         if not dont_connect:
             self.connect ()
