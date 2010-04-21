@@ -11,26 +11,26 @@ import os.path
 
 from _utils import make_post_data
 
-def read (user=None):
+def read (**args):
     """ Get info about specified user's avatar. """
 
-    if not user:
+    if not args.get ('user'):
         url = '/avatar'
     else:
-        url = '/users/' + user + '/avatar'
+        url = '/users/' + args['user'] + '/avatar'
 
     return dict (
         url     = url,
         method  = 'get',
     )
 
-def update (image):
+def update (**args):
     """ Update current user avatar. """
 
-    if not os.path.isfile (image):
+    if not args.get ('image') or not os.path.isfile (args['image']):
         raise ValueError ('Avatar path missing or file not found.')
 
-    data, boundary = make_post_data ({'avatar[file]': (image, image,)})
+    data, boundary = make_post_data ({'avatar[file]': (args['image'], args['image'],)})
 
     return dict (
         url         = '/avatar',

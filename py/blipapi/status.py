@@ -11,18 +11,18 @@ import os.path
 
 from _utils import arr2qstr, make_post_data
 
-def create (body, image=None):
+def create (**args):
     """ Create new status. """
 
-    if not body:
+    if not args.get ('body'):
         raise ValueError ('Status body is missing.')
 
     fields = {
-        'status[body]': body,
+        'status[body]': args['body'],
     }
 
-    if image and os.path.isfile (image):
-        fields['status[picture]'] = (image, image, )
+    if args.get ('image') and os.path.isfile (args['image']):
+        fields['status[picture]'] = (args['image'], args['image'], )
 
     data, boundary = make_post_data (fields)
 
@@ -33,54 +33,51 @@ def create (body, image=None):
         boundary    = boundary,
     )
 
-def read (id=None, user=None, include=None, since_id=None, limit=10, offset=0):
+def read (**args):
     """ Get info about statuses. """
 
-    if user:
-        if user == '__ALL__':
-            if since_id:
-                url = '/statuses/' + str (since_id) + '/all_since'
+    if args.get ('user'):
+        if args['user'] == '__ALL__':
+            if args.get ('since_id'):
+                url = '/statuses/' + str (args['since_id']) + '/all_since'
             else:
                 url = '/statuses/all'
         else:
-            if since_id:
-                url = '/users/' + user + '/statuses/' + str (since_id) + '/since'
+            if args.get ('since_id'):
+                url = '/users/' + args['user'] + '/statuses/' + str (args['since_id']) + '/since'
             else:
-                url = '/users/' + user + '/statuses'
+                url = '/users/' + args['user'] + '/statuses'
 
-    elif id:
-        url = '/statuses/' + str (id)
+    elif args.get ('id'):
+        url = '/statuses/' + str (args['id'])
 
     else:
         url = '/statuses'
-        if since_id:
-            url += '/' + str (since_id) + '/since'
+        if args.get ('since_id'):
+            url += '/' + str (args['since_id']) + '/since'
 
     params = dict ()
-
-    if limit:
-        params['limit'] = limit
-    if offset:
-        params['offset'] = offset
-    if include:
-        params['include'] = ','.join (include)
+    params['limit']     = args.get ('limit', 10)
+    params['offset']    = args.get ('offset', 0)
+    params['include']   = ','.join (args.get ('include', ''))
+    params              = arr2qstr (params)
 
     if params:
-        url += '?' + arr2qstr (params)
+        url += '?' + params
 
     return dict (
         url     = url,
         method  = 'get',
     )
 
-def delete (id):
+def delete (**args):
     """ Delete status. """
 
-    if not id:
+    if not args.get ('id'):
         raise ValueError ('Status ID is missing.')
 
     return dict (
-        url     = '/statuses/' + str (id),
+        url     = '/statuses/' + str (args['id']),
         method  = 'delete',
     )
 

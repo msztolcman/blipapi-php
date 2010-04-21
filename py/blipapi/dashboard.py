@@ -9,28 +9,25 @@
 
 from _utils import arr2qstr
 
-def read (user=None, since_id=None, include=None, limit=10, offset=0):
+def read (**args):
     """ Get statuses, notices and other messages from users dashborad. """
 
-    if user:
-        url = '/users/' + user + '/dashboard'
+    if args.get ('user'):
+        url = '/users/' + args['user'] + '/dashboard'
     else:
         url = '/dashboard'
 
-    if since_id:
-        url += '/since/' + str (since_id)
+    if args.get ('since_id'):
+        url += '/since/' + str (args['since_id'])
 
     params = dict ()
-
-    if limit:
-        params['limit']     = limit
-    if offset:
-        params['offset']    = offset
-    if include:
-        params['include']   = ','.join (include)
+    params['limit']     = args.get ('limit', 10)
+    params['offset']    = args.get ('offset', 0)
+    params['include']   = ','.join (args.get ('include', ''))
+    params              = arr2qstr (params)
 
     if params:
-        url += '?' + arr2qstr (params)
+        url += '?' + params
 
     return dict (
         url     = url,

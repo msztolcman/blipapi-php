@@ -9,21 +9,20 @@
 
 from _utils import arr2qstr
 
-def read (since_id=None, include=None, limit=10):
+def read (**args):
     """ Get users statuses from bliposphere. """
 
     url = '/bliposphere'
-    if since_id:
-        url += '/since/' + str (since_id)
+    if args.get ('since_id'):
+        url += '/since/' + str (args['since_id'])
 
     params = dict ()
-    if limit:
-        params['limit'] = limit
-    if include:
-        params['include'] = ','.join (include)
+    params['limit']     = args.get ('limit', 10)
+    params['include']   = ','.join (args.get ('include', ''))
+    params              = arr2qstr (params)
 
     if params:
-        url += '?' + arr2qstr (params)
+        url += '?' + params
 
     return dict (
         url     = url,

@@ -9,21 +9,20 @@
 
 from _utils import arr2qstr
 
-def read (user=None, include=None):
+def read (**args):
     """ Get info about user. """
 
-    if user:
-        url = '/users/' + user
+    if args.get ('user'):
+        url = '/users/' + args['user']
     else:
         url = '/profile'
 
     params = dict ()
-
-    if include:
-        params['include'] = ','.join (include)
+    params['include']   = ','.join (args.get ('include', ''))
+    params              = arr2qstr (params)
 
     if params:
-        url += '?' + arr2qstr (params)
+        url += '?' + params
 
     return dict (
         url     = url,

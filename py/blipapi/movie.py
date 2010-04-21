@@ -7,14 +7,14 @@
 # Copyright: (r) 2009 Marcin Sztolcman
 # License: http://opensource.org/licenses/gpl-license.php GNU Public License v.2
 
-def read (id):
+def read (**args):
     """ Read movie data from specified update. """
 
-    if not id:
+    if not args.get ('id'):
         raise ValueError ('Update ID is missing.')
 
     return dict (
-        url     = '/updates/' + str (id) + '/movie',
+        url     = '/updates/' + str (args['id']) + '/movie',
         method  = 'get',
     )
 
