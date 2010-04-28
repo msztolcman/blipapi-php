@@ -247,6 +247,10 @@ if (!class_exists ('BlipApi')) {
                 $this->_debug ('method opts', $opts);
             }
 
+            if (isset ($opts['just_return'])) {
+                return $opts['just_return'];
+            }
+
             # ustawiamy opcje dla konkretnego typu requestu
             $http_method = strtolower ($http_method);
             switch ($http_method) {
