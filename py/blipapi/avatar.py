@@ -16,6 +16,14 @@ def read (**args):
 
     if not args.get ('user'):
         url = '/avatar'
+    elif args.get ('url_only'):
+        size = args.get ('size', 'standard')
+        if size not in ('femto', 'nano', 'pico', 'standard', 'large'):
+            raise ValueError ('Unrecognized size of avatar')
+
+        return dict (
+            just_return = 'http://blip.pl/users/' + args.get ('user') + '/avatar/' + size + '.jpg'
+        )
     else:
         url = '/users/' + args['user'] + '/avatar'
 
