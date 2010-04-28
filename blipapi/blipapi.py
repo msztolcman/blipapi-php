@@ -152,6 +152,9 @@ class BlipApi (object):
         ## build request data
         req_data = method (*args, **kwargs)
 
+        if 'just_return' in req_data:
+            return req_data['just_return']
+
         ## play with request headers
         headers = copy.deepcopy (self._headers)
         if self.uagent:
