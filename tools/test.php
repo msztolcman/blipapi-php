@@ -51,7 +51,7 @@ $b = new BlipApi ($oauth_consumer, $oauth_token);
 $b->timeout = 0;
 # $b = new BlipApi ();
 
-# $b->debug = true;
+$b->debug = true;
 
 $i1 = '/Users/mysz/ROZNE/avatar.jpg';
 $i2 = '/Users/mysz/test_img/test_jpg/01.jpg';
@@ -59,19 +59,24 @@ $t = strftime ('%Y%m%d %H%M%S', time ());
 
 ## Avatar
 # test ('avatar', 'update', 'image', $i1);
-# test ('avatar', 'read', 'user', 'myszapi');
+# test ('avatar', 'read', 'user', 'mysz');
+# test ('avatar', 'read', 'user', 'dupa', 'url_only', 1);
+# test ('avatar', 'read', 'user', 'dupa', 'url_only', 1, 'size', 'femto');
+# test ('avatar', 'read', 'user', 'dupa', 'url_only', 1, 'size', 'a');
 # test ('avatar', 'delete');
 
 ## Background
-test ('background', 'read', 'user', 'myszapi');
+# test ('background', 'read', 'user', 'myszapi');
 # test ('background', 'update', 'image', $i1);
 # test ('background', 'delete');
 
 ## Bliposphere
+# test ('bliposphere', 'read', 'since_id', 49072082);
 # test ('bliposphere', 'read', 'limit', 2);
 # test ('bliposphere', 'read', 'limit', 2, 'include', array ('user', 'user[avatar]'));
 
 ## Dashboard
+# test ('dashboard', 'read');
 # test ('dashboard', 'read', 'limit', 2, 'user', 'opi');
 # test ('dashboard', 'read', 'limit', 2, 'include', array ('user', 'user[avatar]'));
 
@@ -82,6 +87,7 @@ test ('background', 'read', 'user', 'myszapi');
 # test ('dirmsg', 'read', 'user', 'myszapi', 'limit', 2);
 # test ('dirmsg', 'read', 'user', 'myszapi', 'limit', 2, 'include', array ('user', 'user[avatar]'));
 # test ('dirmsg', 'read', 'user', 'myszapi', 'limit', 2, 'include', array ('user', 'user[avatar]'), 'offset', 1);
+# test ('dirmsg', 'read', 'since_id', 31482231, 'limit', 10);
 # test ('dirmsg', 'delete', 'id', 31482231);
 #
 ## Movie
@@ -119,7 +125,7 @@ test ('background', 'read', 'user', 'myszapi');
 ## Status
 # test ('status', 'create', 'body', 'qwe ' . $t);
 # test ('status', 'create', 'body', 'qwe ' . $t, 'image', $i2);
-# test ('status', 'read', 'id', 31393068);
+# test ('status', 'read', 'id', 43045534);
 # test ('status', 'read', 'user', 'opi', 'limit', 2);
 # test ('status', 'read', 'user', 'myszapi', 'limit', 2, 'include', array ('user', 'user[avatar]'));
 # test ('status', 'read', 'user', 'myszapi', 'limit', 2, 'include', array ('user', 'user[avatar]'), 'offset', 1);
@@ -132,6 +138,15 @@ test ('background', 'read', 'user', 'myszapi');
 # test ('subscription', 'update', 'user', 'mysz', 'www', true);
 # test ('subscription', 'update', 'user', 'mysz', 'www', false);
 # test ('subscription', 'delete', 'user', 'mysz');
+
+# test ('tagsub', 'read');
+# test ('tagsub', 'read', 'type', 'ignore');
+# test ('tagsub', 'read', 'type', 'ignore', 'include', array ('user', 'tag'));
+# test ('tagsub', 'read', 'include', array ('user', 'tag'));
+# test ('tagsub', 'create', 'name', 'panoponkateam');
+# test ('tagsub', 'create', 'name', 'panoponkateam^&'); # ma sie wyrznac! niewlasciwa nazwa taga
+# test ('tagsub', 'create', 'name', 'panoponkateam', 'type', 'ignore');
+# test ('tagsub', 'delete', 'name', 'panoponkateam');
 
 ## Tag
 # test ('tag', 'read', 'tag', 'wpblip');
