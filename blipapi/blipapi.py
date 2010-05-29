@@ -12,9 +12,30 @@ import httplib
 import socket
 import time
 
+try:
+    from oauth import oauth
+except ImportError:
+    import warnings
+    warnings.warn ('Missing OAuth module')
+
+_blipapi_json_decode = None
+try:
+    import json
+    _blipapi_json_decode = json.loads
+except ImportError:
+    try:
+        import cjson
+        _blipapi_json_decode = cjson.decode
+    except ImportError:
+        try:
+            import simplejson
+            _blipapi_json_decode = simplejson.loads
+        except ImportError:
+            pass
+
 from _utils import arr2qstr
 
-from pprint import pprint
+
 
 class BlipApiError (Exception):
     pass
@@ -97,51 +118,25 @@ class BlipApi (object):
     def shaperd_reset (self, _counter = 0):
         self._shaperd_data = [_counter, time.time ()]
 
-    def __init__ (self, login=None, passwd=None, dont_connect=False):
-        self._ch        = None
-        self._debug     = 0
-        self._format    = 'application/json'
-        self._headers   = {
+    def __init__ (self, oauth_consumer=None, oauth_token=None, dont_connect=False):
+        self._ch                = None
+        self._debug             = 0
+        self._format            = 'application/json'
+        self._headers           = {
             'Accept':       self._format,
             'X-Blip-API':   '0.02',
         }
-        self._login     = login
-        self._parser    = None
-        self._password  = passwd
-        self._referer   = ''
-        self._rpm       = 0
-        self._uagent    = 'BlipApi.py/0.02.10 (http://blipapi.googlecode.com)'
+        self._oauth_consumer    = oauth_consumer
+        self._oauth_token       = oauth_token
+        self._referer           = ''
+        self._rpm               = 0
+        self._uagent            = 'BlipApi.py/0.02.10 (http://blipapi.googlecode.com)'
 
-        try:
-            import json
-            self._parser = json.loads
-        except ImportError:
-            try:
-                import cjson
-                self._parser = cjson.decode
-            except ImportError:
-                pass
+        if callable (_blipapi_json_decode):
+            self.parser = _blipapi_json_decode
 
         if not dont_connect:
             self.connect ()
-            ## authorize rzuci wyjatkiem jesli nie podany login lub haslo - zamiast sprawdzac te wartosci
-            ## po prostu ignorujemy blad
-            try:
-                self.authorize ()
-            except BlipApiError:
-                pass
-
-    def authorize (self, login=None, passwd=None):
-        if login is not None:
-            self._login = login
-        if passwd is not None:
-            self._password = passwd
-
-        if self._login and self._password is not None:
-            import base64
-            self._headers['Authorization'] = 'Basic '+base64.b64encode (self._login + ':' + self._password)
-        else:
-            raise BlipApiError ('Authorization failed: missing login or password.')
 
     def connect (self):
         self._ch = httplib.HTTPConnection (self.api_uri, port=httplib.HTTP_PORT)
@@ -178,12 +173,32 @@ class BlipApi (object):
         if not self._ch:
             self.connect ()
 
-        ## build url
-        url = req_data['url']
-        if 'params' in req_data:
+        ## build url, sign request
+        url     = 'http://%s%s' % (self.api_uri, req_data['url'])
+        params  = req_data.get ('params', None)
+        if not req_data.get ('params_all', False) and params is not None:
+            for k, v in req_data['params'].items ():
+                if not v:
+                    del req_data['params'][k]
 
-            pprint (req_data['params'])
-            url += '?' + arr2qstr (req_data['params'], req_data.get ('params_all', False))
+        if self._oauth_token and self._oauth_consumer:
+            oauth_request = oauth.OAuthRequest.from_consumer_and_token (
+                self._oauth_consumer,
+                token       = self._oauth_token,
+                http_method = req_data['method'].upper(),
+                http_url    = url,
+                parameters  = params,
+            )
+            oauth_request.sign_request (
+                oauth.OAuthSignatureMethod_HMAC_SHA1(),
+                self._oauth_consumer,
+                token = self._oauth_token
+            )
+            oauth_headers = oauth_request.to_header()
+            headers.update(oauth_headers)
+
+        if params is not None:
+            url += '?' + arr2qstr (params, True)
 
         try:
             shaperd = self._shaperd ()
@@ -202,7 +217,7 @@ class BlipApi (object):
         if response.status in (200, 201, 204):
             ## parser errors need to be handled in higher level (by blipapi.py user)
             if body:
-                body    = self._parser (body)
+                body    = self.parser (body)
             else:
                 body    = []
             body_parsed = True
