@@ -173,14 +173,17 @@ class BlipApi (object):
         if not self._ch:
             self.connect ()
 
-        ## build url, sign request
+        ## build url
         url     = 'http://%s%s' % (self.api_uri, req_data['url'])
+
+        ## play with parameters
         params  = req_data.get ('params', None)
         if not req_data.get ('params_all', False) and params is not None:
             for k, v in req_data['params'].items ():
                 if not v:
                     del req_data['params'][k]
 
+        ## sign request, if we have oauth data
         if self._oauth_token and self._oauth_consumer:
             oauth_request = oauth.OAuthRequest.from_consumer_and_token (
                 self._oauth_consumer,
@@ -197,9 +200,11 @@ class BlipApi (object):
             oauth_headers = oauth_request.to_header()
             headers.update(oauth_headers)
 
+        ## add query string
         if params is not None:
             url += '?' + arr2qstr (params, True)
 
+        ## go!
         try:
             shaperd = self._shaperd ()
             if not shaperd:
@@ -223,7 +228,7 @@ class BlipApi (object):
             body_parsed = True
 
         ## hack na 302 i przekierowanie na strone gg
-        elif response.status == 302 and response.getheader ('Location', '').startswith ('http://help.gadu-gadu.pl/errors'):
+        elif response.status == 302 and response.getheader ('Location', '').startswith ('http://czydziala.gadu-gadu.pl/blip'):
             raise BlipApiError ('Service Unavailable')
 
         return dict (
