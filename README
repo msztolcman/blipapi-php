@@ -17,16 +17,23 @@ Wymagania:
 - Python w wersji 2.5 lub wyżej
 - moduł do parsowania formatu JSON (jeśli Python będzie w wersji 2.6 lub
     wyżej, BlipApi.py automatycznie skorzysta z wbudowanego json)
+    (rozpoznawane automatycznie moduły to cjson i simplejson)
 
 Uzycie:
-blipapi = BlipApi ('login', 'haslo')
+blipapi = BlipApi (
+    oauth_token = access_token,
+    oauth_consumer = oauth.OAuthConsumer (CONSUMER_KEY, CONSUMER_SECRET),
+)
 updates = blipapi.update_read (user = 'mysz')
 print updates
 
 // Alternatywnie, gdy nazwe metody przechowujemy w jakiejs zmiennej, moze
 // byc prosciej uzyc:
 
-blipapi = BlipApi ('login', 'haslo')
+blipapi = BlipApi (
+    oauth_token = access_token,
+    oauth_consumer = oauth.OAuthConsumer (CONSUMER_KEY, CONSUMER_SECRET),
+)
 updates = blipapi ('update_read', user = 'mysz')
 print updates
 
@@ -34,6 +41,6 @@ print updates
 // dowolnej znalezionej np. na http://pypi.python.org biblioteki która będzie
 // potrafiła sparsować nam format JSON, i podpiąć ją jako parser:
 
-blipapi = BlipApi ('login', 'haslo')
+blipapi = BlipApi ()
 blipapi.parser = moja_funkcja_parsujaca_json
 
