@@ -10,7 +10,7 @@
 import os.path
 import re
 
-from _utils import arr2qstr, make_post_data
+from _utils import encode_multipart
 
 def _validate_tag_name (tag):
     return re.match ("^[-a-zA-Z0-9_\xc4\x84\xc4\x85\xc4\x86\xc4\x87\xc4\x98\xc4\x99\xc5\x81\xc5\x82\xc5\x83\xc5\x84\xc3\x93\xc3\xb3\xc5\x9a\xc5\x9b\xc5\xbb\xc5\xbc\xc5\xb9\xc5\xba]+$",
@@ -43,14 +43,11 @@ def read (**args):
 
     params = dict ()
     params['include']   = ','.join (args.get ('include', ''))
-    params              = arr2qstr (params)
-
-    if params:
-        url += '?' + params
 
     return dict (
         url     = url,
         method  = 'get',
+        params  = params,
     )
 
 def delete (**args):

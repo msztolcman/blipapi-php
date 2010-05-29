@@ -7,7 +7,7 @@
 # Copyright: (r) 2009 Marcin Sztolcman
 # License: http://opensource.org/licenses/gpl-license.php GNU Public License v.2
 
-from _utils import arr2qstr, make_post_data
+from _utils import encode_multipart
 
 def create (**args):
     """ Create new shortened link. """
@@ -20,7 +20,7 @@ def create (**args):
         'shortlink[original_link]': args['link']
     }
 
-    data, boundary = make_post_data (fields)
+    data, boundary = encode_multipart (fields)
 
     return dict (
         url         = url,
@@ -42,13 +42,10 @@ def read (**args):
     params = dict ()
     params['limit']     = args.get ('limit', 10)
     params['offset']    = args.get ('offset', 0)
-    params              = arr2qstr (params)
-
-    if params:
-        url += '?' + params
 
     return dict (
         url     = url,
         method  = 'get',
+        params  = params,
     )
 

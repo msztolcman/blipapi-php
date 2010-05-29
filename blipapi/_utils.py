@@ -25,7 +25,7 @@ def gen_boundary ():
     """ Generate uniqe boundary """
     return 'BlipApi.py-'+"".join (random.choice ('0123456789abcdefghijklmnopqrstuvwxyz') for i in range (18))
 
-def make_post_data (fields, boundary=None, sep="\r\n"):
+def encode_multipart (fields, boundary=None, sep="\r\n"):
     """ Generate POST query from given data.
         fields - mapping object, keys are name of POST fields, and values:
             - unicode - value of field

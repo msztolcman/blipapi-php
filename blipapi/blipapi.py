@@ -12,6 +12,10 @@ import httplib
 import socket
 import time
 
+from _utils import arr2qstr
+
+from pprint import pprint
+
 class BlipApiError (Exception):
     pass
 
@@ -174,12 +178,19 @@ class BlipApi (object):
         if not self._ch:
             self.connect ()
 
+        ## build url
+        url = req_data['url']
+        if 'params' in req_data:
+
+            pprint (req_data['params'])
+            url += '?' + arr2qstr (req_data['params'], req_data.get ('params_all', False))
+
         try:
             shaperd = self._shaperd ()
             if not shaperd:
                 raise BlipApiError ('Too many requests')
 
-            self._ch.request (req_data['method'].upper (), req_data['url'], body=req_body, headers=headers)
+            self._ch.request (req_data['method'].upper (), url, body=req_body, headers=headers)
         except socket.error, (errno, error):
             self._ch = None
             raise BlipApiError ('Connection error: [%d] %s' % (errno, error))

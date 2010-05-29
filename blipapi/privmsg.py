@@ -9,7 +9,7 @@
 
 import os.path
 
-from _utils import arr2qstr, make_post_data
+from _utils import encode_multipart
 
 def create (**args):
     """ Create new private message. """
@@ -24,7 +24,7 @@ def create (**args):
     if args.get ('image') and os.path.isfile (args['image']):
         fields['private_message[picture]'] = (args['image'], args['image'], )
 
-    data, boundary = make_post_data (fields)
+    data, boundary = encode_multipart (fields)
 
     return dict (
         url         = '/private_messages',
@@ -47,14 +47,11 @@ def read (**args):
     params['limit']     = args.get ('limit', 10)
     params['offset']    = args.get ('offset', 0)
     params['include']   = ','.join (args.get ('include', ''))
-    params              = arr2qstr (params)
-
-    if params:
-        url += '?' + params
 
     return dict (
         url         = url,
         method      = 'get',
+        params  = params,
     )
 
 def delete (**args):

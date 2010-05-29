@@ -9,7 +9,7 @@
 
 import os.path
 
-from _utils import make_post_data
+from _utils import encode_multipart
 
 def read (**args):
     """ Get specified user's background info. """
@@ -30,7 +30,7 @@ def update (**args):
     if not args.get ('image') or not os.path.isfile (args['image']):
         raise ValueError ('Background path is missing or file not found.')
 
-    data, boundary = make_post_data ({ 'background[file]': (args['image'], args['image'], ) })
+    data, boundary = encode_multipart ({ 'background[file]': (args['image'], args['image'], ) })
 
     return dict (
         url         = '/background',

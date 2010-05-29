@@ -7,8 +7,6 @@
 # Copyright: (r) 2009 Marcin Sztolcman
 # License: http://opensource.org/licenses/gpl-license.php GNU Public License v.2
 
-from _utils import arr2qstr
-
 def read (**args):
     """Get info about user's subscriptions (to or from user). """
 
@@ -24,14 +22,11 @@ def read (**args):
 
     params = dict ()
     params['include']   = ','.join (args.get ('include', ''))
-    params              = arr2qstr (params)
-
-    if params:
-        url += '?' + params
 
     return dict (
         url     = url,
         method  = 'get',
+        params  = params,
     )
 
 def update (**args):
@@ -57,8 +52,10 @@ def update (**args):
         'subscription[im]':     str (args['im']),
     }
     return dict (
-        url     = url + '?' + arr2qstr (data, True),
-        method  = 'put',
+        url         = url,
+        method      = 'put',
+        params      = data,
+        params_all  = True,
     )
 
 def delete (**args):
