@@ -41,6 +41,8 @@ class BlipApiError (Exception):
     pass
 
 class BlipApi (object):
+    VERSION = '0.02.10'
+
     api_uri = 'api.blip.pl'
 
     ## debug
