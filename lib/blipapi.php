@@ -39,6 +39,8 @@ if (!class_exists ('BlipApi')) {
     spl_autoload_register ('BlipApi__autoload');
 
     class BlipApi extends BlipApi_Abstract {
+        const VERSION = '0.02.31';
+
         /**
          * CURL handler
          *
