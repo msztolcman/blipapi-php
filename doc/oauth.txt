@@ -1,0 +1,29 @@
+Aby uzyskać dane potrzebne do działania aplikacji z autoryzacją OAuth, potrzebujemy kilku rzeczy. Najpierw potrzebne są nam:
+CONSUMER_KEY
+CONSUMER_SECRET
+
+Uzyskujemy je po zarejestrowaniu aplikacji na stronach Blipa:
+http://blip.pl/oauth_clients/new
+Po zarejestrowaniu Twojej aplikacji, dostajesz dwa ważne klucze:
+Klucz aplikacji - nasz CONSUMER_KEY
+Hasło aplikacji - nasz CONSUMER_SECRET
+
+W folderze, w którym znajduje się skrypt token_request.php, tworzymy plik o nazwie app_data, a tam wpisujemy:
+CONSUMER_KEY = TWOJ_KLUCZ_APLIKACJI
+CONSUMER_SECRET = TWOJE_HASLO_APLIKACJI
+
+Teraz uruchamiamy skrypt token_reuqest.php:
+php token_request.php
+
+i podążamy za wskazówkami :) Najpierw udajemy się pod wyświetlony adres, żeby pozwolić na dostęp narzędzia do naszego profilu. Dostaniemy wtedy kod PIN, który należy wkleić w okienko gdzie uruchomiliśmy skrypt. Po podaniu PINu, i zatwierdzeniu go klawiszem Enter, dostaniemy w odpowiedzi klucze:
+TOKEN_KEY
+TOKEN_SECRET
+
+To właśnie te 4 klucze są potrzebne do nawiązania autoryzowanego za pomocą OAuth połączenia z serwerem Blip:
+
+$oauth_consumer = new OAuthConsumer (CONSUMER_KEY, CONSUMER_SECRET);
+$oauth_token    = new OAuthToken (TOKEN_KEY, TOKEN_SECRET);
+$bapi = new BlipApi ($oauth_consumer, $oauth_token);
+
+Oczywiście w Twojej aplikacji powinieneś zawrzeć mechanizmy pobierające TOKEN_KEY i TOKEN_SECRET od użytkownika (w końcu Twoja aplikacja ma działać z jego uprawnieniami, nie Twoimi, prawda? :) ).
+
