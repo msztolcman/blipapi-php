@@ -4,9 +4,9 @@
 #
 # Blip! (http://blip.pl) communication library.
 # Author: Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
-# Version: 0.02.10
+# Version: 0.02.11
 # Copyright: (r) 2009 Marcin Sztolcman
-# License: http://opensource.org/licenses/gpl-license.php GNU Public License v.2
+# License: http://opensource.org/licenses/lgpl-3.0.html The GNU Lesser General Public License, version 3.0 (LGPLv3)
 
 try:
     from setuptools import setup
@@ -15,7 +15,7 @@ except ImportError:
 
 setup (
     name                = 'BlipApi',
-    version             = '0.02.10',
+    version             = '0.02.11',
     description         = 'Blip! (http://blip.pl) communication library.',
     author              = 'Marcin Sztolcman',
     author_email        = 'marcin@urzenia.net',
@@ -26,7 +26,7 @@ setup (
         Blip! (http://blip.pl) communication library.
     ''',
     classifiers         = [
-        'License :: OSI Approved :: GNU General Public License (GPL)',
+        'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',
         'Programming Language :: Python',
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
