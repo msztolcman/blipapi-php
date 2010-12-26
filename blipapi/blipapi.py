@@ -3,9 +3,9 @@
 #
 # Blip! (http://blip.pl) communication library.
 # Author: Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
-# Version: 0.02.10
+# Version: 0.02.11
 # Copyright: (r) 2009 Marcin Sztolcman
-# License: http://opensource.org/licenses/gpl-license.php GNU Public License v.2
+# License: http://opensource.org/licenses/lgpl-3.0.html The GNU Lesser General Public License, version 3.0 (LGPLv3)
 
 import copy
 import httplib
@@ -41,7 +41,7 @@ class BlipApiError (Exception):
     pass
 
 class BlipApi (object):
-    VERSION = '0.02.10'
+    VERSION = '0.02.11'
 
     api_uri = 'api.blip.pl'
 
@@ -132,7 +132,7 @@ class BlipApi (object):
         self._oauth_token       = oauth_token
         self._referer           = ''
         self._rpm               = 0
-        self._uagent            = 'BlipApi.py/0.02.10 (http://blipapi.googlecode.com)'
+        self._uagent            = 'BlipApi.py/0.02.11 (http://blipapi.googlecode.com)'
 
         if callable (_blipapi_json_decode):
             self.parser = _blipapi_json_decode
