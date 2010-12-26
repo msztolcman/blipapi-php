@@ -6,10 +6,10 @@
  * Simple testing utility
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.30
+ * @version 0.02.32
  * @version $Id: blipapi.php 136 2010-01-06 18:00:54Z urzenia $
  * @copyright Copyright (c) 2007, Marcin Sztolcman
- * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
+ * @license http://opensource.org/licenses/lgpl-3.0.html The GNU Lesser General Public License, version 3.0 (LGPLv3)
  * @package blipapi_tools
  */
 
@@ -162,6 +162,11 @@ $t = strftime ('%Y%m%d %H%M%S', time ());
 # test ('update', 'read', 'user', 'opi', 'limit', 2);
 # test ('update', 'read', 'user', 'myszapi', 'limit', 2, 'include', array ('user', 'user[avatar]'));
 # test ('update', 'delete', 'id', 31543467);
+
+## Update Search
+# test ('updateSearch', 'read');
+# test ('updateSearch', 'read', 'query', 'myszfoto');
+test ('updateSearch', 'read', 'query', 'swype');
 
 ## User
 # test ('user', 'read');

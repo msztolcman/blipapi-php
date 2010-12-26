@@ -4,10 +4,10 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.31
+ * @version 0.02.32
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
- * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
+ * @license http://opensource.org/licenses/lgpl-3.0.html The GNU Lesser General Public License, version 3.0 (LGPLv3)
  * @package blipapi
  */
 
@@ -15,10 +15,10 @@
  * Blip! (http://blip.pl) communication library.
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.31
+ * @version 0.02.32
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
- * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
+ * @license http://opensource.org/licenses/lgpl-3.0.html The GNU Lesser General Public License, version 3.0 (LGPLv3)
  * @package blipapi
  */
 
@@ -39,7 +39,7 @@ if (!class_exists ('BlipApi')) {
     spl_autoload_register ('BlipApi__autoload');
 
     class BlipApi extends BlipApi_Abstract {
-        const VERSION = '0.02.31';
+        const VERSION = '0.02.32';
 
         /**
          * CURL handler
@@ -79,7 +79,7 @@ if (!class_exists ('BlipApi')) {
          * @access protected
          * @var string
          */
-        protected $_uagent          = 'BlipApi.php/0.02.31 (http://blipapi.googlecode.com)';
+        protected $_uagent          = 'BlipApi.php/0.02.32 (http://blipapi.googlecode.com)';
 
         /**
          *
@@ -664,7 +664,7 @@ if (!class_exists ('BlipApi')) {
 
             echo $this->_debug_tpl[0];
             foreach ($args as $i=>$arg) {
-                printf ("%d. %s\n", $i++, print_r ($arg, 1));
+                printf ("%d. %s\n", $i, print_r ($arg, 1));
             }
             echo $this->_debug_tpl[1];
 

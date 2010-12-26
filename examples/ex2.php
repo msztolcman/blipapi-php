@@ -5,10 +5,10 @@
  * Examples
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
- * @version 0.02.30
+ * @version 0.02.32
  * @version $Id$
  * @copyright Copyright (c) 2007, Marcin Sztolcman
- * @license http://opensource.org/licenses/gpl-license.php GNU Public License v.2
+ * @license http://opensource.org/licenses/lgpl-3.0.html The GNU Lesser General Public License, version 3.0 (LGPLv3)
  * @package blipapi_examples
  */
 
