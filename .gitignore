@@ -1,4 +1,5 @@
-tools/app_data
-tools/PHPUnit
-tools/dbunit.php
-tools/phpunit.php
+/tools/app_data
+/tools/PHPUnit
+/tools/dbunit.php
+/tools/phpunit.php
+/.config
