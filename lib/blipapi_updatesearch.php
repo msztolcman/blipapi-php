@@ -5,7 +5,6 @@
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
  * @version 0.02.32
- * @version $Id: blipapi_update.php 195 2010-04-20 18:42:02Z urzenia $
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/lgpl-3.0.html The GNU Lesser General Public License, version 3.0 (LGPLv3)
  * @package blipapi
@@ -16,7 +15,6 @@
  *
  * @author Marcin Sztolcman <marcin /at/ urzenia /dot/ net>
  * @version 0.02.32
- * @version $Id: blipapi_update.php 195 2010-04-20 18:42:02Z urzenia $
  * @copyright Copyright (c) 2007, Marcin Sztolcman
  * @license http://opensource.org/licenses/lgpl-3.0.html The GNU Lesser General Public License, version 3.0 (LGPLv3)
  * @package blipapi

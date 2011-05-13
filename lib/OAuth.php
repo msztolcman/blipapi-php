@@ -1,5 +1,4 @@
 <?php
-// $Id$
 // copied from: http://code.google.com/p/oauth/
 
 /*
